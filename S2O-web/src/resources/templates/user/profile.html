@@ -2,8 +2,10 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ Sơ Cá Nhân</title> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Hồ Sơ Cá Nhân</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <link rel="stylesheet" href="../../static/css/user/profile.css">
@@ -14,31 +16,27 @@
     <div class="app-container">
 
         <div class="header-section">
-            <div class="user-card" id="user-info-frame">
-            </div>
+            <div class="user-card" id="user-info-frame"></div>
         </div>
 
-        <div class="quick-menu-grid" id="quick-menu-frame">
+        <div class="quick-menu-grid" id="quick-menu-frame"></div>
+
+        <div class="section-container">
+            <h3 class="section-title">Lịch của tôi</h3>
+            <div id="calendar-list-frame"></div>
         </div>
 
         <div class="section-container">
-            <h3 class="section-title">Lịch của tôi</h3> <div id="calendar-list-frame">
-        </div>
-        </div>
-
-        <div class="section-container">
-            <h3 class="section-title">Voucher nhà hàng</h3> <div id="voucher-list-frame">
-        </div>
+            <h3 class="section-title">Voucher nhà hàng</h3>
+            <div id="voucher-list-frame"></div>
         </div>
 
-        <div class="footer-actions" id="footer-frame">
-        </div>
+        <div class="footer-actions section-container" id="footer-frame" style="padding-top: 0;"></div>
 
     </div>
 </div>
 
 <audio id="click-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-modern-technology-select-3124.mp3"></audio>
-
 <script src="../../static/js/user/profile.js"></script>
 </body>
 </html>
