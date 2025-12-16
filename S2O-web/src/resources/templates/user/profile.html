@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>profile</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../static/css/user/profile.css">
+</head>
+<body>
+
+<div class="profile-page">
+
+    <div class="app-container">
+
+        <div class="header-section">
+            <div class="user-card">
+                <div class="avatar-frame">
+                    <img src="https://hoanghamobile.com/tin-tuc/wp-content/uploads/2024/07/anh-mat-cuoi-2.jpg" alt="Avatar">
+                </div>
+                <div class="user-details">
+                    <h2 class="user-name"><span id="profile-fullname">Nguyen Van A</span></h2>
+                    <span id="profile-email" class="user-email">nguyenvana@email.com</span>
+
+                    <div class="user-badge">
+                        <i class="fas fa-star"></i>
+                        <span id="profile-rank">Thanh vien bac vang</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-menu-grid">
+            <div class="menu-item" onclick="handleMenuClick('calendar')"> <i class="far fa-calendar-alt"></i>
+                <span>Lich cua toi</span>
+            </div>
+            <div class="menu-item" onclick="handleMenuClick('voucher')">
+                <i class="fas fa-gift"></i>
+                <span>Voucher cua toi</span>
+            </div>
+        </div>
+
+        <div class="section-container">
+            <h3 class="section-title">Lich cua toi</h3>
+
+            <div class="card-item">
+                <div class="card-header">
+                    <h4 class="card-title">Nha hang Bamboo Garden</h4>
+                    <span class="status-tag status-upcoming">Sap dien ra</span>
+                </div>
+                <div class="card-meta">
+                    <div class="meta-row">
+                        <i class="far fa-calendar"></i>
+                        <span id="booking-date-1">25/12/2025</span>
+                    </div>
+                    <div class="meta-row">
+                        <i class="far fa-clock"></i>
+                        <span id="booking-time-1">19:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-item">
+                <div class="card-header">
+                    <h4 class="card-title">Nha hang Sunset View</h4>
+                    <span class="status-tag status-finished">Da hoan thanh</span>
+                </div>
+                <div class="card-meta">
+                    <div class="meta-row">
+                        <i class="far fa-calendar"></i>
+                        <span id="booking-date-2">20/12/2025</span>
+                    </div>
+                    <div class="meta-row">
+                        <i class="far fa-clock"></i>
+                        <span id="booking-time-2">12:30</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-container">
+            <h3 class="section-title">Voucher nha hang</h3>
+
+            <div class="voucher-card">
+                <div class="voucher-info">
+                    <h4 class="voucher-title">Giam <span id="voucher-percent-1">20%</span></h4>
+                    <p class="voucher-desc">Ap dung cho don hang tu <span id="voucher-min-1">500.000d</span></p>
+                    <p class="voucher-expiry">HSD: <span id="voucher-date-1">31/12/2025</span></p>
+                </div>
+                <div class="voucher-action">
+                    <div class="icon-box">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="voucher-card">
+                <div class="voucher-info">
+                    <h4 class="voucher-title">Mien phi giao hang</h4>
+                    <p class="voucher-desc">Cho don hang bat ky</p>
+                    <p class="voucher-expiry">HSD: <span id="voucher-date-2">28/12/2025</span></p>
+                </div>
+                <div class="voucher-action">
+                    <div class="icon-box">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-actions">
+            <div class="action-row" onclick="handleMenuClick('update-info')">
+                <div class="action-left">
+                    <div class="action-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <span class="action-text">Cap nhat thong tin</span>
+                </div>
+                <i class="fas fa-chevron-right arrow-icon"></i>
+            </div>
+
+            <div class="action-row" onclick="handleMenuClick('logout')">
+                <div class="action-left">
+                    <div class="action-icon">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </div>
+                    <span class="action-text">Dang xuat</span>
+                </div>
+                <i class="fas fa-chevron-right arrow-icon"></i>
+            </div>
+        </div>
+
+    </div> </div> <script src="/js/profile.js"></script>
+</body>
+</html>
