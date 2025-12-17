@@ -9,9 +9,9 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.foodbookingapp.data.model.User;
-import com.example.foodbookingapp.data.repository.AuthRepository;
-import com.example.foodbookingapp.utils.SessionManager;
+import com.example.s2o_mobile.data.model.User;
+import com.example.s2o_mobile.data.repository.AuthRepository;
+import com.example.s2o_mobile.utils.SessionManager;
 
 public class LoginViewModel extends AndroidViewModel {
 
