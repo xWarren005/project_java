@@ -91,4 +91,12 @@ public void login(
     });
 }
 
+public void logout() {
+    sessionManager.clearSession();
+}
+public boolean isLoggedIn() {
+    return sessionManager.getAuthToken() != null;
+}
+}
+
 
