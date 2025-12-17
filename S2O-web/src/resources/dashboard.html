@@ -23,6 +23,31 @@
             </div>
         </div>
     </div>
+    <div class="tabs">
+        <button class="tab-btn active">🔳 Quản Lý Bàn</button>
+        <button class="tab-btn">🧾 Hóa Đơn</button>
+        <button class="tab-btn">💳 Thanh Toán</button>
+    </div>
+
+    <div class="summary-row">
+        <div class="stat-card">
+            <h3>Bàn Trống</h3>
+            <div class="number text-green" th:text="${emptyCount}">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Đang Phục Vụ</h3>
+            <div class="number text-red" th:text="${occupiedCount}">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Đã Đặt</h3>
+            <div class="number text-yellow" th:text="${reservedCount}">0</div>
+        </div>
+        <div class="stat-card">
+            <h3>Tổng Bàn</h3>
+            <div class="number text-orange" th:text="${totalCount}">0</div>
+        </div>
+    </div>
+
 </div>
 </body>
 </html>
