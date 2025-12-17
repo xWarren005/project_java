@@ -54,3 +54,52 @@ body { background-color: #F5F7FA; color: #333; }
 .text-red { color: #e74c3c; }
 .text-yellow { color: #f1c40f; }
 .text-orange { color: #e67e22; }
+/* --- TABLE GRID --- */
+.table-section h3 { margin-bottom: 15px; color: #8B4513; }
+.grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+/* --- TABLE ITEM --- */
+.table-card {
+    border-radius: 12px; padding: 25px 15px; text-align: center;
+    border: 1px solid #eee; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; min-height: 160px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.05); transition: transform 0.2s;
+}
+.table-card:hover { transform: translateY(-3px); }
+
+.table-name { font-size: 20px; font-weight: bold; margin-bottom: 5px; color: #444; }
+.table-capacity {
+    font-size: 13px; color: #666; margin-bottom: 15px;
+    display: flex; align-items: center; gap: 5px;
+}
+.status-badge {
+    padding: 5px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: bold; display: inline-block;
+}
+.time-elapsed {
+    margin-top: 10px; font-size: 12px; color: #666;
+    display: flex; align-items: center; gap: 5px;
+}
+
+/* --- COLORS --- */
+.bg-empty { background-color: #e8f8f5; border: 1px solid #d1f2eb; }
+.bg-empty .status-badge { background-color: #fff; color: #2ecc71; border: 1px solid #2ecc71; }
+
+.bg-occupied { background-color: #fdedec; border: 1px solid #fadbd8; }
+.bg-occupied .status-badge { background-color: #fff; color: #e74c3c; border: 1px solid #e74c3c; }
+
+.bg-reserved { background-color: #fef9e7; border: 1px solid #f9e79f; }
+.bg-reserved .status-badge { background-color: #fff; color: #f1c40f; border: 1px solid #f1c40f; }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    .summary-row { grid-template-columns: 1fr 1fr; }
+    .grid-container { grid-template-columns: repeat(2, 1fr); }
+    .top-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+}
+@media (max-width: 480px) {
+    .summary-row { grid-template-columns: 1fr; }
+    .grid-container { grid-template-columns: 1fr; }
+    .tabs { flex-direction: column; }
+}
+
