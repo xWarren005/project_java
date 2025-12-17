@@ -22,3 +22,38 @@ public class AuthRepository {
         this.sessionManager = sessionManager;
     }
 }
+public void register(
+        String username,
+        String password,
+        String fullName,
+        String email,
+        String phone,
+        MutableLiveData<Boolean> registerResult,
+        MutableLiveData<String> errorMessage
+) {
+    Call<User> call = authApi.register(
+            username,
+            password,
+            fullName,
+            email,
+            phone
+    );
+
+    call.enqueue(new Callback<User>() {
+        @Override
+        public void onResponse(Call<User> call, Response<User> response) {
+
+            if (response.isSuccessful()) {
+                registerResult.setValue(true);
+            } else {
+                registerResult.setValue(false);
+            }
+        }
+
+        @Override
+        public void onFailure(Call<User> call, Throwable t) {
+            registerResult.setValue(false);
+        }
+    });
+}
+
