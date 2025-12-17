@@ -47,7 +47,30 @@
             <div class="number text-orange" th:text="${totalCount}">0</div>
         </div>
     </div>
+    <div class="table-section">
+        <h3>Sơ Đồ Bàn</h3>
+        <div class="grid-container">
+            <div th:each="table : ${tables}"
+                 class="table-card"
+                 th:classappend="${table.status == 'EMPTY' ? 'bg-empty' :
+                              (table.status == 'OCCUPIED' ? 'bg-occupied' : 'bg-reserved')}">
 
+                <div class="table-name" th:text="'#' + ${table.id}">#1</div>
+
+                <div class="table-capacity">
+                    <span>👥</span>
+                    <span th:text="${table.capacity} + ' chỗ'">4 chỗ</span>
+                </div>
+
+                <div class="status-badge" th:text="${table.statusLabel}">Trống</div>
+
+                <div class="time-elapsed" th:if="${table.timeElapsed != null}">
+                    <span>⏱</span>
+                    <span th:text="${table.timeElapsed}">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>
