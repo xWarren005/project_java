@@ -1,4 +1,4 @@
-package com.example.foodbookingapp.ui.auth.login;
+package com.example.s2o_mobile.ui.auth.login;
 
 import android.app.Application;
 import android.text.TextUtils;
@@ -57,6 +57,38 @@ public class LoginViewModel extends AndroidViewModel {
         return userLive;
     }
 
+
+    public void login(String login, String password) {
+        clearState();
+
+        if (!validate(login, password)) return;
+
+        loading.setValue(true);
+
+        authRepository.login(login.trim(), password,
+                new AuthRepository.LoginCallback() {
+                    @Override
+                    public void onSuccess(User user, String token) {
+                        loading.postValue(false);
+
+                        if (!TextUtils.isEmpty(token)) {
+                            sessionManager.saveToken(token);
+                        }
+                        if (user != null) {
+                            sessionManager.saveUser(user);
+                        }
+
+                        userLive.postValue(user);
+                        loginOk.postValue(true);
+                    }
+
+                    @Override
+                    public void onError(String err) {
+                        loading.postValue(false);
+                        message.postValue(err);
+                    }
+                });
+    }
 
     private boolean validate(String login, String password) {
         boolean ok = true;
