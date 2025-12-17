@@ -1,3 +1,16 @@
+package com.example.s2o_mobile.ui.auth.login;
+
+import android.app.Application;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import com.example.foodbookingapp.data.model.User;
+import com.example.foodbookingapp.data.repository.AuthRepository;
+import com.example.foodbookingapp.utils.SessionManager;
+
 public class LoginViewModel extends AndroidViewModel {
 
     private final AuthRepository authRepository;
@@ -10,12 +23,23 @@ public class LoginViewModel extends AndroidViewModel {
 
     public LoginViewModel(@NonNull Application application) {
         super(application);
-        authRepository = new AuthRepository();
-        sessionManager = new SessionManager(application);
+        this.authRepository = new AuthRepository();
+        this.sessionManager = new SessionManager(application);
     }
 
-    public LiveData<Boolean> getLoading() { return loading; }
-    public LiveData<String> getMessage() { return message; }
-    public LiveData<Boolean> getLoginOk() { return loginOk; }
-    public LiveData<User> getUserLive() { return userLive; }
+    public LiveData<Boolean> getLoading() {
+        return loading;
+    }
+
+    public LiveData<String> getMessage() {
+        return message;
+    }
+
+    public LiveData<Boolean> getLoginOk() {
+        return loginOk;
+    }
+
+    public LiveData<User> getUserLive() {
+        return userLive;
+    }
 }
