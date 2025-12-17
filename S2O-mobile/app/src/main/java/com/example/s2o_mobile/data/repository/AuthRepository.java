@@ -30,7 +30,6 @@ public class AuthRepository {
         return instance;
     }
 }
-
 public void register(
         String username,
         String password,
@@ -51,21 +50,21 @@ public void register(
     call.enqueue(new Callback<User>() {
         @Override
         public void onResponse(Call<User> call, Response<User> response) {
-
-            if (response.isSuccessful()) {
+            if (response.isSuccessful() && response.body() != null) {
                 registerResult.setValue(true);
             } else {
+                errorMessage.setValue("Đăng ký thất bại");
                 registerResult.setValue(false);
             }
         }
 
         @Override
         public void onFailure(Call<User> call, Throwable t) {
+            errorMessage.setValue(t.getMessage());
             registerResult.setValue(false);
         }
     });
 }
-
 public void login(
         String username,
         String password,
@@ -91,7 +90,6 @@ public void login(
                 loginResult.setValue(false);
             }
         }
-
         @Override
         public void onFailure(Call<AuthResponse> call, Throwable t) {
             errorMessage.setValue(t.getMessage());
@@ -99,7 +97,6 @@ public void login(
         }
     });
 }
-
 public void logout() {
     sessionManager.clearSession();
 }
