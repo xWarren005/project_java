@@ -57,3 +57,38 @@ public void register(
     });
 }
 
+public void login(
+        String username,
+        String password,
+        MutableLiveData<Boolean> loginResult,
+        MutableLiveData<String> errorMessage
+) {
+    Call<AuthResponse> call = authApi.login(username, password);
+
+    call.enqueue(new Callback<AuthResponse>() {
+        @Override
+        public void onResponse(Call<AuthResponse> call, Response<AuthResponse> response) {
+            if (response.isSuccessful() && response.body() != null) {
+
+                AuthResponse authResponse = response.body();
+
+                // Lưu session
+                sessionManager.saveAuthToken(authResponse.getToken());
+                sessionManager.saveUser(authResponse.getUser());
+
+                loginResult.setValue(true);
+            } else {
+                errorMessage.setValue("Sai tài khoản hoặc mật khẩu");
+                loginResult.setValue(false);
+            }
+        }
+
+        @Override
+        public void onFailure(Call<AuthResponse> call, Throwable t) {
+            errorMessage.setValue(t.getMessage());
+            loginResult.setValue(false);
+        }
+    });
+}
+
+
