@@ -21,3 +21,36 @@ body { background-color: #F5F7FA; color: #333; }
 }
 .page-header h1 { font-size: 24px; color: #8B4513; margin-bottom: 5px; }
 .page-header p { color: #e74c3c; font-size: 14px; }
+/* --- TABS --- */
+.tabs {
+    display: flex; gap: 10px; margin-bottom: 20px;
+    background: white; padding: 10px; border-radius: 8px;
+}
+.tab-btn {
+    flex: 1; padding: 12px; border: none; background: #f0f0f0;
+    border-radius: 6px; cursor: pointer; font-weight: 600;
+    color: #666; transition: 0.3s; text-align: center;
+}
+.tab-btn.active {
+    background-color: #2E25D1; color: white;
+    box-shadow: 0 4px 6px rgba(46, 37, 209, 0.3);
+}
+
+/* --- STATS CARDS --- */
+.summary-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 15px; margin-bottom: 30px;
+}
+.stat-card {
+    background: white; padding: 20px; border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.stat-card h3 {
+    font-size: 14px; color: #777; margin-bottom: 10px; font-weight: normal;
+}
+.stat-card .number { font-size: 28px; font-weight: bold; }
+
+.text-green { color: #2ecc71; }
+.text-red { color: #e74c3c; }
+.text-yellow { color: #f1c40f; }
+.text-orange { color: #e67e22; }
