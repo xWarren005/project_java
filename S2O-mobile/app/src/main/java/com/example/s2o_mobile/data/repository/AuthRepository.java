@@ -14,14 +14,23 @@ import retrofit2.Response;
 
 public class AuthRepository {
 
+    private static AuthRepository instance;
     private final AuthApi authApi;
     private final SessionManager sessionManager;
 
-    public AuthRepository(SessionManager sessionManager) {
+    private AuthRepository(SessionManager sessionManager) {
         this.authApi = ApiService.getAuthApi();
         this.sessionManager = sessionManager;
     }
+
+    public static AuthRepository getInstance(SessionManager sessionManager) {
+        if (instance == null) {
+            instance = new AuthRepository(sessionManager);
+        }
+        return instance;
+    }
 }
+
 public void register(
         String username,
         String password,
