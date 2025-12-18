@@ -36,6 +36,8 @@ public class RegisterActivity extends AppCompatActivity {
         progress = findViewById(R.id.progress);
     }
 }
-
+import android.widget.EditText;
+private String textOf(EditText edt) {
+    return edt.getText() == null ? "" : edt.getText().toString().trim();
 }
 
