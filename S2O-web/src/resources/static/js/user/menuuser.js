@@ -1,0 +1,217 @@
+
+/* ========= 1. COMMON / UTIL ========= */
+function formatPrice(price) {
+    return new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+    }).format(price)
+}
+
+function formatDate(date) {
+    return new Date(date).toLocaleString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+    })
+}
+
+function generateId() {
+    return "id_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9)
+}
+
+/* ========= 2. NAVIGATION ========= */
+function goToLogin() { window.location.href = "login.html" }
+function goToHistory() { window.location.href = "history.html" }
+function goToProfile() { window.location.href = "profile.html" }
+function goToQRScanner() { window.location.href = "qr-scanner.html" }
+function goHome() { window.location.href = "../index.html" }
+
+/* ========= 3. STORAGE (LocalStorage) ========= */
+const Storage = {
+    getCart(table) {
+        return JSON.parse(localStorage.getItem(`cart_${table}`) || "[]")
+    },
+    saveCart(table, cart) {
+        localStorage.setItem(`cart_${table}`, JSON.stringify(cart))
+    },
+    getOrders(table) {
+        return JSON.parse(localStorage.getItem(`orders_${table}`) || "[]")
+    },
+    saveOrder(table, order) {
+        const orders = this.getOrders(table)
+        orders.push(order)
+        localStorage.setItem(`orders_${table}`, JSON.stringify(orders))
+    },
+    getCurrentUser() {
+        return JSON.parse(localStorage.getItem("currentUser") || "null")
+    },
+    addToUserHistory(userId, invoice) {
+        const key = `history_${userId}`
+        const history = JSON.parse(localStorage.getItem(key) || '{"invoices":[],"totalSpent":0,"visitCount":0}')
+        history.invoices.push(invoice)
+        history.totalSpent += invoice.total
+        history.visitCount += 1
+        localStorage.setItem(key, JSON.stringify(history))
+    },
+}
+
+/* ========= 4. MOCK DATA ========= */
+const MockData = {
+    categories: [
+        { id: "all", name: "Tất cả" },
+        { id: "appetizers", name: "Khai vị" },
+        { id: "main", name: "Món chính" },
+        { id: "drink", name: "Đồ uống" },
+    ],
+
+    menuItems: [
+        {
+            id: "pho",
+            name: "Phở Bò",
+            description: "Phở bò truyền thống",
+            price: 650,
+            category: "main",
+            image: "../../../../../public/pho-bo-vietnamese-beef-noodle-soup.jpg",
+        },
+        {
+            id: "comtam",
+            name: "Cơm Tấm",
+            description: "Cơm tấm sườn bì",
+            price: 50000,
+            category: "main",
+            image: "../../../../../public/com-tam-broken-rice.jpg",
+        },
+        {
+            id: "trada",
+            name: "Trà đá",
+            description: "Trà đá mát lạnh",
+            price: 10000,
+            category: "drink",
+            image: "../../../../../public/iced-tea.jpg",
+        },
+    ],
+
+    getCategories() { return this.categories },
+
+    getMenuItems(category = "all", search = "") {
+        let items = this.menuItems
+        if (category !== "all") items = items.filter(i => i.category === category)
+        if (search) {
+            const q = search.toLowerCase()
+            items = items.filter(i => i.name.toLowerCase().includes(q))
+        }
+        return items
+    },
+
+    getMenuItem(id) {
+        return this.menuItems.find(i => i.id === id)
+    },
+}
+
+/* ========= 5. MENU LOGIC ========= */
+let selectedCategory = "all"
+let cart = []
+const tableNumber = "A5"
+let currentUser = null
+
+/* INIT */
+document.addEventListener("DOMContentLoaded", () => {
+    currentUser = Storage.getCurrentUser()
+    if (!currentUser) return
+
+    cart = Storage.getCart(tableNumber)
+    loadCategories()
+    loadMenuItems()
+    updateCartBadge()
+
+    document.getElementById("table-number").textContent = tableNumber
+    document.getElementById("invoice-table").textContent = tableNumber
+})
+
+/* ========= CATEGORY ========= */
+function loadCategories() {
+    const el = document.getElementById("categories")
+    el.innerHTML = MockData.getCategories().map(c => `
+    <button class="category-btn ${c.id === selectedCategory ? "active" : ""}" 
+      onclick="selectCategory('${c.id}')">${c.name}</button>
+  `).join("")
+}
+
+function selectCategory(id) {
+    selectedCategory = id
+    loadCategories()
+    loadMenuItems()
+}
+
+/* ========= MENU ========= */
+function searchMenu() { loadMenuItems() }
+
+function loadMenuItems() {
+    const search = document.getElementById("search-input").value
+    const el = document.getElementById("menu-items")
+    const items = MockData.getMenuItems(selectedCategory, search)
+
+    if (!items.length) {
+        el.innerHTML = '<div class="empty-state">Không có món</div>'
+        return
+    }
+
+    el.innerHTML = items.map(i => `
+    <div class="menu-item-card">
+      <img class="menu-item-image" src="${i.image}" onerror ="this.src='../../../../../public/placeholder.svg'">
+      <h3>${i.name}</h3>
+      <p>${i.description}</p>
+      <div class="menu-item-footer">
+        <span> &nbsp; ${formatPrice(i.price)}</span>
+        <button onclick="addToCart('${i.id}')">Thêm</button>
+      </div>
+    </div>
+  `).join("")
+}
+
+/* ========= CART ========= */
+function addToCart(id) {
+    const item = MockData.getMenuItem(id)
+    const exist = cart.find(i => i.id === id)
+    exist ? exist.quantity++ : cart.push({ ...item, quantity: 1 })
+    Storage.saveCart(tableNumber, cart)
+    updateCartBadge()
+}
+
+function updateCartBadge() {
+    const badge = document.getElementById("cart-badge")
+    const total = cart.reduce((s, i) => s + i.quantity, 0)
+    badge.textContent = total
+    badge.style.display = total ? "flex" : "none"
+}
+
+function toggleCart() {
+    document.getElementById("cart-overlay").classList.toggle("active")
+    document.getElementById("cart-sidebar").classList.toggle("active")
+}
+
+/* ========= ORDER ========= */
+function placeOrder() {
+    if (!cart.length) return
+
+    const total = cart.reduce((s, i) => s + i.price * i.quantity, 0)
+    const order = {
+        id: "ORD-" + Date.now(),
+        tableNumber,
+        items: cart,
+        total,
+        status: "pending",
+        date: new Date().toISOString(),
+    }
+
+    Storage.saveOrder(tableNumber, order)
+    Storage.addToUserHistory(currentUser.id, order)
+
+    cart = []
+    Storage.saveCart(tableNumber, cart)
+    updateCartBadge()
+    toggleCart()
+    alert("Đặt món thành công!")
+}
