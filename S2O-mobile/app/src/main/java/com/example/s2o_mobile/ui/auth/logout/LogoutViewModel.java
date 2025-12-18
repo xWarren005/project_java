@@ -30,14 +30,22 @@ public LiveData<String> getErrorMessage() {
 
 public void logout() {
     try {
-        authRepository.logout();
+        if (!authRepository.isLoggedIn();
         logoutResult.setValue(true);
-    } catch (Exception e) {
-        logoutResult.setValue(false);
-        errorMessage.setValue("Đăng xuất thất bại");
+        return;
     }
-}
-}
+
+    authRepository.logout();
+    logoutResult.setValue(true);
+
+} catch (Exception e) {
+        logoutResult.setValue(false);
+            errorMessage.setValue(
+        e.getMessage() != null ? e.getMessage() : "Đăng xuất thất bại"
+        );
+        }
+        }
+        }
 public boolean isLoggedIn() {
     try {
         return authRepository.isLoggedIn();
