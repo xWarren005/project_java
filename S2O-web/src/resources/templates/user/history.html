@@ -36,6 +36,12 @@
             </div>
             <div class="status-badge">Đã thanh toán</div>
         </div>
+        <div class="image-list">
+            <img th:each="img : ${order.images}"
+                 th:src="${img}"
+                 class="food-thumb"
+                 alt="Food">
+        </div>
 
         <div class="card-footer">
             <div>
