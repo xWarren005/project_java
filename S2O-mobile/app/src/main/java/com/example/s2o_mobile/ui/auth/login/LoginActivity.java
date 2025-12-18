@@ -91,8 +91,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void goHome() {
-        // Neu project ban chua co HomeActivity thi tam thoi doi sang activity khac,
-        // hoac tao HomeActivity truoc khi push.
+
         try {
             Intent intent = new Intent(this, Class.forName("com.example.s2o_mobile.ui.home.HomeActivity"));
             startActivity(intent);
