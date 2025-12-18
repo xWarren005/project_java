@@ -1,0 +1,282 @@
+/* Scoping toàn trang */
+.chef-dashboard-page {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #FDFBF9; /* Màu kem nhẹ */
+    color: #2D3436;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+}
+
+.chef-dashboard-page * {
+    box-sizing: border-box;
+}
+
+/* --- Header --- */
+.chef-dashboard-page .main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 2rem;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.chef-dashboard-page .brand-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.chef-dashboard-page .logo-box {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: #E67E22; /* Cam bếp */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    border-radius: 0.5rem;
+}
+
+.chef-dashboard-page .app-name {
+    font-size: 1rem;
+    margin: 0;
+    color: #8B4513;
+}
+
+.chef-dashboard-page .role-label {
+    font-size: 0.75rem;
+    color: #E67E22;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.chef-dashboard-page .user-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.chef-dashboard-page .avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+}
+
+/* --- Content --- */
+.chef-dashboard-page .content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem;
+}
+
+.chef-dashboard-page .page-header {
+    margin-bottom: 1.5rem;
+}
+
+.chef-dashboard-page .title {
+    color: #8B4513;
+    margin: 0;
+    font-size: 1.75rem;
+}
+
+.chef-dashboard-page .subtitle {
+    color: #636e72;
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* --- Tabs --- */
+.chef-dashboard-page .nav-tabs {
+    display: flex;
+    gap: 1rem;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 1.5rem;
+}
+
+.chef-dashboard-page .tab-item {
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: #b2bec3;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+}
+
+.chef-dashboard-page .tab-item:hover {
+    color: #E67E22;
+}
+
+.chef-dashboard-page .tab-item.active {
+    color: #E67E22;
+    border-bottom-color: #E67E22;
+}
+
+/* --- Stats --- */
+.chef-dashboard-page .stats-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.chef-dashboard-page .stat-box {
+    background: #fff;
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    border: 1px solid #eee;
+    text-align: center;
+}
+
+.chef-dashboard-page .stat-box .label {
+    display: block;
+    color: #636e72;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.chef-dashboard-page .stat-box .number {
+    font-size: 2rem;
+    font-weight: 800;
+    display: block;
+}
+
+.chef-dashboard-page .number.pending {
+    color: #E67E22;
+}
+
+.chef-dashboard-page .number.cooking {
+    color: #0984e3;
+}
+
+.chef-dashboard-page .number.ready {
+    color: #00b894;
+}
+
+/* --- Orders Grid --- */
+.chef-dashboard-page .list-section {
+    margin-bottom: 2rem;
+}
+
+.chef-dashboard-page .section-title {
+    font-size: 1.1rem;
+    color: #8B4513;
+    margin-bottom: 1rem;
+    border-left: 4px solid #E67E22;
+    padding-left: 0.5rem;
+}
+
+.chef-dashboard-page .orders-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Order Card */
+.chef-dashboard-page .order-card {
+    background: #fff;
+    border: 1px solid #dfe6e9;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.chef-dashboard-page .order-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.chef-dashboard-page .card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed #eee;
+}
+
+.chef-dashboard-page .table-name {
+    font-weight: 700;
+    color: #2d3436;
+}
+
+.chef-dashboard-page .order-time {
+    font-size: 0.8rem;
+    color: #636e72;
+}
+
+.chef-dashboard-page .status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.chef-dashboard-page .status-badge.cooking {
+    background: #e3f2fd;
+    color: #0984e3;
+}
+
+.chef-dashboard-page .status-badge.ready {
+    background: #e0f2f1;
+    color: #00695c;
+}
+
+.chef-dashboard-page .status-badge.served {
+    background: #f5f6fa;
+    color: #b2bec3;
+}
+
+.chef-dashboard-page .item-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    background: #fff5eb;
+    margin-bottom: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.chef-dashboard-page .qty {
+    font-weight: 800;
+    color: #d35400;
+}
+
+/* Nút bấm */
+.chef-dashboard-page .btn-action {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: #2d3436;
+    color: white;
+    transition: background 0.2s;
+}
+
+.chef-dashboard-page .btn-action:hover {
+    background-color: #000;
+}
+
+/* Empty State */
+.chef-dashboard-page .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #b2bec3;
+}
+
+.chef-dashboard-page .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chef-dashboard-page .stats-container {
+        grid-template-columns: 1fr;
+    }
+}
