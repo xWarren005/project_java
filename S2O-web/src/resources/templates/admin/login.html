@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập hệ thống - S2O Management</title>
+    <link rel="stylesheet" href="/css/admin/login-system.css">
+</head>
+<body>
+<main class="system-auth-container">
+    <section class="system-auth-card">
+        <header class="auth-header">
+            <div class="icon-shield-wrapper">
+                <img src="/images/icon-shield.svg" alt="Secure Login" class="icon-shield">
+            </div>
+            <h1 class="auth-title">Đăng nhập hệ thống</h1>
+            <p class="auth-subtitle">Dành cho nhân viên và quản lý nhà hàng</p>
+        </header>
+
+        <form action="/system/login" method="POST" class="system-login-form">
+            <div class="role-selection-group">
+                <p class="role-label">Chọn chức năng của bạn</p>
+                <div class="role-grid">
+                    <label class="role-option">
+                        <input type="radio" name="role" value="CHEF" required>
+                        <div class="role-card">
+                            <span class="role-icon-img">👨‍🍳</span>
+                            <strong class="role-name">Đầu bếp</strong>
+                            <span class="role-desc">Quản lý bếp và món ăn</span>
+                        </div>
+                    </label>
+                    <label class="role-option">
+                        <input type="radio" name="role" value="CASHIER">
+                        <div class="role-card">
+                            <span class="role-icon-img">💲</span> <strong class="role-name">Thu ngân</strong>
+                            <span class="role-desc">Thanh toán và hóa đơn</span>
+                        </div>
+                    </label>
+                    <label class="role-option">
+                        <input type="radio" name="role" value="MANAGER">
+                        <div class="role-card">
+                            <span class="role-icon-img">👥</span> <strong class="role-name">Quản lý</strong>
+                            <span class="role-desc">Quản lý nhà hàng</span>
+                        </div>
+                    </label>
+                    <label class="role-option">
+                        <input type="radio" name="role" value="ADMIN">
+                        <div class="role-card">
+                            <span class="role-icon-img">⚙️</span> <strong class="role-name">Quản trị viên</strong>
+                            <span class="role-desc">Quản trị hệ thống</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" name="username" class="form-input" placeholder="Email hoặc tên đăng nhập" required>
+            </div>
+
+            <div class="form-group">
+                <div class="password-wrapper">
+                    <input type="password" name="password" class="form-input" placeholder="Mật khẩu" required>
+                    <button type="button" class="btn-toggle-password">
+                        <span class="icon-eye">👁️</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+
+    </section>
+</main>
+<script src="/js/admin/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lịch sử đơn hàng - S2O</title>
+    <link rel="stylesheet" th:href="@{/css/user/history.css}">
+</head>
+<body>
+
+<header class="mobile-header">
+    <div class="header-top">
+        <div>
+            <div class="brand-name">Nhà hàng Phố</div>
+            <div class="table-info">Bàn A5</div>
+        </div>
+        <div class="cart-icon">🛒</div>
+    </div>
+
+    <nav class="nav-tabs">
+        <button class="tab-item">Thực đơn</button>
+        <button class="tab-item active">Lịch sử</button>
+        <button class="tab-item">Hóa đơn</button>
+        <button class="tab-item">Thanh toán</button>
+    </nav>
+</header>
+<div class="container">
+    <h2 class="page-title">Lịch sử hóa đơn đã thanh toán</h2>
+
+    <div th:each="order : ${orders}" class="history-card">
+
+        <div class="card-header">
+            <div>
+                <div class="order-code" th:text="${order.code}">HD001</div>
+                <div class="order-time" th:text="${order.time}">15/12/2024 - 12:30</div>
+            </div>
+            <div class="status-badge">Đã thanh toán</div>
+        </div>
+        <div class="image-list">
+            <img th:each="img : ${order.images}"
+                 th:src="${img}"
+                 class="food-thumb"
+                 alt="Food">
+        </div>
+
+        <div class="card-footer">
+            <div>
+                <div class="total-label">Tổng tiền</div>
+                <div class="total-price" th:text="${order.totalPrice}">450.000đ</div>
+            </div>
+            <button class="btn-detail">Chi tiết</button>
+        </div>
+    </div>
+</div>
