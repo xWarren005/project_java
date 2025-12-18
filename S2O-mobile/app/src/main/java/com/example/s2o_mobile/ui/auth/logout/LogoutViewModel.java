@@ -48,3 +48,11 @@ public void logout() {
     }
 }
 }
+public boolean isLoggedIn() {
+    try {
+        return authRepository.isLoggedIn();
+    } catch (Exception e) {
+        return false;
+    }
+}
+}
