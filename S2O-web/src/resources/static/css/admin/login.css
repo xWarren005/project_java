@@ -1,0 +1,257 @@
+/* --- RESET & GLOBAL --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    background-color: #fcfcfc; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #333;
+}
+
+/* --- MAIN CONTAINER --- */
+.auth-container {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+/* --- LOGIN CARD --- */
+.auth-card {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 420px; /* Độ rộng giống trong ảnh */
+    padding: 40px 35px;
+    border-radius: 12px;
+    /* Đổ bóng nhẹ tạo hiệu ứng nổi */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    border: 1px solid #f0f0f0;
+}
+
+/* --- HEADER & LOGO --- */
+.auth-header {
+    margin-bottom: 30px;
+}
+
+.logo-wrapper {
+    width: 64px;
+    height: 64px;
+    background-color: #2E25D1;
+    border-radius: 50%;
+    margin: 0 auto 15px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(46, 37, 209, 0.2);
+}
+
+.logo-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.auth-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.auth-subtitle {
+    font-size: 14px;
+    color: #888;
+    font-weight: 400;
+}
+
+/* --- FORM STYLING --- */
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+/* Ẩn label  */
+.form-label {
+    display: none;
+}
+
+/* Input Fields */
+.form-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 14px;
+    color: #333;
+    background-color: #F8F9FA;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.form-input::placeholder {
+    color: #aaa;
+}
+
+.form-input:focus {
+    background-color: #fff;
+    border-color: #2E25D1;
+    box-shadow: 0 0 0 3px rgba(46, 37, 209, 0.1);
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper .form-input {
+    padding-right: 45px;
+}
+
+.btn-toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.4;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.btn-toggle-password:hover {
+    opacity: 0.7;
+}
+
+/* Link Quên mật khẩu */
+.link-forgot-pass {
+    display: block;
+    text-align: right;
+    font-size: 13px;
+    color: #555;
+    text-decoration: none;
+    margin-top: -10px; /* Kéo gần lên input password */
+    margin-bottom: 25px;
+    font-weight: 500;
+}
+
+.link-forgot-pass:hover {
+    color: #2E25D1;
+}
+
+/* --- BUTTONS --- */
+.btn {
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* Primary Button (Đăng nhập) */
+.btn-primary {
+    background-color: #2E25D1;
+    color: white;
+    padding: 14px;
+    box-shadow: 0 4px 12px rgba(46, 37, 209, 0.2);
+}
+
+.btn-primary:hover {
+    background-color: #241db0;
+    transform: translateY(-1px);
+}
+
+/* --- DIVIDER (HOẶC) --- */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 25px 0;
+    color: #aaa;
+    font-size: 13px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #eee;
+}
+
+.auth-divider span {
+    padding: 0 10px;
+}
+
+/* --- SOCIAL LOGIN (GOOGLE) --- */
+.btn-google {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: #333;
+    padding: 12px;
+    font-weight: 500;
+    margin-bottom: 30px;
+}
+
+.btn-google:hover {
+    background-color: #f9f9f9;
+    border-color: #ccc;
+}
+
+.social-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+/* --- FOOTER --- */
+.auth-footer {
+    font-size: 14px;
+}
+
+.text-register {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.link-register {
+    color: #2E25D1;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.link-register:hover {
+    text-decoration: underline;
+}
+
+.link-back-home {
+    display: inline-flex;
+    align-items: center;
+    color: #888;
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+}
+
+.link-back-home:hover {
+    color: #2E25D1;
+}
