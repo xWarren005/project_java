@@ -24,3 +24,25 @@
         <button class="tab-item">Thanh toán</button>
     </nav>
 </header>
+<div class="container">
+    <h2 class="page-title">Lịch sử hóa đơn đã thanh toán</h2>
+
+    <div th:each="order : ${orders}" class="history-card">
+
+        <div class="card-header">
+            <div>
+                <div class="order-code" th:text="${order.code}">HD001</div>
+                <div class="order-time" th:text="${order.time}">15/12/2024 - 12:30</div>
+            </div>
+            <div class="status-badge">Đã thanh toán</div>
+        </div>
+
+        <div class="card-footer">
+            <div>
+                <div class="total-label">Tổng tiền</div>
+                <div class="total-price" th:text="${order.totalPrice}">450.000đ</div>
+            </div>
+            <button class="btn-detail">Chi tiết</button>
+        </div>
+    </div>
+</div>
