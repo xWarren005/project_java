@@ -14,4 +14,12 @@ public interface AuthApi {
             @Field("username") String username,
             @Field("password") String password
     );
+
+    @POST("api/mobile/auth/register")
+    Call<User> register(
+            @Field("username") String username,
+            @Field("password") String password,
+            @Field("fullName") String fullName,
+            @Field("email") String email
+    );
 }
