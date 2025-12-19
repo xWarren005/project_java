@@ -1,20 +1,27 @@
 package com.example.s2o_mobile.data.source.remote;
 
-import com.example.s2o_mobile.utils.Constants;
-
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiService {
-    private static Retrofit retrofit;
 
-    public static Retrofit getClient() {
-        if (retrofit == null) {
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(Constants.BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
+    private static final String BASE_URL = "http://3306:3306/";
+    private static ApiService instance;
+    private final Retrofit retrofit;
+
+    private ApiService() {
+        retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+    }
+    public static synchronized ApiService getInstance() {
+        if (instance == null) {
+            instance = new ApiService();
         }
-        return retrofit;
+        return instance;
+    }
+    public AuthApi getAuthApi() {
+        return retrofit.create(AuthApi.class);
     }
 }
