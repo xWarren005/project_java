@@ -66,3 +66,36 @@ public class HomeActivity extends BaseActivity implements RestaurantClickListene
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         viewModel.loadHomeData();
     }
+    private void observeViewModel() {
+        viewModel.getLoading().observe(this, isLoading -> setVisible(progress, isLoading != null && !isLoading));
+
+        viewModel.getFeaturedRestaurants().observe(this, list -> {
+            List<Restaurant> safe = list == null ? Collections.emptyList() : list;
+            recommendedAdapter.submitList(safe);
+            setVisible(emptyFeatured, safe.isEmpty());
+        });
+
+        viewModel.getRecommendedRestaurants().observe(this, list -> {
+            List<Restaurant> safe = list == null ? Collections.emptyList() : list;
+            featuredAdapter.submitList(safe);
+            setVisible(emptyRecommended, safe.isEmpty());
+        });
+
+        viewModel.getErrorMessage().observe(this, msg -> {
+            if (msg != null && !msg.trim().isEmpty()) {
+                Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setVisible(View view, boolean visible) {
+        view.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void onRestaurantClick(@NonNull Restaurant restaurant) {
+        Intent intent = new Intent(this, RestaurantDetailActivity.class);
+        intent.putExtra("restaurant_id", restaurant.getId());
+        startActivity(intent);
+    }
+}
