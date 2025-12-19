@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiService {
 
-    private static final String BASE_URL = "http://10.0.2.2:8080/";
+    private static final String BASE_URL = "http://3306:3306/";
     private static ApiService instance;
     private final Retrofit retrofit;
 
@@ -15,5 +15,13 @@ public class ApiService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
-
+    public static synchronized ApiService getInstance() {
+        if (instance == null) {
+            instance = new ApiService();
+        }
+        return instance;
+    }
+    public AuthApi getAuthApi() {
+        return retrofit.create(AuthApi.class);
+    }
 }
