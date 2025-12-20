@@ -9,6 +9,9 @@ public class Restaurant {
     private String description;
     private double avgRating;
 
+    private int reviewcount;
+    private boolean favorite;
+
     public Restaurant() {
     }
 
@@ -68,5 +71,21 @@ public class Restaurant {
 
     public void setAvgRating(double avgRating) {
         this.avgRating = avgRating;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public void setReviewCount(int reviewCount) {
+        this.reviewCount = reviewCount;
+    }
+
+    public boolean isFavorite() {
+        return Favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = Favorite;
     }
 }
