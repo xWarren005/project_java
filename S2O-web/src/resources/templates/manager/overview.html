@@ -10,24 +10,14 @@
     <link rel="stylesheet" href="../../static/css/manager/overview.css">
 </head>
 <body>
-<header class="main-header">
-    <div class="brand-group">
-        <div class="logo-box">R</div>
-        <div class="text-group"><h1 class="app-name">Restaurant Manager</h1><span class="role-label">Quản Lý</span></div>
-    </div>
-    <div class="user-group"><img src="https://ui-avatars.com/api/?name=Quan+Ly&background=2E25D1&color=fff" class="avatar"><span class="username">Nguyễn Văn Quản Lý</span></div>
-</header>
 
 <main class="content-wrapper">
-    <div class="page-header"><h2 class="title">Dashboard Quản Lý</h2><p class="subtitle">Tổng quan hoạt động kinh doanh</p></div>
+    <div class="page-header">
+        <h2 class="title">Dashboard Quản Lý</h2>
+        <p class="subtitle">Tổng quan hoạt động kinh doanh</p>
+    </div>
 
-    <nav class="nav-tabs">
-        <a href="overview.html" class="tab-item active"><i class="fa-solid fa-border-all"></i> Tổng Quan</a>
-        <a href="dishes.html" class="tab-item"><i class="fa-solid fa-utensils"></i> Món Ăn</a>
-        <a href="#" class="tab-item"><i class="fa-solid fa-chair"></i> Bàn</a>
-        <a href="#" class="tab-item"><i class="fa-solid fa-chart-line"></i> Doanh Thu</a>
-        <a href="#" class="tab-item"><i class="fa-solid fa-qrcode"></i> QR Thanh Toán</a>
-    </nav>
+    <div id="menu-container"></div>
 
     <div class="view-section">
         <div class="stats-row" id="stats-container">Loading...</div>
@@ -51,6 +41,13 @@
     </div>
 </main>
 
+<script src="../../static/js/manager/header.js"></script>
 <script src="../../static/js/manager/overview.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        renderMenu('overview');
+    });
+</script>
 </body>
 </html>

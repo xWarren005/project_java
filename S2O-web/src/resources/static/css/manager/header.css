@@ -1,18 +1,6 @@
-/* --- global.css: STYLE DÙNG CHUNG CHO TOÀN BỘ WEB --- */
-body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #FDFBF9;
-    color: #2D3436;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* --- header.css --- */
 
-* {
-    box-sizing: border-box;
-}
-
-/* --- HEADER --- */
+/* 1. TOP HEADER */
 .main-header {
     display: flex;
     justify-content: space-between;
@@ -20,6 +8,9 @@ body {
     padding: 0.8rem 2rem;
     background: #fff;
     border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    z-index: 100; /* Giữ header luôn ở trên cùng */
 }
 
 .brand-group {
@@ -64,29 +55,12 @@ body {
     border-radius: 50%;
 }
 
-/* --- LAYOUT & MENU --- */
-.content-wrapper {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1.5rem 2rem;
+.username {
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
-.page-header {
-    margin-bottom: 1.5rem;
-}
-
-.title {
-    color: #2E25D1;
-    margin: 0;
-    font-size: 1.8rem;
-}
-
-.subtitle {
-    color: #636e72;
-    font-size: 0.95rem;
-    margin-top: 0.3rem;
-}
-
+/* 2. MENU TABS (Điều hướng) */
 .nav-tabs {
     display: flex;
     gap: 0.5rem;
@@ -95,6 +69,7 @@ body {
     border-radius: 0.5rem;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
     margin-bottom: 2rem;
+    overflow-x: auto; /* Cho phép cuộn ngang trên mobile */
 }
 
 .tab-item {
@@ -107,6 +82,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
 }
 
 .tab-item:hover {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>Quản Lý Món Ăn</title>
@@ -10,24 +10,11 @@
     <link rel="stylesheet" href="../../static/css/manager/dishes.css">
 </head>
 <body>
-<header class="main-header">
-    <div class="brand-group">
-        <div class="logo-box">R</div>
-        <div class="text-group"><h1 class="app-name">Restaurant Manager</h1><span class="role-label">Quản Lý</span></div>
-    </div>
-    <div class="user-group"><img src="https://ui-avatars.com/api/?name=Quan+Ly&background=2E25D1&color=fff" class="avatar"><span class="username">Nguyễn Văn Quản Lý</span></div>
-</header>
-
 <main class="content-wrapper">
-    <div class="page-header"><h2 class="title">Thực Đơn Nhà Hàng</h2><p class="subtitle">Quản lý danh sách món ăn</p></div>
+    <div class="page-header"><h2 class="title">Thực Đơn Nhà Hàng</h2>
+        <p class="subtitle">Quản lý danh sách món ăn</p></div>
 
-    <nav class="nav-tabs">
-        <a href="overview.html" class="tab-item"><i class="fa-solid fa-border-all"></i> Tổng Quan</a>
-        <a href="dishes.html" class="tab-item active"><i class="fa-solid fa-utensils"></i> Món Ăn</a>
-        <a href="#" class="tab-item"><i class="fa-solid fa-chair"></i> Bàn</a>
-        <a href="#" class="tab-item"><i class="fa-solid fa-chart-line"></i> Doanh Thu</a>
-        <a href="#" class="tab-item"><i class="fa-solid fa-qrcode"></i> QR Thanh Toán</a>
-    </nav>
+    <div id="menu-container"></div>
 
     <div class="view-section">
         <div class="section-header-row">
@@ -44,10 +31,11 @@
         <p class="modal-desc">Nhập thông tin món ăn vào hệ thống</p>
 
         <form id="dish-form" onsubmit="handleFormSubmit(event)">
-            <input type="hidden" id="dish-id"> <div class="form-group">
-            <label>Tên món</label>
-            <input type="text" id="inp-name" placeholder="Ví dụ: Phở bò" required>
-        </div>
+            <input type="hidden" id="dish-id">
+            <div class="form-group">
+                <label>Tên món</label>
+                <input type="text" id="inp-name" placeholder="Ví dụ: Phở bò" required>
+            </div>
 
             <div class="form-row">
                 <div class="form-group">
@@ -94,5 +82,10 @@
 </div>
 
 <script src="../../static/js/manager/dishes.js"></script>
+<script src="../../static/js/manager/header.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        renderMenu('dishes');
+    });;</script>
 </body>
 </html>
