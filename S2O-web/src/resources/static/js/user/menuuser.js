@@ -187,6 +187,42 @@ function loadMenuItems() {
   `).join("")
 }
 
+function renderCart() {
+    const el = document.getElementById("cart-items")
+
+    if (!cart.length) {
+        el.innerHTML = "<p>Giỏ hàng trống</p>"
+        document.getElementById("cart-count").textContent = "Giỏ hàng trống"
+        document.getElementById("cart-total").textContent = "0đ"
+        return
+    }
+
+    el.innerHTML = cart.map(i => `
+        <div class="cart-item">
+            <img class="cart-item-image" src="${i.image}">
+            <div class="cart-item-info">
+                <div class="cart-item-name">${i.name}</div>
+                <div class="cart-item-price">${formatPrice(i.price)}</div>
+
+                <div class="cart-item-controls">
+                    <button class="btn-quantity" onclick="decreaseQty('${i.id}')">−</button>
+                    <span class="quantity-text">${i.quantity}</span>
+                    <button class="btn-quantity" onclick="increaseQty('${i.id}')">+</button>
+
+                    <button class="btn-remove" onclick="removeItem('${i.id}')">✕</button>
+                </div>
+            </div>
+        </div>
+    `).join("")
+
+    updateCartTotal()
+}
+function updateCartTotal() {
+    const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0)
+    document.getElementById("cart-total").textContent = formatPrice(total)
+    document.getElementById("cart-count").textContent = `${cart.length} món`
+}
+
 /* ========= CART ========= */
 function addToCart(id) {
     const item = MockData.getMenuItem(id)
@@ -194,6 +230,7 @@ function addToCart(id) {
     exist ? exist.quantity++ : cart.push({ ...item, quantity: 1 })
     Storage.saveCart(tableNumber, cart)
     updateCartBadge()
+    renderCart()
 }
 
 function updateCartBadge() {
@@ -223,11 +260,37 @@ function placeOrder() {
     }
 
     Storage.saveOrder(tableNumber, order)
-    Storage.addToUserHistory(currentUser.id, order)
-
     cart = []
     Storage.saveCart(tableNumber, cart)
     updateCartBadge()
     toggleCart()
     alert("Đặt món thành công!")
+}
+function increaseQty(id) {
+    const item = cart.find(i => i.id === id)
+    if (!item) return
+    item.quantity++
+    saveCartAndUpdate()
+}
+
+function decreaseQty(id) {
+    const item = cart.find(i => i.id === id)
+    if (!item) return
+
+    item.quantity--
+    if (item.quantity <= 0) {
+        cart = cart.filter(i => i.id !== id)
+    }
+    saveCartAndUpdate()
+}
+
+function removeItem(id) {
+    cart = cart.filter(i => i.id !== id)
+    saveCartAndUpdate()
+}
+
+function saveCartAndUpdate() {
+    Storage.saveCart(tableNumber, cart)
+    updateCartBadge()
+    renderCart()
 }
