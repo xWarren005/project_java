@@ -12,19 +12,25 @@ import retrofit2.http.Query;
 public interface RestaurantApi {
     @GET("restaurant")
     Call<List<Restaurant>> getRestaurants(
-            @Query("page") int page,
-            @Query("size") int size
+            @Query("page") Integer page,
+            @Query("size") Integer size
     );
     @GET("restaurants/search")
     Call<List<Restaurant>> searchRestaurants(
-            @Query("keyword") String keyword
+            @Query("q") String keyword,
+            @Query("page") Integer page,
+            @Query("size") Integer size
     );
-    @GET("restaurants/detail")
+    @GET("restaurants/{ID}")
     Call<Restaurant> getRestaurantDetail(
-            @Query("id") String restaurantId
+            @Path("id") String restaurantId
     );
     @GET("restaurants/featured")
-    Call<Restaurant> getFeaturedRestaurants();
+    Call<List<Restaurant>> getFeaturedRestaurants(
+            @Query("limit") Integer limit
+    );
     @GET("restaurants/recommended")
-    Call<Restaurant> getRecommendedRestaurants();
+    Call<List<Restaurant>> getRecommendedRestaurants(
+            @Query("limit") Integer limit
+    );
 }
