@@ -1,0 +1,51 @@
+/* --- CASHIER MENU TABS STYLE --- */
+/* Wrapper của menu */
+.cashier-tabs-wrapper {
+    display: flex;
+    background: #f1f2f6; /* Màu nền xám nhạt của thanh menu */
+    padding: 5px;
+    border-radius: 8px;
+    gap: 5px;
+    margin-bottom: 2rem;
+}
+
+/* Từng item trong menu */
+.cashier-tab-item {
+    flex: 1; /* Chia đều chiều rộng */
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 0;
+    border-radius: 6px;
+    color: #636e72;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.cashier-tab-item i {
+    font-size: 1rem;
+}
+
+/* Hover hiệu ứng */
+.cashier-tab-item:hover {
+    background: rgba(255, 255, 255, 0.6);
+    color: #2d3436;
+}
+
+/* Trạng thái đang chọn (Active) - Giống ảnh */
+.cashier-tab-item.active {
+    background: white;
+    color: #2E25D1; /* Màu chữ xanh tím active */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    font-weight: 700;
+}
+
+/* Responsive trên mobile */
+@media (max-width: 600px) {
+    .cashier-tab-item span {
+        display: none; /* Ẩn chữ, chỉ hiện icon trên mobile */
+    }
+}
