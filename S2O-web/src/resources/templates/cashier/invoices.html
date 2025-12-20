@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản Lý Hóa Đơn</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../../static/css/cashier/header.css">
+  <link rel="stylesheet" href="../../static/css/cashier/tables.css">
+  <link rel="stylesheet" href="../../static/css/cashier/invoices.css">
+</head>
+<body>
+
+<main class="content-wrapper">
+  <div id="cashier-menu-container"></div>
+
+  <div class="invoice-stats-grid">
+    <div class="i-stat-card">
+      <span class="is-label">Tổng Hóa Đơn (Hôm nay)</span>
+      <span class="is-number" id="stat-count">0</span>
+    </div>
+    <div class="i-stat-card">
+      <span class="is-label">Doanh Thu Tạm Tính</span>
+      <span class="is-number success" id="stat-revenue">0đ</span>
+    </div>
+    <div class="i-stat-card">
+      <span class="is-label">Trung Bình Đơn</span>
+      <span class="is-number primary" id="stat-avg">0đ</span>
+    </div>
+  </div>
+
+  <div class="invoice-section-header">
+    <h3 class="section-title" style="margin:0">Danh Sách Hóa Đơn</h3>
+    <div class="filter-tabs">
+      <button class="filter-btn active" onclick="filterInvoices('unpaid')">Chờ Thanh Toán</button>
+      <button class="filter-btn" onclick="filterInvoices('paid')">Lịch Sử (Đã Thu)</button>
+    </div>
+  </div>
+
+  <div class="invoice-list-container" id="invoice-list">
+  </div>
+</main>
+
+<div id="invoice-modal" class="modal-overlay">
+  <div class="modal-content invoice-modal-size">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+
+    <div class="inv-modal-header">
+      <h3>Chi Tiết Hóa Đơn</h3>
+      <span class="inv-id" id="m-inv-id">#INV-001</span>
+    </div>
+
+    <div class="inv-info-box">
+      <div class="info-item">
+        <span class="label">Bàn số</span>
+        <span class="value big" id="m-table">#02</span>
+      </div>
+      <div class="info-item right">
+        <span class="label">Thời gian</span>
+        <span class="value" id="m-time">...</span>
+      </div>
+    </div>
+
+    <div class="inv-items-header">Chi tiết món ăn</div>
+    <ul class="inv-items-list" id="m-items-list">
+    </ul>
+
+    <div class="inv-divider"></div>
+
+    <div class="inv-total-row">
+      <span>Tổng cộng:</span>
+      <span class="price" id="m-total">0đ</span>
+    </div>
+
+    <div id="m-payment-info" class="payment-method-box" style="display:none;">
+      <span class="pm-label">Phương thức:</span>
+      <span class="pm-value" id="m-method">Tiền mặt</span>
+    </div>
+
+    <div class="inv-actions" id="m-actions">
+    </div>
+  </div>
+</div>
+
+<script src="../../static/js/cashier/header.js"></script>
+<script src="../../static/js/cashier/invoices.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    renderTopHeader();
+    renderCashierMenu('invoices');
+  });
+</script>
+</body>
+</html>

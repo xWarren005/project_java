@@ -1,8 +1,8 @@
 /* --- DỮ LIỆU MENU THU NGÂN --- */
 const cashierMenuItems = [
     { id: 'tables',    text: 'Quản Lý Bàn', icon: 'fa-border-all',          link: 'cashier.html' },
-    { id: 'invoices',  text: 'Hóa Đơn',     icon: 'fa-file-invoice-dollar', link: '#' },
-    { id: 'payment',   text: 'Thanh Toán',  icon: 'fa-credit-card',         link: '#' }
+    { id: 'invoices',  text: 'Hóa Đơn',     icon: 'fa-file-invoice-dollar', link: 'invoices.html' },
+    { id: 'payment',   text: 'Thanh Toán',  icon: 'fa-credit-card',         link: 'payment.html' }
 ];
 
 /* --- HÀM 1: RENDER TOP HEADER (Logo + User) --- */
