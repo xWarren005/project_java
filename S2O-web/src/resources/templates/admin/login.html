@@ -22,31 +22,37 @@
                 <p class="role-label">Chọn chức năng của bạn</p>
                 <div class="role-grid">
                     <label class="role-option">
-                        <input type="radio" name="role" value="CHEF" required>
+                        <input type="radio" name="role" value="CHEF" id="role-chef" required>
                         <div class="role-card">
                             <span class="role-icon-img">👨‍🍳</span>
                             <strong class="role-name">Đầu bếp</strong>
                             <span class="role-desc">Quản lý bếp và món ăn</span>
                         </div>
                     </label>
+
                     <label class="role-option">
-                        <input type="radio" name="role" value="CASHIER">
+                        <input type="radio" name="role" value="CASHIER" id="role-cashier">
                         <div class="role-card">
-                            <span class="role-icon-img">💲</span> <strong class="role-name">Thu ngân</strong>
+                            <span class="role-icon-img">💲</span>
+                            <strong class="role-name">Thu ngân</strong>
                             <span class="role-desc">Thanh toán và hóa đơn</span>
                         </div>
                     </label>
+
                     <label class="role-option">
-                        <input type="radio" name="role" value="MANAGER">
+                        <input type="radio" name="role" value="MANAGER" id="role-manager">
                         <div class="role-card">
-                            <span class="role-icon-img">👥</span> <strong class="role-name">Quản lý</strong>
+                            <span class="role-icon-img">👥</span>
+                            <strong class="role-name">Quản lý</strong>
                             <span class="role-desc">Quản lý nhà hàng</span>
                         </div>
                     </label>
+
                     <label class="role-option">
-                        <input type="radio" name="role" value="ADMIN">
+                        <input type="radio" name="role" value="ADMIN" id="role-admin">
                         <div class="role-card">
-                            <span class="role-icon-img">⚙️</span> <strong class="role-name">Quản trị viên</strong>
+                            <span class="role-icon-img">⚙️</span>
+                            <strong class="role-name">Quản trị viên</strong>
                             <span class="role-desc">Quản trị hệ thống</span>
                         </div>
                     </label>
@@ -59,13 +65,36 @@
 
             <div class="form-group">
                 <div class="password-wrapper">
-                    <input type="password" name="password" class="form-input" placeholder="Mật khẩu" required>
-                    <button type="button" class="btn-toggle-password">
+                    <input type="password" name="password" class="form-input"
+                           placeholder="Mật khẩu" required id="password">
+
+                    <button type="button" class="btn-toggle-password" id="togglePassword">
                         <span class="icon-eye">👁️</span>
                     </button>
                 </div>
             </div>
+
+            <div class="form-options">
+                <label class="checkbox-wrapper">
+                    <input type="checkbox" name="remember-me">
+                    <span>Ghi nhớ đăng nhập</span>
+                </label>
+                <a href="/system/forgot-password" class="link-forgot">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Đăng nhập vào hệ thống</button>
         </form>
+        <div class="alert-box-info">
+            <div class="alert-icon">ℹ️</div>
+            <div class="alert-content">
+                <strong>Lưu ý:</strong>
+                <p>Tài khoản này chỉ dành cho nhân viên... vui lòng sử dụng <a href="/login">trang đăng nhập khách hàng</a>.</p>
+            </div>
+        </div>
+
+        <footer class="auth-footer">
+            <a href="/" class="link-back-home">&larr; Quay lại trang chủ</a>
+        </footer>
 
     </section>
 </main>

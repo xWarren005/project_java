@@ -22,12 +22,26 @@ function generateId() {
 }
 
 /* ========= 2. NAVIGATION ========= */
-function goToLogin() { window.location.href = "login.html" }
 function goToHistory() { window.location.href = "history.html" }
 function goToProfile() { window.location.href = "profile.html" }
 function goToQRScanner() { window.location.href = "qr-scanner.html" }
-function goHome() { window.location.href = "../index.html" }
+function switchTab(tab) {
+    // 1. bỏ active khỏi tất cả nút
+    document.querySelectorAll(".tab").forEach(t =>
+        t.classList.remove("active")
+    )
 
+    // 2. active nút đang click
+    document.querySelector(`.tab[data-tab="${tab}"]`)
+        .classList.add("active")
+    // 3. ẩn toàn bộ tab-content
+    document.querySelectorAll(".tab-content").forEach(c =>
+        c.classList.remove("active")
+    )
+    // 4. hiện tab được chọn
+    document.getElementById(`tab-${tab}`)
+        .classList.add("active")
+}
 /* ========= 3. STORAGE (LocalStorage) ========= */
 const Storage = {
     getCart(table) {
@@ -160,12 +174,14 @@ function loadMenuItems() {
 
     el.innerHTML = items.map(i => `
     <div class="menu-item-card">
-      <img class="menu-item-image" src="${i.image}" onerror ="this.src='../../../../../public/placeholder.svg'">
-      <h3>${i.name}</h3>
-      <p>${i.description}</p>
+      <img class="menu-item-image" src="${i.image}" onerror="this.src='../public/placeholder.svg'">
+      <div class="menu-item-content">
+      <h3 class="menu-item-name">${i.name}</h3>
+      <p class="menu-item-desc">${i.description}</p>
       <div class="menu-item-footer">
         <span> &nbsp; ${formatPrice(i.price)}</span>
-        <button onclick="addToCart('${i.id}')">Thêm</button>
+        <button class="btn-add" onclick="addToCart('${i.id}')">Thêm</button>
+      </div>
       </div>
     </div>
   `).join("")
