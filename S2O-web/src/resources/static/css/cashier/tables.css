@@ -1,0 +1,197 @@
+/* --- LAYOUT CHUNG --- */
+body {
+    background-color: #F9FAFB;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+}
+
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.section-title {
+    color: #8D5A38; /* Màu nâu đất của tiêu đề "Sơ Đồ Bàn" */
+    font-size: 1.1rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+/* --- STATS CARDS --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.stat-label { font-size: 0.9rem; color: #636e72; font-weight: 600; }
+.stat-number { font-size: 2.2rem; font-weight: 800; margin-top: auto; }
+
+.stat-number.success { color: #00b894; } /* Xanh lá */
+.stat-number.danger { color: #d63031; }  /* Đỏ */
+.stat-number.warning { color: #f39c12; } /* Vàng cam */
+.stat-number.primary { color: #e67e22; } /* Cam đậm */
+
+/* --- TABLE GRID (SƠ ĐỒ BÀN) --- */
+.table-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 cột như ảnh */
+    gap: 1.5rem;
+}
+
+.table-item {
+    border-radius: 12px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border: 1px solid transparent;
+}
+
+.table-item:hover { transform: translateY(-3px); }
+
+/* MÀU SẮC CỤ THỂ CHO TỪNG TRẠNG THÁI (PASTEL) */
+/* 1. Bàn Trống (Xanh Mint nhạt) */
+.table-item.empty {
+    background-color: #D6F5E8;
+    border-color: #b8eadd;
+}
+.table-item.empty .t-name { color: #2d3436; }
+.table-item.empty .t-badge { background: #bdfce6; color: #00b894; }
+
+/* 2. Có Khách (Hồng phấn nhạt) */
+.table-item.busy {
+    background-color: #FFE3E3;
+    border-color: #fad0d0;
+}
+.table-item.busy .t-name { color: #782626; }
+.table-item.busy .t-badge { background: #ffcccc; color: #d63031; }
+
+/* 3. Đã Đặt (Vàng kem nhạt) */
+.table-item.reserved {
+    background-color: #FFF8D6;
+    border-color: #fceeb5;
+}
+.table-item.reserved .t-name { color: #856404; }
+.table-item.reserved .t-badge { background: #ffeaa7; color: #d35400; }
+
+/* Nội dung bên trong thẻ bàn */
+.t-name { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; }
+.t-capacity { font-size: 0.85rem; color: #636e72; margin-bottom: 0.8rem; }
+.t-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+.time-counter {
+    font-size: 0.75rem;
+    color: #636e72;
+    margin-top: 10px;
+    display: flex; align-items: center; gap: 5px;
+}
+
+/* --- MODAL STYLE (POPUP) --- */
+.modal-overlay {
+    display: none; /* Mặc định ẩn */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    width: 450px;
+    border-radius: 16px;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: popup 0.3s ease-out;
+}
+@keyframes popup { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
+
+.close-btn { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; cursor: pointer; color: #aaa; }
+
+.modal-header-info h2 { margin: 0; font-size: 1.8rem; color: #2d3436; }
+.people-info { color: #636e72; font-size: 0.9rem; margin-top: 5px; margin-bottom: 1.5rem; }
+
+.form-group label { display: block; font-weight: 600; margin-bottom: 5px; color: #2d3436; }
+.status-select {
+    width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #dfe6e9; font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Box Đơn Hàng (Màu cam nhạt trong Modal) */
+.order-summary-box {
+    background: #FFF5EB; /* Cam rất nhạt */
+    border: 1px solid #FFE0C2;
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.order-box-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1rem; font-weight: 700; color: #d35400;
+}
+.order-tag { background: #D6EAF8; color: #2980B9; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+
+.order-list { list-style: none; padding: 0; margin: 0; }
+.order-list li {
+    display: flex; justify-content: space-between;
+    margin-bottom: 0.5rem; color: #2d3436; font-size: 0.95rem;
+}
+
+.divider { height: 1px; background: #fae1cd; margin: 1rem 0; }
+
+.total-row { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.2rem; color: #d35400; }
+.time-row { font-size: 0.8rem; color: #d35400; margin-top: 5px; opacity: 0.8; }
+
+/* Nút Xem Hóa Đơn (Màu xanh tím) */
+.btn-action {
+    width: 100%;
+    background: #2E25D1; /* Màu xanh tím chủ đạo */
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-action:hover { background: #1e16a3; }
+
+/* Responsive */
+@media(max-width: 900px) {
+    .table-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media(max-width: 600px) {
+    .table-grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
