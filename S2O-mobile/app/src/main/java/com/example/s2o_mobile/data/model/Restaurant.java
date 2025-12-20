@@ -1,6 +1,8 @@
 package com.example.s2o_mobile.data.model;
 
-public class Restaurant {
+import java.io.Serializable;
+
+public class Restaurant implements Serializable {
 
     private int id;
     private String name;
@@ -9,7 +11,7 @@ public class Restaurant {
     private String description;
     private double avgRating;
 
-    private int reviewcount;
+    private int reviewCount;
     private boolean favorite;
 
     public Restaurant() {
@@ -26,7 +28,7 @@ public class Restaurant {
     }
 
     public int getId() {
-        return Id;
+        return id;
     }
 
     public void setId(int id) {
@@ -34,7 +36,7 @@ public class Restaurant {
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
@@ -82,10 +84,23 @@ public class Restaurant {
     }
 
     public boolean isFavorite() {
-        return Favorite;
+        return favorite;
     }
 
     public void setFavorite(boolean favorite) {
-        this.favorite = Favorite;
+        this.favorite = favorite;
+    }
+
+    @Override
+    public String toString() {
+        return "Restaurant{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", avgRating=" + avgRating +
+                ", reviewCount=" + reviewCount +
+                ", favorite=" + favorite +
+                '}';
     }
 }
