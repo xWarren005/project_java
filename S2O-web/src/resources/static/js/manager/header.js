@@ -5,8 +5,8 @@ const menuItems = [
     { id: 'overview', text: 'Tổng Quan', icon: 'fa-border-all', link: 'overview.html' },
     { id: 'dishes',   text: 'Món Ăn',    icon: 'fa-utensils',  link: 'dishes.html' },
     { id: 'tables',   text: 'Bàn',       icon: 'fa-chair',     link: 'tables.html' },
-    { id: 'revenue',  text: 'Doanh Thu', icon: 'fa-chart-line',link: '#' },
-    { id: 'qr',       text: 'QR Code',   icon: 'fa-qrcode',    link: '#' }
+    { id: 'revenue',  text: 'Doanh Thu', icon: 'fa-chart-line',link: 'revenue.html' },
+    { id: 'qr',       text: 'QR Code',   icon: 'fa-qrcode',    link: 'qr.html' }
 ];
 
 // 2. TỰ ĐỘNG CHÈN TOP HEADER
