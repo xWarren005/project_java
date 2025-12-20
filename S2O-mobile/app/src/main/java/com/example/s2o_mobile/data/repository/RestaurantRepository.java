@@ -1,7 +1,14 @@
 package com.example.s2o_mobile.data.repository;
 
+import com.example.s2o_mobile.data.model.Restaurant;
 import com.example.s2o_mobile.data.source.remote.ApiService;
 import com.example.s2o_mobile.data.source.remote.RestaurantApi;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class RestaurantRepository {
 
@@ -9,5 +16,24 @@ public class RestaurantRepository {
 
     public RestaurantRepository() {
         this.restaurantApi = ApiService.getInstance().getRestaurantApi();
+    }
+
+    public void getAllRestaurants(RepositoryCallback<List<Restaurant>> callback) {
+        restaurantApi.getAllRestaurants().enqueue(new Callback<List<Restaurant>>() {
+
+            @Override
+            public void onResponse(Call<List<Restaurant>> call, Response<List<Restaurant>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("Khong lay duoc danh sach nha hang");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Restaurant>> call, Throwable t) {
+                callback.onError(t.getMessage());
+            }
+        });
     }
 }
