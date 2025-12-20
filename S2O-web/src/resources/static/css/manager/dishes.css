@@ -1,0 +1,334 @@
+/* --- CSS CHỈ DÀNH CHO TRANG MÓN ĂN --- */
+.section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-h3 {
+    font-size: 1.25rem;
+    color: #2E25D1;
+    margin: 0;
+}
+
+.btn-dark {
+    background: #2d3436;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-dark:hover {
+    background: #000;
+}
+
+.dishes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.dish-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 0.8rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.dish-img-box {
+    width: 100%;
+    height: 180px;
+    background-color: #f1f2f6;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.dish-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dish-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+}
+
+.dish-desc {
+    font-size: 0.8rem;
+    color: #999;
+    margin-bottom: 0.8rem;
+}
+
+/* Các badge màu sắc */
+.badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.badge-orange {
+    background: #fff3e0;
+    color: #e67e22;
+}
+
+.badge-green {
+    background: #e8f5e9;
+    color: #27ae60;
+}
+
+.badge-blue {
+    background: #e3f2fd;
+    color: #2E25D1;
+}
+
+.badge-pink {
+    background: #fce4ec;
+    color: #d81b60;
+}
+
+.price-row {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.current-price {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #2E25D1;
+}
+
+.old-price {
+    font-size: 0.85rem;
+    color: #b2bec3;
+    text-decoration: line-through;
+}
+
+.card-actions {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.btn-edit {
+    background: #2E25D1;
+    color: white;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-delete {
+    background: white;
+    color: #e74c3c;
+    border: 1px solid #fab1a0;
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .dishes-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* --- MODAL STYLES --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.modal-overlay.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.modal-box {
+    background: white;
+    width: 500px;
+    max-width: 90%;
+    padding: 2rem;
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    border: none;
+    background: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #999;
+}
+
+#modal-title {
+    margin: 0 0 0.5rem 0;
+    color: #2d3436;
+}
+
+.modal-desc {
+    margin: 0 0 1.5rem 0;
+    color: #636e72;
+    font-size: 0.9rem;
+}
+
+/* FORM ELEMENTS */
+.form-group {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: #2d3436;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+    padding: 0.6rem;
+    border: 1px solid #dfe6e9;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.form-group input:focus {
+    border-color: #2E25D1;
+}
+
+/* TOGGLE SWITCH */
+.toggle-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 22px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2d3436;
+}
+
+/* Màu đen như ảnh mẫu */
+input:checked + .slider:before {
+    transform: translateX(18px);
+}
+
+/* FOOTER BUTTONS */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+}
+
+.btn-cancel {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-save {
+    background: #000;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-save:hover {
+    background: #333;
+}
