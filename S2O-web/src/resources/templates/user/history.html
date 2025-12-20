@@ -1,54 +1,64 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lịch sử đơn hàng - S2O</title>
-    <link rel="stylesheet" th:href="@{/css/user/history.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử - Nhà hàng Phố</title>
 </head>
 <body>
-
-<header class="mobile-header">
-    <div class="header-top">
-        <div>
-            <div class="brand-name">Nhà hàng Phố</div>
-            <div class="table-info">Bàn A5</div>
-        </div>
-        <div class="cart-icon">🛒</div>
-    </div>
-
-    <nav class="nav-tabs">
-        <button class="tab-item">Thực đơn</button>
-        <button class="tab-item active">Lịch sử</button>
-        <button class="tab-item">Hóa đơn</button>
-        <button class="tab-item">Thanh toán</button>
-    </nav>
+<header class="header">
+    <button class="btn-back" onclick="goBack()">
+        <svg class="icon-back" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+    </button>
+    <h1 class="page-title">Lịch sử</h1>
+    <div class="spacer"></div>
 </header>
-<div class="container">
-    <h2 class="page-title">Lịch sử hóa đơn đã thanh toán</h2>
 
-    <div th:each="order : ${orders}" class="history-card">
-
-        <div class="card-header">
-            <div>
-                <div class="order-code" th:text="${order.code}">HD001</div>
-                <div class="order-time" th:text="${order.time}">15/12/2024 - 12:30</div>
-            </div>
-            <div class="status-badge">Đã thanh toán</div>
+<main class="main-content">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3 id="total-spent">0đ</h3>
+            <p>Tổng chi tiêu</p>
         </div>
-        <div class="image-list">
-            <img th:each="img : ${order.images}"
-                 th:src="${img}"
-                 class="food-thumb"
-                 alt="Food">
+        <div class="stat-card">
+            <h3 id="total-orders">0</h3>
+            <p>Tổng đơn hàng</p>
         </div>
-
-        <div class="card-footer">
-            <div>
-                <div class="total-label">Tổng tiền</div>
-                <div class="total-price" th:text="${order.totalPrice}">450.000đ</div>
-            </div>
-            <button class="btn-detail">Chi tiết</button>
+        <div class="stat-card">
+            <h3 id="total-visits">0</h3>
+            <p>Lần ghé thăm</p>
         </div>
     </div>
-</div>
+
+    <div class="section">
+        <h2 class="section-title">Lịch sử hóa đơn</h2>
+        <div id="history-list">
+            <!-- History items will be loaded here -->
+        </div>
+    </div>
+</main>
+
+<nav class="bottom-nav">
+    <button class="nav-item" onclick="goToHistory()">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Lịch sử</span>
+    </button>
+    <button class="nav-item" onclick="goToQRScanner()">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+        </svg>
+        <span>Quét QR</span>
+    </button>
+    <button class="nav-item" onclick="goToProfile()">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+        <span>Tài khoản</span>
+    </button>
+</nav>
+</body>
+</html>
