@@ -1,137 +1,109 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Quản lý Nhà hàng - Restaurant SaaS</title>
     <link rel="stylesheet" href="../../static/css/admin/restaurant-management.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body>
-<div class="app-container">
-    <aside class="sidebar">
-        <div class="brand">
-            <i data-lucide="store"></i> <span>Restaurant SaaS</span>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="/admin/dashboard" class="nav-item">
-                <i data-lucide="layout-dashboard"></i> Dashboard
-            </a>
-            <a href="#" class="nav-item active">
-                <i data-lucide="store"></i> Quản lý Nhà hàng
-            </a>
-            <a href="#" class="nav-item"><i data-lucide="users"></i> Người dùng & Phân quyền</a>
-            <a href="#" class="nav-item"><i data-lucide="dollar-sign"></i> Doanh thu Hệ thống</a>
-            <a href="#" class="nav-item"><i data-lucide="settings"></i> Cấu hình AI</a>
-            <a href="#" class="nav-item"><i data-lucide="activity"></i> Giám sát Hệ thống</a>
-        </nav>
-    </aside>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand">
+                <i data-lucide="store"></i> <span>Restaurant SaaS</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item">
+                    <i data-lucide="layout-dashboard"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item active">
+                    <i data-lucide="store"></i> Quản lý Nhà hàng
+                </a>
+                <a href="#" class="nav-item"><i data-lucide="users"></i> Người dùng & Phân quyền</a>
+                <a href="#" class="nav-item"><i data-lucide="dollar-sign"></i> Doanh thu Hệ thống</a>
+                <a href="#" class="nav-item"><i data-lucide="settings"></i> Cấu hình AI</a>
+                <a href="#" class="nav-item"><i data-lucide="activity"></i> Giám sát Hệ thống</a>
+            </nav>
+        </aside>
 
-    <main class="main-content">
-        <header class="top-header">
-            <h1>Quản lý Nhà hàng</h1>
-            <div class="search-box">
-                <i data-lucide="search"></i>
-                <input type="text" placeholder="Tìm kiếm nhà hàng, địa chỉ...">
-            </div>
-            <button class="btn-icon-only"><i data-lucide="info"></i></button>
-        </header>
-
-        <section class="stats-grid">
-            <div class="card stat-card">
-                <span class="stat-label">Tổng Nhà hàng</span>
-                <h3 class="stat-value">248</h3>
-                <p class="stat-desc text-green">+12 trong tuần này</p>
-            </div>
-            <div class="card stat-card">
-                <span class="stat-label">Chờ Phê duyệt</span>
-                <h3 class="stat-value">8</h3>
-                <p class="stat-desc">Cần xử lý</p>
-            </div>
-            <div class="card stat-card">
-                <span class="stat-label">Trung bình Đánh giá</span>
-                <h3 class="stat-value">4.6</h3>
-                <p class="stat-desc">Từ 3,245 đánh giá</p>
-            </div>
-        </section>
-
-        <section class="card table-card">
-            <div class="card-header">
-                <h3>Danh sách Nhà hàng</h3>
-                <p>Quản lý tất cả nhà hàng trong hệ thống</p>
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Quản lý Nhà hàng</h1>
+                <button class="btn-icon-only"><i data-lucide="info"></i></button>
             </div>
 
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                    <tr>
-                        <th style="width: 20%">Tên nhà hàng</th>
-                        <th style="width: 30%">Địa chỉ</th>
-                        <th style="width: 15%">Trạng thái</th>
-                        <th style="width: 15%">Đánh giá</th>
-                        <th style="width: 20%">Thao tác</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td class="fw-bold">Phở 24</td>
-                        <td>123 Lê Lợi, Q1, TP.HCM</td>
-                        <td><span class="badge badge-active">Hoạt động</span></td>
-                        <td><span class="rating">4.5 <i data-lucide="star" class="icon-star"></i></span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-action btn-edit"><i data-lucide="pencil"></i></button>
-                                <button class="btn-action btn-check"><i data-lucide="check"></i></button>
-                                <button class="btn-action btn-delete"><i data-lucide="trash-2"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Sushi World</td>
-                        <td>456 Nguyễn Huệ, Q3, TP.HCM</td>
-                        <td><span class="badge badge-active">Hoạt động</span></td>
-                        <td><span class="rating">4.8 <i data-lucide="star" class="icon-star"></i></span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-action btn-edit"><i data-lucide="pencil"></i></button>
-                                <button class="btn-action btn-check"><i data-lucide="check"></i></button>
-                                <button class="btn-action btn-delete"><i data-lucide="trash-2"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">BBQ House</td>
-                        <td>789 Võ Văn Tần, Q2, TP.HCM</td>
-                        <td><span class="badge badge-pending">Chờ duyệt</span></td>
-                        <td><span class="text-gray">N/A</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-action btn-edit"><i data-lucide="pencil"></i></button>
-                                <button class="btn-action btn-check"><i data-lucide="check"></i></button>
-                                <button class="btn-action btn-delete"><i data-lucide="trash-2"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold">Pizza Express</td>
-                        <td>654 Hai Bà Trưng, Q1, TP.HCM</td>
-                        <td><span class="badge badge-inactive">Không hoạt động</span></td>
-                        <td><span class="rating">4.1 <i data-lucide="star" class="icon-star"></i></span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-action btn-edit"><i data-lucide="pencil"></i></button>
-                                <button class="btn-action btn-check"><i data-lucide="check"></i></button>
-                                <button class="btn-action btn-delete"><i data-lucide="trash-2"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-</div>
+            <div class="content-body">
 
-<script th:src="@{/js/admin/restaurant-management.js}"></script>
-<script>lucide.createIcons();</script>
+                <div class="search-section">
+                    <div class="search-wrapper">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" placeholder="Tìm kiếm..." class="search-input">
+                    </div>
+                </div>
+
+                <section class="stats-grid">
+                    <div class="card stat-card">
+                        <span class="stat-label">Tổng Nhà hàng</span>
+                        <h3 class="stat-value">248</h3>
+                        <p class="stat-desc text-green">+12 trong tuần này</p>
+                    </div>
+                    <div class="card stat-card">
+                        <span class="stat-label">Chờ Phê duyệt</span>
+                        <h3 class="stat-value">8</h3>
+                        <p class="stat-desc">Cần xử lý</p>
+                    </div>
+                    <div class="card stat-card">
+                        <span class="stat-label">Trung bình Đánh giá</span>
+                        <h3 class="stat-value">4.6</h3>
+                        <p class="stat-desc">Từ 3,245 đánh giá</p>
+                    </div>
+                </section>
+
+                <section class="card table-card">
+                    <div class="card-header">
+                        <h3>Danh sách Nhà hàng</h3>
+                        <p>Quản lý tất cả nhà hàng trong hệ thống</p>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20%">Tên nhà hàng</th>
+                                    <th style="width: 30%">Địa chỉ</th>
+                                    <th style="width: 15%">Trạng thái</th>
+                                    <th style="width: 15%">Đánh giá</th>
+                                    <th style="width: 20%">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold">Phở 24</td>
+                                    <td>123 Lê Lợi, Q1, TP.HCM</td>
+                                    <td><span class="badge badge-active">Hoạt động</span></td>
+                                    <td><span class="rating">4.5 <i data-lucide="star" class="icon-star"></i></span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="btn-action btn-edit"><i data-lucide="pencil"></i></button>
+                                            <button class="btn-action btn-check"><i data-lucide="check"></i></button>
+                                            <button class="btn-action btn-delete"><i data-lucide="trash-2"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/admin/restaurant-management.js}"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
+
 </html>
