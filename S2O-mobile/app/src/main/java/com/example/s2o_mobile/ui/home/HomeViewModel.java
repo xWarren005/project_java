@@ -25,4 +25,24 @@ public class HomeViewModel extends ViewModel {
     public MutableLiveData getRestaurants() {
         return restaurants;
     }
+
+    public void loadHomeRestaurants() {
+        loading.setValue(true);
+
+        restaurantRepository.getRecommendedRestaurants(
+                null,
+                errorMessage,
+                loading
+        );
+
+        loading.setValue(false);
+    }
+
+    public void loadRecommendedRestaurants() {
+        restaurantRepository.getRestaurants(
+                restaurants,
+                errorMessage,
+                loading
+        );
+    }
 }
