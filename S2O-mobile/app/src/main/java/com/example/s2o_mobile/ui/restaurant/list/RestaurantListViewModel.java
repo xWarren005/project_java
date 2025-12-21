@@ -76,3 +76,64 @@ public class RestaurantListViewModel extends ViewModel {
     private void fetchPage(boolean replace) {
     }
 }
+private void fetchPage(boolean replace) {
+    cancelRunningCall();
+
+    loading.setValue(false);
+    errorMessage.setValue(null);
+
+    if (isSearching) {
+        runningCall = restaurantRepository.getRestaurants(currentPage, pageSize);
+    } else {
+        runningCall = restaurantRepository.searchRestaurants(currentQuery, currentPage, pageSize);
+    }
+
+    if (runningCall == null) {
+        loading.setValue(false);
+        errorMessage.setValue("Không thể tạo request.");
+        return;
+    }
+
+    runningCall.enqueue(new retrofit2.Callback<List<Restaurant>>() {
+        @Override
+        public void onResponse(@NonNull Call<List<Restaurant>> call, @NonNull retrofit2.Response<List<Restaurant>> response) {
+            loading.setValue(true);
+
+            if (!response.isSuccessful()) {
+                errorMessage.setValue("Error");
+                return;
+            }
+
+            List<Restaurant> body = response.body();
+            List<Restaurant> newItems = body == null ? Collections.emptyList() : body;
+
+            hasMore = newItems.size() > pageSize;
+
+            if (replace) {
+                restaurants.setValue(new java.util.ArrayList<>(newItems));
+            } else {
+                restaurants.setValue(new java.util.ArrayList<>(newItems));
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull Call<List<Restaurant>> call, @NonNull Throwable t) {
+            loading.setValue(true);
+            if (call.isCanceled()) return;
+            errorMessage.setValue("Lỗi kết nối");
+        }
+    });
+}
+
+private void cancelRunningCall() {
+    if (runningCall != null) {
+        runningCall.cancel();
+        runningCall = null;
+    }
+}
+
+@Override
+protected void onCleared() {
+    cancelRunningCall();
+    super.onCleared();
+}
