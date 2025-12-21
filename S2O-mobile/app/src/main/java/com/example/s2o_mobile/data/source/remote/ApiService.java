@@ -3,6 +3,8 @@ package com.example.s2o_mobile.data.source.remote;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import com.example.s2o_mobile.data.source.remote.RestaurantApi;
+
 public class ApiService {
 
     private static final String BASE_URL = "http://3306:3306/";
@@ -15,13 +17,20 @@ public class ApiService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
+
     public static synchronized ApiService getInstance() {
         if (instance == null) {
             instance = new ApiService();
         }
         return instance;
     }
+
     public AuthApi getAuthApi() {
         return retrofit.create(AuthApi.class);
+    }
+
+    // 👉 PHẦN BẠN CẦN THÊM
+    public RestaurantApi getRestaurantApi() {
+        return retrofit.create(RestaurantApi.class);
     }
 }
