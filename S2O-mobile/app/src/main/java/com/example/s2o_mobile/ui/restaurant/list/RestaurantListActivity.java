@@ -1,43 +1,103 @@
 package com.example.s2o_mobile.ui.restaurant.list;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.s2o_mobile.R;
 import com.example.s2o_mobile.data.model.Restaurant;
-
+import com.example.s2o_mobile.data.repository.RestaurantRepository;
 
 import java.util.ArrayList;
+import java.util.List;
+
 public class RestaurantListActivity extends AppCompatActivity {
 
-    protected RecyclerView recyclerView;
-    protected ProgressBar progress;
-    protected TextView txtEmpty;
-    protected RestaurantAdapter adapter;
+    private RecyclerView recyclerView;
+    private ProgressBar progress;
+    private TextView txtEmpty;
+
+    private RestaurantAdapter adapter;
+    private RestaurantListViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restaurant_list);
+
         bindViews();
         setupRecycler();
+        setupViewModel();
+        observeState();
+
+        // Goi load du lieu
+        viewModel.loadRestaurants();
     }
 
-    protected void bindViews() {
+    private void bindViews() {
         recyclerView = findViewById(R.id.recyclerRestaurants);
         progress = findViewById(R.id.progress);
         txtEmpty = findViewById(R.id.txtEmpty);
     }
-    protected void setupRecycler() {
+
+    private void setupRecycler() {
         adapter = new RestaurantAdapter(new ArrayList<>(), restaurant -> {
+            // Neu nhom ban co man chi tiet, ban thay Toast nay bang Intent sang RestaurantDetailActivity
+            Toast.makeText(this, "Da chon: " + safe(restaurant.getName()), Toast.LENGTH_SHORT).show();
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+    }
+
+    private void setupViewModel() {
+        // Neu ban cua ban da lam ViewModel + Factory rieng thi ban chi can sua cho dung,
+        // con neu chua co Factory thi doan nay tu tao dependency (Repository) de chay duoc.
+        RestaurantRepository repo = new RestaurantRepository();
+
+        viewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
+            @Override
+            public <T extends ViewModel> T create(Class<T> modelClass) {
+                if (modelClass.isAssignableFrom(RestaurantListViewModel.class)) {
+                    return (T) new RestaurantListViewModel(repo);
+                }
+                throw new IllegalArgumentException("Unknown ViewModel class");
+            }
+        }).get(RestaurantListViewModel.class);
+    }
+
+    private void observeState() {
+        viewModel.getLoading().observe(this, isLoading -> {
+            boolean loading = isLoading != null && isLoading;
+            progress.setVisibility(loading ? View.VISIBLE : View.GONE);
+        });
+
+        viewModel.getRestaurants().observe(this, list -> {
+            List<Restaurant> data = (list == null) ? new ArrayList<>() : list;
+
+            adapter.setData(data);
+
+            boolean empty = data.isEmpty();
+            txtEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+            recyclerView.setVisibility(empty ? View.GONE : View.VISIBLE);
+        });
+
+        viewModel.getError().observe(this, err -> {
+            if (err != null && !err.trim().isEmpty()) {
+                Toast.makeText(this, err, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private String safe(String s) {
+        return s == null ? "" : s;
     }
 }
