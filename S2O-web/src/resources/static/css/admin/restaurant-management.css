@@ -1,0 +1,463 @@
+/* =========================================
+   1. RESET & BASE STYLES
+   ========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #f9fafb;
+    /* Nền xám nhạt toàn trang */
+    color: #1f2937;
+    /* Màu chữ chính đậm */
+    height: 100vh;
+    overflow: hidden;
+    /* Ngăn scroll body, chỉ scroll nội dung bên trong */
+}
+
+
+/* Container chính bao bọc cả Sidebar và Main */
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+
+/* =========================================
+   2. SIDEBAR (Cố định bên trái)
+   ========================================= */
+
+.sidebar {
+    width: 260px;
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 50;
+}
+
+
+/* Logo Brand */
+
+.brand {
+    height: 70px;
+    /* Bằng chiều cao Header */
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    border-bottom: 1px solid #f3f4f6;
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: #111827;
+}
+
+.brand i {
+    color: #4f46e5;
+    /* Màu Indigo */
+    margin-right: 10px;
+}
+
+
+/* Menu Navigation */
+
+.sidebar-nav {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    color: #4b5563;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    transition: all 0.2s ease;
+}
+
+.nav-item i {
+    margin-right: 12px;
+    width: 20px;
+    height: 20px;
+}
+
+.nav-item:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+
+/* Trạng thái đang chọn (Active) */
+
+.nav-item.active {
+    background-color: #4f46e5;
+    color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1);
+}
+
+.nav-item.active i {
+    color: #ffffff;
+}
+
+
+/* =========================================
+   3. MAIN LAYOUT (Bên phải)
+   ========================================= */
+
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    /* Chừa chỗ cho sidebar */
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f9fafb;
+}
+
+
+/* --- HEADER (Nền trắng, cố định trên cùng) --- */
+
+.page-header {
+    background-color: #ffffff;
+    height: 70px;
+    padding: 0 32px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    /* Không bị co lại */
+}
+
+.page-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+
+/* Nút Info tròn/vuông nhỏ bên phải header */
+
+.btn-icon-only {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e5e7eb;
+    background-color: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6b7280;
+    transition: 0.2s;
+}
+
+.btn-icon-only:hover {
+    background-color: #f9fafb;
+    color: #111827;
+}
+
+
+/* --- CONTENT BODY (Phần xám chứa nội dung, có cuộn dọc) --- */
+
+.content-body {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+    /* Scroll nội dung tại đây */
+}
+
+
+/* =========================================
+   4. SEARCH BAR (Thanh tìm kiếm)
+   ========================================= */
+
+.search-section {
+    margin-bottom: 24px;
+}
+
+.search-wrapper {
+    position: relative;
+    max-width: 480px;
+    width: 100%;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    /* Padding trái lớn để chứa icon */
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    outline: none;
+    font-size: 0.95rem;
+    background-color: #ffffff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+}
+
+
+/* =========================================
+   5. STATS CARDS (Thẻ thống kê)
+   ========================================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.stat-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 2rem;
+    /* 32px */
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.stat-desc {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.text-green {
+    color: #10b981;
+    font-weight: 500;
+}
+
+
+/* =========================================
+   6. TABLE SECTION (Bảng dữ liệu)
+   ========================================= */
+
+.table-card {
+    padding: 0;
+    /* Xóa padding của card để header bảng sát lề */
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 24px;
+    border-bottom: 1px solid #f3f4f6;
+    background-color: #ffffff;
+}
+
+.card-header h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.card-header p {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+
+/* Bảng Responsive */
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.data-table th {
+    background-color: #f9fafb;
+    /* Header bảng màu xám nhẹ */
+    padding: 14px 24px;
+    font-weight: 600;
+    color: #4b5563;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.data-table td {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.data-table tr:hover td {
+    background-color: #f9fafb;
+    /* Hover dòng */
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+.fw-bold {
+    font-weight: 600;
+    color: #111827;
+}
+
+
+/* =========================================
+   7. BADGES & ACTIONS (Nút & Trạng thái)
+   ========================================= */
+
+.badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+}
+
+.badge-active {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.badge-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.badge-inactive {
+    background-color: #f3f4f6;
+    color: #4b5563;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #374151;
+}
+
+.icon-star {
+    width: 14px;
+    height: 14px;
+    fill: #fbbf24;
+    /* Màu vàng */
+    color: #fbbf24;
+    margin-left: 4px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #6b7280;
+}
+
+.btn-action i {
+    width: 16px;
+    height: 16px;
+}
+
+
+/* Màu từng nút hành động */
+
+.btn-edit:hover {
+    border-color: #4b5563;
+    color: #111827;
+    background: #f3f4f6;
+}
+
+.btn-check {
+    color: #4f46e5;
+    border-color: #e0e7ff;
+    background-color: #eef2ff;
+}
+
+.btn-check:hover {
+    background-color: #4f46e5;
+    color: #ffffff;
+    border-color: #4f46e5;
+}
+
+.btn-delete {
+    color: #ef4444;
+    border-color: #fee2e2;
+    background-color: #fef2f2;
+}
+
+.btn-delete:hover {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+}
+
+
+/* Responsive cơ bản */
+
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        /* 1 cột trên mobile */
+    }
+}
