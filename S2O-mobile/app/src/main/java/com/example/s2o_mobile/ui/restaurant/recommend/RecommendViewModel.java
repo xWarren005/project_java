@@ -6,9 +6,12 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.s2o_mobile.data.model.Restaurant;
 import com.example.s2o_mobile.data.repository.RestaurantRepository;
+import com.example.s2o_mobile.data.repository.RepositoryCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class RecommendViewModel extends ViewModel {
 
@@ -37,4 +40,57 @@ public class RecommendViewModel extends ViewModel {
     public LiveData<List<Restaurant>> getRecommendedRestaurants() {
         return recommendedRestaurants;
     }
+
+    public void loadTopRated(int limit) {
+        loading.setValue(true);
+        error.setValue(null);
+
+        repository.getAllRestaurants(new RepositoryCallback<List<Restaurant>>() {
+            @Override
+            public void onSuccess(List<Restaurant> data) {
+                loading.postValue(false);
+
+                List<Restaurant> list = (data == null) ? new ArrayList<>() : new ArrayList<>(data);
+
+                Collections.sort(list, new Comparator<Restaurant>() {
+                    @Override
+                    public int compare(Restaurant a, Restaurant b) {
+                        return Double.compare(ratingOf(b), ratingOf(a));
+                    }
+                });
+
+                recommendedRestaurants.postValue(takeTop(list, limit));
+            }
+
+            @Override
+            public void onError(String message) {
+                loading.postValue(false);
+                error.postValue(message == null ? "Khong lay duoc du lieu nha hang" : message);
+            }
+        });
+    }
+
+    private List<Restaurant> takeTop(List<Restaurant> list, int limit) {
+        if (list == null) return new ArrayList<>();
+        if (limit <= 0 || limit >= list.size()) return list;
+        return new ArrayList<>(list.subList(0, limit));
+    }
+
+    private double ratingOf(Restaurant r) {
+        if (r == null) return 0.0;
+
+        try {
+            Object val = r.getClass().getMethod("getAvgRating").invoke(r);
+            if (val instanceof Number) return ((Number) val).doubleValue();
+        } catch (Exception ignore) {}
+
+        try {
+            Object val = r.getClass().getMethod("getAvg_rating").invoke(r);
+            if (val instanceof Number) return ((Number) val).doubleValue();
+        } catch (Exception ignore) {}
+
+        return 0.0;
+    }
+
 }
+
