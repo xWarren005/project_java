@@ -38,7 +38,6 @@ public class RestaurantListActivity extends AppCompatActivity {
         setupViewModel();
         observeState();
 
-        // Goi load du lieu
         viewModel.loadRestaurants();
     }
 
@@ -50,7 +49,6 @@ public class RestaurantListActivity extends AppCompatActivity {
 
     private void setupRecycler() {
         adapter = new RestaurantAdapter(new ArrayList<>(), restaurant -> {
-            // Neu nhom ban co man chi tiet, ban thay Toast nay bang Intent sang RestaurantDetailActivity
             Toast.makeText(this, "Da chon: " + safe(restaurant.getName()), Toast.LENGTH_SHORT).show();
         });
 
@@ -59,8 +57,7 @@ public class RestaurantListActivity extends AppCompatActivity {
     }
 
     private void setupViewModel() {
-        // Neu ban cua ban da lam ViewModel + Factory rieng thi ban chi can sua cho dung,
-        // con neu chua co Factory thi doan nay tu tao dependency (Repository) de chay duoc.
+
         RestaurantRepository repo = new RestaurantRepository();
 
         viewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
