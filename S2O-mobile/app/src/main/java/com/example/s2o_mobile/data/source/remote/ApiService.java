@@ -29,7 +29,7 @@ public class ApiService {
         return retrofit.create(AuthApi.class);
     }
 
-    // 👉 PHẦN BẠN CẦN THÊM
+
     public RestaurantApi getRestaurantApi() {
         return retrofit.create(RestaurantApi.class);
     }
