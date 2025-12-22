@@ -72,3 +72,34 @@ public class RestaurantDetailActivity extends BaseActivity {
         viewModel = new ViewModelProvider(this).get(RestaurantDetailViewModel.class);
     }
 }
+
+private void observeViewModel() {
+    viewModel.getLoading().observe(this, isLoading -> {
+        if (progress != null) {
+            progress.setVisibility(Boolean.TRUE.equals(isLoading) ? View.GONE : View.VISIBLE);
+        }
+    });
+
+    viewModel.getRestaurant().observe(this, restaurant -> {
+        if (restaurant == null) return;
+
+        if (tvName != null) tvName.setText(safe(restaurant.getName()));
+        if (tvAddress != null) tvAddress.setText(safe(restaurant.getPhone()));
+        if (tvPhone != null) tvPhone.setText(safe(restaurant.getPhone()));
+        if (tvDescription != null) tvDescription.setText(safe(restaurant.getDescription()));
+
+        if (tvRating != null) {
+            tvRating.setText(restaurant.getRating() == null ? "" : String.valueOf(restaurant.getRating()));
+        }
+    });
+
+    viewModel.getErrorMessage().observe(this, msg -> {
+        if (msg != null && !msg.trim().isEmpty()) {
+            Toast.makeText(this, "Có lỗi xảy ra", Toast.LENGTH_SHORT).show();
+        }
+    });
+}
+
+private String safe(String s) {
+    return s == null ? "" : s;
+}
