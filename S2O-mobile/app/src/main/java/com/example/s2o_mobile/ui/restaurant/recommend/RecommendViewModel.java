@@ -5,13 +5,13 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.s2o_mobile.data.model.Restaurant;
-import com.example.s2o_mobile.data.repository.RestaurantRepository;
 import com.example.s2o_mobile.data.repository.RepositoryCallback;
+import com.example.s2o_mobile.data.repository.RestaurantRepository;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 public class RecommendViewModel extends ViewModel {
 
@@ -55,11 +55,55 @@ public class RecommendViewModel extends ViewModel {
                 Collections.sort(list, new Comparator<Restaurant>() {
                     @Override
                     public int compare(Restaurant a, Restaurant b) {
-                        return Double.compare(ratingOf(b), ratingOf(a));
+                        double rb = ratingOf(b);
+                        double ra = ratingOf(a);
+                        return Double.compare(rb, ra);
                     }
                 });
 
                 recommendedRestaurants.postValue(takeTop(list, limit));
+            }
+
+            @Override
+            public void onError(String message) {
+                loading.postValue(false);
+                error.postValue(message == null ? "Khong lay duoc du lieu nha hang" : message);
+            }
+        });
+    }
+
+
+    public void loadByKeyword(String keyword, int limit) {
+        loading.setValue(true);
+        error.setValue(null);
+
+        final String key = keyword == null ? "" : keyword.trim().toLowerCase();
+
+        repository.getAllRestaurants(new RepositoryCallback<List<Restaurant>>() {
+            @Override
+            public void onSuccess(List<Restaurant> data) {
+                loading.postValue(false);
+
+                List<Restaurant> source = (data == null) ? new ArrayList<>() : data;
+                List<Restaurant> filtered = new ArrayList<>();
+
+                for (Restaurant r : source) {
+                    String name = safe(textTryGetName(r)).toLowerCase();
+                    String addr = safe(textTryGetAddress(r)).toLowerCase();
+
+                    if (key.isEmpty() || name.contains(key) || addr.contains(key)) {
+                        filtered.add(r);
+                    }
+                }
+
+                Collections.sort(filtered, new Comparator<Restaurant>() {
+                    @Override
+                    public int compare(Restaurant a, Restaurant b) {
+                        return Double.compare(ratingOf(b), ratingOf(a));
+                    }
+                });
+
+                recommendedRestaurants.postValue(takeTop(filtered, limit));
             }
 
             @Override
@@ -80,11 +124,12 @@ public class RecommendViewModel extends ViewModel {
         if (r == null) return 0.0;
 
         try {
-            Object val = r.getClass().getMethod("getAvgRating").invoke(r);
-            if (val instanceof Number) return ((Number) val).doubleValue();
+            // Thu getAvgRating()
+            return (double) r.getClass().getMethod("getAvgRating").invoke(r);
         } catch (Exception ignore) {}
 
         try {
+            // Thu getAvg_rating()
             Object val = r.getClass().getMethod("getAvg_rating").invoke(r);
             if (val instanceof Number) return ((Number) val).doubleValue();
         } catch (Exception ignore) {}
@@ -92,5 +137,27 @@ public class RecommendViewModel extends ViewModel {
         return 0.0;
     }
 
-}
+    private String textTryGetName(Restaurant r) {
+        if (r == null) return "";
+        try {
+            Object val = r.getClass().getMethod("getName").invoke(r);
+            return val == null ? "" : String.valueOf(val);
+        } catch (Exception e) {
+            return "";
+        }
+    }
 
+    private String textTryGetAddress(Restaurant r) {
+        if (r == null) return "";
+        try {
+            Object val = r.getClass().getMethod("getAddress").invoke(r);
+            return val == null ? "" : String.valueOf(val);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    private String safe(String s) {
+        return s == null ? "" : s;
+    }
+}
