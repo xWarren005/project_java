@@ -4,26 +4,33 @@ import java.io.Serializable;
 
 public class Booking implements Serializable {
 
-    private int id;
+    private int Id;
     private int restaurantId;
+    private String restaurantName;
+
     private String bookingTime;
     private String guestCount;
+
+    private String status;
+    private String note;
+    private String created_at;
 
     public Booking() {
     }
 
-    public Booking(int id, int restaurantId, String bookingTime) {
-        this.id = id;
+    public Booking(int Id, int restaurantId, String bookingTime, String status) {
+        Id = Id;
         this.restaurantId = restaurantId;
         this.bookingTime = bookingTime;
+        this.status = status;
     }
 
     public int getId() {
-        return id;
+        return Id;
     }
 
     public void setId(int id) {
-        this.id = id;
+        Id = id;
     }
 
     public int getRestaurantId() {
@@ -32,6 +39,14 @@ public class Booking implements Serializable {
 
     public void setRestaurantId(int restaurantId) {
         this.restaurantId = restaurantId;
+    }
+
+    public String getRestaurantName() {
+        return restaurantName;
+    }
+
+    public void setRestaurantName(String restaurantName) {
+        this.restaurantName = restaurantName;
     }
 
     public String getBookingTime() {
@@ -47,6 +62,30 @@ public class Booking implements Serializable {
     }
 
     public void setGuestCount(String guestCount) {
-        this.guestCount = guestCount;
+        guestCount = guestCount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public String getCreatedAt() {
+        return created_at;
+    }
+
+    public void setCreatedAt(String created_at) {
+        this.created_at = created_at;
     }
 }
