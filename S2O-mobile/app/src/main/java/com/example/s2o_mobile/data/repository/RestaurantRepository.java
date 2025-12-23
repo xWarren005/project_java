@@ -53,7 +53,6 @@ public class RestaurantRepository {
             }
         });
     }
-
     public void getRestaurantDetail(int restaurantId, RepositoryCallback<Restaurant> callback) {
         getRestaurantById(restaurantId, callback);
     }
