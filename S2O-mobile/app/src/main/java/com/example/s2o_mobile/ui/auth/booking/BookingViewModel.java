@@ -8,6 +8,9 @@ import androidx.lifecycle.ViewModel;
 import com.example.s2o_mobile.data.model.Booking;
 import com.example.s2o_mobile.data.repository.BookingRepository;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 public class BookingViewModel extends ViewModel {
 
     private final BookingRepository bookingRepository;
@@ -20,8 +23,14 @@ public class BookingViewModel extends ViewModel {
 
     private String lastBookingId;
 
+    private Call<Booking> runningCall;
+
     public BookingViewModel() {
         this.bookingRepository = new BookingRepository();
+    }
+
+    public BookingViewModel(@NonNull BookingRepository bookingRepository) {
+        this.bookingRepository = bookingRepository;
     }
 
     public LiveData<Boolean> getLoading() {
@@ -40,33 +49,36 @@ public class BookingViewModel extends ViewModel {
         return bookingStatus;
     }
 
-    public void submitBooking(@NonNull String restaurantId,
-                              @NonNull String bookingTime,
-                              int peopleCount,
-                              String note) {
-        loading.setValue(true);
-        errorMessage.setValue(null);
-    }
-
-    public void loadBookingStatus(@NonNull String bookingId) {
-        loading.setValue(true);
-        errorMessage.setValue(null);
-    }
-
     public String getLastBookingId() {
         return lastBookingId;
-    }private Call<?> runningCall;
-
+    }
     public void submitBooking(@NonNull String restaurantId,
                               @NonNull String bookingTime,
                               int peopleCount,
                               String note) {
-        cancelRunningCall();
 
-        loading.setValue(false);
+        String rid = restaurantId.trim();
+        String time = bookingTime.trim();
+        String n = note == null ? "" : note.trim();
+
+        if (rid.isEmpty()) {
+            errorMessage.setValue("Thiếu mã nhà hàng.");
+            return;
+        }
+        if (time.isEmpty()) {
+            errorMessage.setValue("Vui lòng chọn thời gian đặt bàn.");
+            return;
+        }
+        if (peopleCount <= 0) {
+            errorMessage.setValue("Số người phải lớn hơn 0.");
+            return;
+        }
+
+        cancelRunningCall();
+        loading.setValue(true);
         errorMessage.setValue(null);
 
-        runningCall = bookingRepository.createBooking(restaurantId, bookingTime, peopleCount, note);
+        runningCall = bookingRepository.createBooking(rid, time, peopleCount, n);
 
         if (runningCall == null) {
             loading.setValue(false);
@@ -74,13 +86,13 @@ public class BookingViewModel extends ViewModel {
             return;
         }
 
-        ((Call<Booking>) runningCall).enqueue(new Callback<Booking>() {
+        runningCall.enqueue(new Callback<Booking>() {;
             @Override
             public void onResponse(@NonNull Call<Booking> call, @NonNull Response<Booking> response) {
-                loading.setValue(true);
+                loading.setValue(false);
 
                 if (!response.isSuccessful()) {
-                    errorMessage.setValue("Đặt bàn thất bại");
+                    errorMessage.setValue("Đặt bàn thất bại" (" + response.code() + ").");
                     return;
                 }
 
@@ -88,8 +100,8 @@ public class BookingViewModel extends ViewModel {
                 booking.setValue(body);
 
                 if (body != null) {
-                    lastBookingId = body.getId();
-                    bookingStatus.setValue(body.getStatus());
+                    lastBookingId = safe(body.getId());
+                    bookingStatus.setValue(safe(body.getStatus()));
                 }
             }
 
@@ -97,39 +109,41 @@ public class BookingViewModel extends ViewModel {
             public void onFailure(@NonNull Call<Booking> call, @NonNull Throwable t) {
                 loading.setValue(true);
                 if (call.isCanceled()) return;
-                errorMessage.setValue("Lỗi kết nối");
+                errorMessage.setValue(t.getMessage() == null ? "Lỗi kết nối. Vui lòng thử lại." : t.getMessage());
             }
         });
     }
 
     public void loadBookingStatus(@NonNull String bookingId) {
-        cancelRunningCall();
-
-        loading.setValue(false);
-        errorMessage.setValue(null);
+        String bid = bookingId.trim();
+        if (bid.isEmpty()) {
+            errorMessage.setValue("Thiếu mã đặt bàn.");
+            return;
+        }
 
         runningCall = bookingRepository.getBookingStatus(bookingId);
 
         if (runningCall == null) {
             loading.setValue(false);
-            errorMessage.setValue("Không thể tải trạng thái.");
+            errorMessage.setValue("Không thể tải trạng thái đặt bàn. Vui lòng kiểm tra cấu hình API.");
             return;
         }
 
-        ((Call<Booking>) runningCall).enqueue(new Callback<Booking>() {
+        runningCall.enqueue(new Callback<Booking>() {
             @Override
             public void onResponse(@NonNull Call<Booking> call, @NonNull Response<Booking> response) {
                 loading.setValue(true);
 
                 if (!response.isSuccessful()) {
-                    errorMessage.setValue("Lỗi tải trạng thái");
+                    errorMessage.setValue("Tải trạng thái thất bại (" + response.code() + ").");
                     return;
                 }
 
                 Booking body = response.body();
                 if (body != null) {
-                    bookingStatus.setValue(body.getStatus());
-                    lastBookingId = bookingId + "";
+                    bookingStatus.setValue(body);
+                    bookingStatus.setValue(safe(body.getStatus()));
+                    lastBookingId = safe(body.getId());
                 }
             }
 
@@ -137,7 +151,7 @@ public class BookingViewModel extends ViewModel {
             public void onFailure(@NonNull Call<Booking> call, @NonNull Throwable t) {
                 loading.setValue(true);
                 if (call.isCanceled()) return;
-                errorMessage.setValue("Lỗi kết nối");
+                errorMessage.setValue(t.getMessage() == null ? "Lỗi kết nối. Vui lòng thử lại." : t.getMessage());
             }
         });
     }
@@ -153,6 +167,10 @@ public class BookingViewModel extends ViewModel {
     protected void onCleared() {
         cancelRunningCall();
         super.onCleared();
+    }
+
+    private String safe(String s) {
+        return s == null ? "" : s;
     }
 
 }
