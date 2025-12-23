@@ -5,7 +5,6 @@ function goBack() {
 }
 function goToHistory() { window.location.href = "history.html" }
 function goToProfile() { window.location.href = "profile.html" }
-function goToQRScanner() { window.location.href = "qr-scanner.html" }
 // LocalStorage management
 const Storage = {
   getCurrentUser() {
