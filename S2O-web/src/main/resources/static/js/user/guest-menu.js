@@ -51,7 +51,7 @@ const MockData = {
       description: "Phở bò truyền thống",
       price: 65000,
       category: "main",
-      image: "../../../../../public/pho-bo-vietnamese-beef-noodle-soup.jpg",
+      image: "../../../../../../public/pho-bo-vietnamese-beef-noodle-soup.jpg",
     },
     {
       id: "comtam",
@@ -59,7 +59,7 @@ const MockData = {
       description: "Cơm tấm sườn bì",
       price: 50000,
       category: "main",
-      image: "../../../../../public/com-tam-broken-rice.jpg",
+      image: "../../../../../../public/com-tam-broken-rice.jpg",
     },
     {
       id: "trada",
@@ -67,7 +67,7 @@ const MockData = {
       description: "Trà đá mát lạnh",
       price: 10000,
       category: "drink",
-      image: "../../../../../public/iced-tea.jpg",
+      image: "../../../../../../public/iced-tea.jpg",
     },
   ],
   getCategories() { return this.categories },
