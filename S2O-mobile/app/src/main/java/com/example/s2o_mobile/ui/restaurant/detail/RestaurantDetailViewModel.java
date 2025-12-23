@@ -1,47 +1,55 @@
 package com.example.s2o_mobile.ui.restaurant.detail;
 
-import androidx.lifecycle.ViewModel;
+import android.app.Application;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.s2o_mobile.data.model.Restaurant;
 import com.example.s2o_mobile.data.repository.RestaurantRepository;
 
-public class RestaurantDetailViewModel extends ViewModel {
+public class RestaurantDetailViewModel extends AndroidViewModel {
 
-    private RestaurantRepository restaurantRepository;
+    private final RestaurantRepository restaurantRepository;
 
-    public MutableLiveData<Boolean> loading;
-    public MutableLiveData<String> errorMessage;
-    public MutableLiveData<Restaurant> restaurant;
+    private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
+    private final MutableLiveData<String> errorMessage = new MutableLiveData<>(null);
 
-    public RestaurantDetailViewModel() {
+    private final MutableLiveData<Restaurant> restaurant = new MutableLiveData<>(null);
+
+    public RestaurantDetailViewModel(@NonNull Application application) {
+        super(application);
+        this.restaurantRepository = RestaurantRepository.getInstance();
     }
 
-    public MutableLiveData<Boolean> getLoading() {
+    public LiveData<Boolean> getLoading() {
         return loading;
     }
 
-    public MutableLiveData<String> getErrorMessage() {
+    public LiveData<String> getErrorMessage() {
         return errorMessage;
     }
 
-    public MutableLiveData<Restaurant> getRestaurant() {
+    public LiveData<Restaurant> getRestaurant() {
         return restaurant;
     }
 
     public void loadRestaurantDetail(int restaurantId) {
-
-        if (restaurantId < 0) {
-            errorMessage.setValue("ID hợp lệ");
+        if (restaurantId <= 0) {
+            errorMessage.setValue("Restaurant id không hợp lệ");
+            return;
         }
 
+        loading.setValue(true);
+        errorMessage.setValue(null);
+
         restaurantRepository.getRestaurantDetail(
-                0,
-                null,
+                restaurantId,
+                restaurant,
                 errorMessage,
                 loading
         );
-
-        loading.setValue(false);
     }
 }
