@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Báo Cáo Doanh Thu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../../static/css/manager/header.css">
+    <link rel="stylesheet" href="../../static/css/manager/revenue.css">
+</head>
+<body>
+
+<main class="content-wrapper">
+    <div class="page-header">
+        <h2 class="title">Doanh Thu & Thống Kê</h2>
+        <p class="subtitle">Tổng quan về doanh thu và hoạt động kinh doanh</p>
+    </div>
+
+    <div id="menu-container"></div>
+
+    <div class="view-section">
+
+        <div class="stats-grid" id="summary-container">
+        </div>
+
+        <div class="revenue-layout">
+            <div class="chart-panel">
+                <h3 class="panel-title">Doanh Thu 7 Ngày Qua</h3>
+                <div class="bar-chart-container" id="chart-container">
+                </div>
+            </div>
+
+            <div class="top-dish-panel">
+                <h3 class="panel-title">Món Ăn Bán Chạy</h3>
+                <div class="top-list" id="top-dishes-container">
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="../../static/js/manager/header.js"></script>
+<script src="../../static/js/manager/revenue.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        renderMenu('revenue');
+    });
+</script>
+</body>
+</html>

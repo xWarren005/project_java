@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Bàn - Thu Ngân</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="../../static/css/cashier/header.css">
+    <link rel="stylesheet" href="../../static/css/cashier/tables.css">
+</head>
+<body>
+
+<main class="content-wrapper">
+    <div id="cashier-menu-container"></div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">Bàn Trống</span>
+            <span class="stat-number success" id="stat-empty">0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Đang Phục Vụ</span>
+            <span class="stat-number danger" id="stat-busy">0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Đã Đặt</span>
+            <span class="stat-number warning" id="stat-reserved">0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Tổng Bàn</span>
+            <span class="stat-number primary" id="stat-total">0</span>
+        </div>
+    </div>
+
+    <h3 class="section-title">Sơ Đồ Bàn</h3>
+
+    <div class="table-grid" id="table-grid">
+    </div>
+</main>
+
+<div id="table-modal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+
+        <div class="modal-header-info">
+            <h2 id="modal-title">Bàn #2</h2>
+            <div class="people-info"><i class="fa-solid fa-user-group"></i> <span id="modal-capacity">Sức chứa: 4 người</span></div>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Trạng thái bàn</label>
+                <select class="status-select">
+                    <option value="busy">Có Khách</option>
+                    <option value="empty">Trống</option>
+                    <option value="reserved">Đã Đặt</option>
+                </select>
+            </div>
+
+            <div class="order-summary-box">
+                <div class="order-box-header">
+                    <span>Đơn Hàng Hiện Tại</span>
+                    <span class="order-tag">#RDER-1</span>
+                </div>
+
+                <ul class="order-list" id="modal-items">
+                </ul>
+
+                <div class="divider"></div>
+
+                <div class="total-row">
+                    <span>Tổng cộng:</span>
+                    <span class="total-price" id="modal-total">0đ</span>
+                </div>
+                <div class="time-row">
+                    <i class="fa-regular fa-clock"></i> <span id="modal-time">...</span>
+                </div>
+            </div>
+
+            <button class="btn-action">
+                <i class="fa-solid fa-receipt"></i> Xem Hóa Đơn
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="../../static/js/cashier/header.js"></script>
+<script src="../../static/js/cashier/tables.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        renderTopHeader();
+        renderCashierMenu('tables');
+    });
+</script>
+</body>
+</html>

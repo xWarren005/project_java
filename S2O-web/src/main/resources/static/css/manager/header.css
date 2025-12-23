@@ -1,0 +1,96 @@
+/* --- header.css --- */
+
+/* 1. TOP HEADER */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 2rem;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    z-index: 100; /* Giữ header luôn ở trên cùng */
+}
+
+.brand-group {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.logo-box {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: #2E25D1;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5rem;
+}
+
+.app-name {
+    font-size: 1rem;
+    margin: 0;
+    color: #2c3e50;
+}
+
+.role-label {
+    font-size: 0.8rem;
+    color: #2E25D1;
+    font-weight: 700;
+}
+
+.user-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.avatar {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+}
+
+.username {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* 2. MENU TABS (Điều hướng) */
+.nav-tabs {
+    display: flex;
+    gap: 0.5rem;
+    background: #fff;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+    margin-bottom: 2rem;
+    overflow-x: auto; /* Cho phép cuộn ngang trên mobile */
+}
+
+.tab-item {
+    padding: 0.6rem 1.2rem;
+    text-decoration: none;
+    color: #636e72;
+    font-weight: 500;
+    border-radius: 0.4rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.tab-item:hover {
+    background: #f1f2f6;
+}
+
+.tab-item.active {
+    background: #EEF0FF;
+    color: #2E25D1;
+    font-weight: 700;
+}
