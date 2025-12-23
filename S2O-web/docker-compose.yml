@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # --- Dịch vụ 1: Database MySQL ---
+  mysqldb:
+    image: mysql:8.0
+    container_name: s2o_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Aa@123456  # Mật khẩu root
+      MYSQL_DATABASE: S2O_db       # Tên Database phải khớp với file SQL
+    ports:
+      - "3307:3306" # Map ra cổng 3307 để tránh đụng độ nếu máy bạn đang cài MySQL sẵn
+    volumes:
+      - db_data:/var/lib/mysql     # Lưu dữ liệu để không bị mất khi tắt Docker
+      # QUAN TRỌNG: Tự động chạy file SQL của bạn khi khởi tạo lần đầu
+      - ./S2O_db.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # --- Dịch vụ 2: Java Backend ---
+  app:
+    build: .
+    container_name: s2o_backend
+    restart: always
+    ports:
+      - "8080:8080" # Truy cập web tại http://localhost:8080
+    depends_on:
+      - mysqldb # Chờ DB chạy trước rồi mới chạy App
+    environment:
+      # Ghi đè cấu hình trong application.properties để trỏ tới container 'mysqldb'
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/S2O_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Aa@123456
+    volumes:
+      # Map thư mục upload ảnh ra ngoài máy thật
+      - ./uploads:/app/uploads
+
+volumes:
+  db_data:
