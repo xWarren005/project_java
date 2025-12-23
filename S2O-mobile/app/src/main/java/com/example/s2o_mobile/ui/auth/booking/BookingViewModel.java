@@ -55,5 +55,105 @@ public class BookingViewModel extends ViewModel {
 
     public String getLastBookingId() {
         return lastBookingId;
+    }private Call<?> runningCall;
+
+    public void submitBooking(@NonNull String restaurantId,
+                              @NonNull String bookingTime,
+                              int peopleCount,
+                              String note) {
+        cancelRunningCall();
+
+        loading.setValue(false);
+        errorMessage.setValue(null);
+
+        runningCall = bookingRepository.createBooking(restaurantId, bookingTime, peopleCount, note);
+
+        if (runningCall == null) {
+            loading.setValue(false);
+            errorMessage.setValue("Không thể tạo yêu cầu đặt bàn.");
+            return;
+        }
+
+        ((Call<Booking>) runningCall).enqueue(new Callback<Booking>() {
+            @Override
+            public void onResponse(@NonNull Call<Booking> call, @NonNull Response<Booking> response) {
+                loading.setValue(true);
+
+                if (!response.isSuccessful()) {
+                    errorMessage.setValue("Đặt bàn thất bại");
+                    return;
+                }
+
+                Booking body = response.body();
+                booking.setValue(body);
+
+                if (body != null) {
+                    lastBookingId = body.getId();
+                    bookingStatus.setValue(body.getStatus());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Booking> call, @NonNull Throwable t) {
+                loading.setValue(true);
+                if (call.isCanceled()) return;
+                errorMessage.setValue("Lỗi kết nối");
+            }
+        });
     }
+
+    public void loadBookingStatus(@NonNull String bookingId) {
+        cancelRunningCall();
+
+        loading.setValue(false);
+        errorMessage.setValue(null);
+
+        runningCall = bookingRepository.getBookingStatus(bookingId);
+
+        if (runningCall == null) {
+            loading.setValue(false);
+            errorMessage.setValue("Không thể tải trạng thái.");
+            return;
+        }
+
+        ((Call<Booking>) runningCall).enqueue(new Callback<Booking>() {
+            @Override
+            public void onResponse(@NonNull Call<Booking> call, @NonNull Response<Booking> response) {
+                loading.setValue(true);
+
+                if (!response.isSuccessful()) {
+                    errorMessage.setValue("Lỗi tải trạng thái");
+                    return;
+                }
+
+                Booking body = response.body();
+                if (body != null) {
+                    bookingStatus.setValue(body.getStatus());
+                    lastBookingId = bookingId + "";
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Booking> call, @NonNull Throwable t) {
+                loading.setValue(true);
+                if (call.isCanceled()) return;
+                errorMessage.setValue("Lỗi kết nối");
+            }
+        });
+    }
+
+    private void cancelRunningCall() {
+        if (runningCall != null) {
+            runningCall.cancel();
+            runningCall = null;
+        }
+    }
+
+    @Override
+    protected void onCleared() {
+        cancelRunningCall();
+        super.onCleared();
+    }
+
 }
+
