@@ -1,5 +1,7 @@
 package com.example.s2o_mobile.ui.restaurant.detail;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -7,10 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.s2o_mobile.R;
 import com.example.s2o_mobile.base.BaseActivity;
+import com.example.s2o_mobile.data.model.Restaurant;
 
 public class RestaurantDetailActivity extends BaseActivity {
 
@@ -31,8 +35,6 @@ public class RestaurantDetailActivity extends BaseActivity {
 
     private RestaurantDetailViewModel viewModel;
 
-    private String restaurantId;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,17 +42,16 @@ public class RestaurantDetailActivity extends BaseActivity {
 
         bindViews();
         setupViewModel();
+        observeViewModel();
 
-        restaurantId = getIntent() != null ? getIntent().getStringExtra("restaurant_id") : null;
+        String restaurantId = getIntent() != null ? getIntent().getStringExtra(EXTRA_RESTAURANT_ID) : null;
         if (restaurantId == null || restaurantId.trim().isEmpty()) {
             Toast.makeText(this, "Thiếu mã nhà hàng.", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-        if (btnBack != null) {
-            btnBack.setOnClickListener(v -> finish());
-        }
+        viewModel.loadRestaurantDetail(restaurantId);
     }
 
     private void bindViews() {
@@ -68,29 +69,38 @@ public class RestaurantDetailActivity extends BaseActivity {
         btnMap = findViewById(R.id.btnMap);
     }
 
+   if (btnBack != null) {
+        btnBack.setOnClickListener(v -> onBackPressed());
+    }
+}
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(RestaurantDetailViewModel.class);
     }
 }
 
 private void observeViewModel() {
-    viewModel.getLoading().observe(this, isLoading -> {
-        if (progress != null) {
-            progress.setVisibility(Boolean.TRUE.equals(isLoading) ? View.GONE : View.VISIBLE);
-        }
-    });
+    viewModel.getLoading().observe(this, isLoading -> setVisible(progress, Boolean.TRUE.equals(isLoading)));
 
     viewModel.getRestaurant().observe(this, restaurant -> {
         if (restaurant == null) return;
+        bindRestaurant(restaurant);
+    });
 
+    viewModel.getErrorMessage().observe(this, msg -> {
+        if (msg == null || msg.trim().isEmpty()) return;
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    });
+}
+
+private void bindRestaurant(@NonNull Restaurant r) {
         if (tvName != null) tvName.setText(safe(restaurant.getName()));
         if (tvAddress != null) tvAddress.setText(safe(restaurant.getPhone()));
         if (tvPhone != null) tvPhone.setText(safe(restaurant.getPhone()));
         if (tvDescription != null) tvDescription.setText(safe(restaurant.getDescription()));
 
         if (tvRating != null) {
-            tvRating.setText(restaurant.getRating() == null ? "" : String.valueOf(restaurant.getRating()));
-        }
+            String ratingText = r.getRating() == null ? "" : String.valueOf(r.getRating());
+            tvRating.setText(ratingText);
     });
 
     viewModel.getErrorMessage().observe(this, msg -> {
