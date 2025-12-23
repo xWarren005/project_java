@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thực đơn - Nhà hàng Phố</title>
+    <link rel="stylesheet" href="../../static/css/user/menuuser.css">
+    <link rel="stylesheet" href="../../static/css/user/orders.css">
+    <link rel="stylesheet" href="../../static/css/user/invoice.css">
+    <link rel="stylesheet" href="../../static/css/user/payment.css">
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="header-content">
+        <div class="header-left">
+            <h1 class="restaurant-name">Nhà hàng Phố</h1>
+            <p class="table-number">Bàn <span id="table-number">A5</span></p>
+        </div>
+        <div class="header-right">
+            <button class="btn-icon btn-profile" onclick="goToProfile()">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </button>
+            <button class="btn-icon btn-cart" onclick="toggleCart()">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span class="cart-badge" id="cart-badge">0</span>
+            </button>
+        </div>
+    </div>
+</header>
+<!-- Tabs -->
+<div class="tabs">
+    <button class="tab active" data-tab="menu" onclick="switchTab('menu')">Thực đơn</button>
+    <button class="tab" data-tab="orders" onclick="switchTab('orders')">Lịch sử</button>
+    <button class="tab" data-tab="invoice" onclick="switchTab('invoice')">Hóa đơn</button>
+    <button class="tab" data-tab="payment" onclick="switchTab('payment')">Thanh toán</button>
+</div>
+
+<!-- Tab Contents -->
+<main class="main-content">
+    <!-- Menu Tab -->
+    <div id="tab-menu" class="tab-content active">
+        <div class="search-box">
+            <input type="search" id="search-input" class="input search-input" placeholder="Tìm kiếm món ăn..." oninput="searchMenu()">
+        </div>
+
+        <div class="categories" id="categories">
+            <!-- Categories will be loaded here -->
+        </div>
+        <div class="menu-grid" id="menu-items">
+        </div>
+    </div>
+    <!-- Orders Tab -->
+    <div id="tab-orders" class="tab-content">
+        <h2 class="section-title">Lịch sử gọi món</h2>
+        <div id="orders-list">
+            <!-- Orders will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Invoice Tab -->
+    <div id="tab-invoice" class="tab-content">
+        <h2 class="section-title">Hóa đơn bàn <span id="invoice-table"></span></h2>
+        <div id="invoice-content">
+            <!-- Invoice will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Payment Tab -->
+    <div id="tab-payment" class="tab-content">
+        <h2 class="section-title">Thanh toán</h2>
+        <div id="payment-content">
+            <!-- Payment options will be loaded here -->
+        </div>
+    </div>
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+    <button class="nav-item" onclick="goToHistory()">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Lịch sử</span>
+    </button>
+    <button class="nav-item" onclick="goToProfile()">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+        <span>Tài khoản</span>
+    </button>
+</nav>
+
+<!-- Cart Sidebar -->
+<div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+<div class="cart-sidebar" id="cart-sidebar">
+    <div class="cart-header">
+        <h3>Giỏ hàng</h3>
+        <p id="cart-count">Giỏ hàng trống</p>
+    </div>
+    <div class="cart-items" id="cart-items">
+        <!-- Cart items will be loaded here -->
+    </div>
+    <div class="cart-footer">
+        <div class="cart-total">
+            <span>Tổng cộng</span>
+            <span class="total-price" id="cart-total">0đ</span>
+        </div>
+        <button class="btn btn-primary" onclick="placeOrder()">Đặt món</button>
+    </div>
+</div>
+<script src="../../static/js/user/menuuser.js"></script>
+<script src="../../static/js/user/orders.js"></script>
+<script src="../../static/js/user/invoice.js"></script>
+<script src="../../static/js/user/payment.js"></script>
+</body>
+</html>
