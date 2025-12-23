@@ -31,7 +31,7 @@ public class RestaurantRepository {
 
             @Override
             public void onFailure(Call<List<Restaurant>> call, Throwable t) {
-                callback.onError(t.getMessage());
+                callback.onError(t == null ? "Loi khong xac dinh" : t.getMessage());
             }
         });
     }
@@ -49,9 +49,11 @@ public class RestaurantRepository {
 
             @Override
             public void onFailure(Call<Restaurant> call, Throwable t) {
-                callback.onError(t.getMessage());
+                callback.onError(t == null ? "Loi khong xac dinh" : t.getMessage());
             }
         });
     }
-
+    public void getRestaurantDetail(int restaurantId, RepositoryCallback<Restaurant> callback) {
+        getRestaurantById(restaurantId, callback);
+    }
 }
