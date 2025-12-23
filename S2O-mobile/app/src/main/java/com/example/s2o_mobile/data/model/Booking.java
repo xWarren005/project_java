@@ -4,33 +4,36 @@ import java.io.Serializable;
 
 public class Booking implements Serializable {
 
-    private int Id;
+    private int id;
+
     private int restaurantId;
     private String restaurantName;
 
     private String bookingTime;
-    private String guestCount;
+    private int guestCount;
 
     private String status;
     private String note;
-    private String created_at;
 
-    public Booking() {
-    }
+    private String createdAt;
 
-    public Booking(int Id, int restaurantId, String bookingTime, String status) {
-        Id = Id;
+    public Booking() {}
+
+    public Booking(int id, int restaurantId, String bookingTime, int guestCount, String status) {
+        this.id = id;
         this.restaurantId = restaurantId;
         this.bookingTime = bookingTime;
+        this.guestCount = guestCount;
         this.status = status;
     }
 
+    // ===== Getter / Setter =====
     public int getId() {
-        return Id;
+        return id;
     }
 
     public void setId(int id) {
-        Id = id;
+        this.id = id;
     }
 
     public int getRestaurantId() {
@@ -57,12 +60,12 @@ public class Booking implements Serializable {
         this.bookingTime = bookingTime;
     }
 
-    public String getGuestCount() {
+    public int getGuestCount() {
         return guestCount;
     }
 
-    public void setGuestCount(String guestCount) {
-        guestCount = guestCount;
+    public void setGuestCount(int guestCount) {
+        this.guestCount = guestCount;
     }
 
     public String getStatus() {
@@ -82,10 +85,24 @@ public class Booking implements Serializable {
     }
 
     public String getCreatedAt() {
-        return created_at;
+        return createdAt;
     }
 
-    public void setCreatedAt(String created_at) {
-        this.created_at = created_at;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "id=" + id +
+                ", restaurantId=" + restaurantId +
+                ", restaurantName='" + restaurantName + '\'' +
+                ", bookingTime='" + bookingTime + '\'' +
+                ", guestCount=" + guestCount +
+                ", status='" + status + '\'' +
+                ", note='" + note + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                '}';
     }
 }
