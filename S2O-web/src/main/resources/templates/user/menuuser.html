@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thực đơn - Nhà hàng Phố</title>
-    <link rel="stylesheet" href="../../static/css/user/menuuser.css">
-    <link rel="stylesheet" href="../../static/css/user/orders.css">
-    <link rel="stylesheet" href="../../static/css/user/invoice.css">
-    <link rel="stylesheet" href="../../static/css/user/payment.css">
+    <link rel="stylesheet" th:href="@{/css/user/menuuser.css}">
+    <link rel="stylesheet" th:href="@{/css/user/orders.css}">
+    <link rel="stylesheet" th:href="@{/css/user/invoice.css}">
+    <link rel="stylesheet" th:href="@{/css/user/payment.css}">
 </head>
 <body>
 <!-- Header -->
@@ -113,9 +113,9 @@
         <button class="btn btn-primary" onclick="placeOrder()">Đặt món</button>
     </div>
 </div>
-<script src="../../static/js/user/menuuser.js"></script>
-<script src="../../static/js/user/orders.js"></script>
-<script src="../../static/js/user/invoice.js"></script>
-<script src="../../static/js/user/payment.js"></script>
+<script th:src="@{/js/user/menuuser.js}"></script>
+<script th:src="@{/js/user/orders.js}"></script>
+<script th:src="@{/js/user/invoice.js}"></script>
+<script th:src="@{/js/user/payment.js}"></script>
 </body>
 </html>
