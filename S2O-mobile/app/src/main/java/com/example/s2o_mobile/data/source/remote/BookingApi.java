@@ -14,7 +14,16 @@ public interface BookingApi {
 
     @POST("/api/reservations")
     Call<Reservation> createReservation(@Body Reservation reservation);
-    
+
     @GET("/api/reservations")
     Call<List<Reservation>> getReservationsByUser(@Query("userId") int userId);
 
+    @GET("/api/reservations")
+    Call<List<Reservation>> getReservationsByRestaurant(@Query("restaurantId") int restaurantId);
+
+    @GET("/api/reservations/{id}")
+    Call<Reservation> getReservationById(@Path("id") int reservationId);
+
+    @POST("/api/reservations/{id}/cancel")
+    Call<Reservation> cancelReservation(@Path("id") int reservationId);
+}
