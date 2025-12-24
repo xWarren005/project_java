@@ -2,11 +2,11 @@
 
 // 1. DATA CẤU HÌNH MENU
 const menuItems = [
-    { id: 'overview', text: 'Tổng Quan', icon: 'fa-border-all', link: 'overview.html' },
-    { id: 'dishes',   text: 'Món Ăn',    icon: 'fa-utensils',  link: 'dishes.html' },
-    { id: 'tables',   text: 'Bàn',       icon: 'fa-chair',     link: 'tables.html' },
-    { id: 'revenue',  text: 'Doanh Thu', icon: 'fa-chart-line',link: 'revenue.html' },
-    { id: 'qr',       text: 'QR Code',   icon: 'fa-qrcode',    link: 'qr.html' }
+    { id: 'overview', text: 'Tổng Quan', icon: 'fa-border-all', link: 'overview' },
+    { id: 'dishes',   text: 'Món Ăn',    icon: 'fa-utensils',  link: 'dishes' },
+    { id: 'tables',   text: 'Bàn',       icon: 'fa-chair',     link: 'tables' },
+    { id: 'revenue',  text: 'Doanh Thu', icon: 'fa-chart-line',link: 'revenue' },
+    { id: 'qr',       text: 'QR Code',   icon: 'fa-qrcode',    link: 'qr' }
 ];
 
 // 2. TỰ ĐỘNG CHÈN TOP HEADER

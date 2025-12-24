@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Tổng Quan</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="../../static/css/manager/header.css">
-    <link rel="stylesheet" href="../../static/css/manager/overview.css">
+    <link rel="stylesheet" th:href="@{/css/manager/header.css}">
+    <link rel="stylesheet" th:href="@{/css/manager/overview.css}">
 </head>
 <body>
 
@@ -41,8 +41,8 @@
     </div>
 </main>
 
-<script src="../../static/js/manager/header.js"></script>
-<script src="../../static/js/manager/overview.js"></script>
+<script th:src="@{/js/manager/header.js}"></script>
+<script th:src="@{/js/manager/overview.js}"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {

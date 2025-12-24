@@ -1,158 +1,164 @@
-// --- DATA GIẢ LẬP ---
-let dishesData = [
-    { id: 1, name: "Phở Bò Đặc Biệt", desc: "Phở bò tái, nạm", price: 65000, oldPrice: null, category: "Món Chính", catColor: "badge-orange", image: null },
-    { id: 2, name: "Bún Chả Hà Nội", desc: "Bún chả nướng", price: 49500, oldPrice: 55000, category: "Món Chính", catColor: "badge-orange", image: null },
-    { id: 3, name: "Gỏi Cuốn", desc: "Tôm thịt tươi", price: 35000, oldPrice: null, category: "Khai Vị", catColor: "badge-green", image: null },
-    { id: 4, name: "Chè Ba Màu", desc: "Đậu đỏ, xanh", price: 25000, oldPrice: null, category: "Tráng Miệng", catColor: "badge-pink", image: null }
-];
+// Biến toàn cục chứa danh sách món ăn
+let dishesData = [];
 
-// --- INIT ---
+// --- 1. KHỞI TẠO KHI TRANG LOAD ---
 document.addEventListener("DOMContentLoaded", () => {
-    renderDishes();
+    console.log("Loading Dishes Page...");
 
-    // Gán sự kiện nút Thêm Món
+    // Gọi hàm lấy dữ liệu
+    fetchDishes();
+
+    // Gán sự kiện cho nút "Thêm Món"
     document.getElementById("btn-add-dish").addEventListener("click", () => {
-        openModal("add");
+        openModal(); // Mở modal trống để thêm mới
     });
+
+    // Render Menu (Sidebar)
+    if (typeof renderMenu === "function") {
+        renderMenu('dishes');
+    }
 });
 
-// --- RENDER FUNCTION ---
-function renderDishes() {
+// --- 2. GỌI API LẤY DỮ LIỆU ---
+function fetchDishes() {
+    // Giả sử API Java trả về List<ProductDTO>
+    fetch('/api/manager/dishes')
+        .then(response => {
+            // Nếu chưa có API, dùng dữ liệu giả để test giao diện (comment đoạn này lại khi có API thật)
+            /*
+            if (!response.ok) return mockData();
+            */
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            dishesData = data;
+            renderDishesGrid();
+        })
+        .catch(error => {
+            console.error('Error fetching dishes:', error);
+            document.getElementById("dishes-container").innerHTML = '<p class="error">Không tải được dữ liệu.</p>';
+        });
+}
+
+// --- 3. HIỂN THỊ DỮ LIỆU LÊN GIAO DIỆN ---
+function renderDishesGrid() {
     const container = document.getElementById("dishes-container");
-    const fmt = (n) => n.toLocaleString('vi-VN') + 'đ';
 
-    container.innerHTML = dishesData.map(d => {
-        let priceHtml = `<span class="current-price">${fmt(d.price)}</span>`;
-        if (d.oldPrice && d.oldPrice > d.price) {
-            priceHtml += `<span class="old-price">${fmt(d.oldPrice)}</span>`;
-        }
+    if (!dishesData || dishesData.length === 0) {
+        container.innerHTML = '<p>Chưa có món ăn nào.</p>';
+        return;
+    }
 
-        // Ảnh giả lập
-        const imgHtml = d.image
-            ? `<img src="${d.image}" class="dish-img">`
-            : `<div style="width:100%;height:100%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;color:#ccc"><i class="fa-solid fa-image fa-2x"></i></div>`;
+    container.innerHTML = dishesData.map(dish => {
+        // Xử lý hiển thị trạng thái (true/false từ DB -> Text)
+        const statusClass = dish.isAvailable ? 'status-active' : 'status-inactive';
+        const statusText = dish.isAvailable ? 'Đang phục vụ' : 'Hết hàng';
+
+        // Format tiền tệ VNĐ
+        const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(dish.price);
 
         return `
             <div class="dish-card">
-                <div class="dish-img-box">${imgHtml}</div>
-                <h4 class="dish-title">${d.name}</h4>
-                <div class="dish-desc">${d.desc || 'Chưa có mô tả'}</div>
-                <div><span class="badge ${d.catColor || 'badge-blue'}">${d.category}</span></div>
-                <div class="price-row">${priceHtml}</div>
-                <div class="card-actions">
-                    <button class="btn-edit" onclick="openEditModal(${d.id})"><i class="fa-solid fa-pen"></i> Sửa</button>
-                    <button class="btn-delete" onclick="deleteDish(${d.id})"><i class="fa-solid fa-trash"></i> Xóa</button>
+                <div class="dish-image">
+                    <img src="${dish.imageUrl || '/images/default-dish.png'}" alt="${dish.name}">
+                    <span class="category-badge">${dish.categoryName || 'Món ăn'}</span>
+                </div>
+                <div class="dish-info">
+                    <h4 class="dish-name">${dish.name}</h4>
+                    <p class="dish-desc">${dish.description || 'Chưa có mô tả'}</p>
+                    <div class="dish-meta">
+                        <span class="dish-price">${formattedPrice}</span>
+                        <span class="dish-status ${statusClass}">${statusText}</span>
+                    </div>
+                </div>
+                <div class="dish-actions">
+                    <button class="btn-edit" onclick="editDish(${dish.id})"><i class="fa-solid fa-pen"></i> Sửa</button>
+                    <button class="btn-delete" onclick="deleteDish(${dish.id})"><i class="fa-solid fa-trash"></i> Xóa</button>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-// --- MODAL LOGIC ---
-const modal = document.getElementById("modal-overlay");
-const form = document.getElementById("dish-form");
+// --- 4. CÁC HÀM XỬ LÝ MODAL (Thêm/Sửa) ---
 
-// Mở Modal (Mode: 'add' hoặc object data món ăn)
-function openModal(mode, dish = null) {
-    modal.classList.remove("hidden");
-    const isAdd = mode === 'add';
+// Mở Modal
+function openModal(dish = null) {
+    const modal = document.getElementById("modal-overlay");
+    const title = document.getElementById("modal-title");
 
-    // Cập nhật Tiêu đề & Nút
-    document.getElementById("modal-title").textContent = isAdd ? "Thêm Món Ăn Mới" : "Chỉnh Sửa Món Ăn";
-    document.getElementById("btn-save").textContent = isAdd ? "Thêm Món" : "Lưu Thay Đổi";
+    // Reset form
+    document.getElementById("dish-form").reset();
 
-    // Reset hoặc điền form
-    if (isAdd) {
-        form.reset();
-        document.getElementById("dish-id").value = "";
-    } else {
+    if (dish) {
+        // Chế độ Sửa: Điền dữ liệu cũ vào form
+        title.textContent = "Cập Nhật Món Ăn";
         document.getElementById("dish-id").value = dish.id;
         document.getElementById("inp-name").value = dish.name;
-        document.getElementById("inp-category").value = dish.category;
-
-        // Tính ngược lại giá gốc và % giảm giá (Logic đơn giản)
-        let rawPrice = dish.oldPrice ? dish.oldPrice : dish.price;
-        let discount = dish.oldPrice ? Math.round((1 - dish.price/dish.oldPrice) * 100) : 0;
-
-        document.getElementById("inp-price").value = rawPrice;
-        document.getElementById("inp-discount").value = discount;
-        document.getElementById("inp-desc").value = dish.desc;
-    }
-}
-
-// Helper gọi từ nút Sửa trong HTML
-function openEditModal(id) {
-    const dish = dishesData.find(d => d.id === id);
-    if (dish) openModal("edit", dish);
-}
-
-function closeModal() {
-    modal.classList.add("hidden");
-}
-
-// --- HANDLE SUBMIT (THÊM / SỬA) ---
-function handleFormSubmit(e) {
-    e.preventDefault();
-
-    // 1. Lấy dữ liệu từ form
-    const id = document.getElementById("dish-id").value;
-    const name = document.getElementById("inp-name").value;
-    const category = document.getElementById("inp-category").value;
-    const rawPrice = Number(document.getElementById("inp-price").value);
-    const discount = Number(document.getElementById("inp-discount").value);
-    const desc = document.getElementById("inp-desc").value;
-
-    // 2. Tính toán giá mới
-    let finalPrice = rawPrice;
-    let oldPrice = null;
-
-    if (discount > 0) {
-        finalPrice = rawPrice * (1 - discount / 100);
-        oldPrice = rawPrice;
-    }
-
-    // Xác định màu badge theo danh mục
-    let catColor = "badge-blue";
-    if (category === "Món Chính") catColor = "badge-orange";
-    if (category === "Khai Vị") catColor = "badge-green";
-    if (category === "Tráng Miệng") catColor = "badge-pink";
-
-    // 3. Logic: Sửa hoặc Thêm
-    if (id) {
-        // --- SỬA ---
-        const index = dishesData.findIndex(d => d.id == id);
-        if (index !== -1) {
-            dishesData[index] = {
-                ...dishesData[index],
-                name, category, desc, price: finalPrice, oldPrice, catColor
-            };
-            alert("Đã cập nhật món ăn!");
-        }
+        document.getElementById("inp-price").value = dish.price;
+        document.getElementById("inp-desc").value = dish.description;
+        document.getElementById("inp-status").checked = dish.isAvailable;
+        // document.getElementById("inp-category").value = dish.categoryId; // Cần map đúng value select
     } else {
-        // --- THÊM ---
-        const newDish = {
-            id: Date.now(), // Tạo ID ngẫu nhiên theo thời gian
-            name,
-            desc,
-            price: finalPrice,
-            oldPrice,
-            category,
-            catColor,
-            image: null
-        };
-        dishesData.push(newDish);
-        alert("Đã thêm món mới thành công!");
+        // Chế độ Thêm mới
+        title.textContent = "Thêm Món Ăn Mới";
+        document.getElementById("dish-id").value = "";
     }
 
-    // 4. Reset & Render lại
-    closeModal();
-    renderDishes();
+    modal.classList.remove("hidden");
+    modal.style.display = "flex"; // CSS của bạn có thể dùng display: flex
 }
 
-// --- XÓA MÓN ---
-function deleteDish(id) {
-    if (confirm("Bạn có chắc chắn muốn xóa món này không?")) {
-        dishesData = dishesData.filter(d => d.id !== id);
-        renderDishes();
+// Đóng Modal
+function closeModal() {
+    const modal = document.getElementById("modal-overlay");
+    modal.classList.add("hidden");
+    modal.style.display = "none";
+}
+
+// Xử lý khi bấm nút Lưu
+function handleFormSubmit(event) {
+    event.preventDefault(); // Chặn reload trang
+
+    const dishId = document.getElementById("dish-id").value;
+    const newDish = {
+        name: document.getElementById("inp-name").value,
+        price: parseFloat(document.getElementById("inp-price").value),
+        description: document.getElementById("inp-desc").value,
+        isAvailable: document.getElementById("inp-status").checked,
+        // categoryId: ... lấy từ select
+    };
+
+    console.log("Saving dish:", newDish, "ID:", dishId);
+
+    // TODO: Gọi API POST (Thêm) hoặc PUT (Sửa) về server Java tại đây
+    // Sau khi thành công -> fetchDishes() lại -> closeModal()
+    alert("Chức năng đang phát triển: Gửi dữ liệu về Java");
+    closeModal();
+}
+
+// Hàm chuẩn bị dữ liệu để sửa (gọi từ nút Sửa trên giao diện)
+function editDish(id) {
+    const dish = dishesData.find(d => d.id === id);
+    if (dish) {
+        openModal(dish);
     }
+}
+
+// Hàm xóa
+function deleteDish(id) {
+    if(confirm("Bạn có chắc muốn xóa món này?")) {
+        console.log("Delete dish id:", id);
+        // TODO: Gọi API DELETE
+    }
+}
+
+// --- HÀM DỮ LIỆU GIẢ (Dùng khi chưa có Backend) ---
+function mockData() {
+    return [
+        { id: 1, name: "Phở Bò Đặc Biệt", price: 65000, description: "Nạm, gầu, gân, bò viên", categoryName: "Món Chính", isAvailable: true },
+        { id: 2, name: "Nem Rán Hà Nội", price: 120000, description: "Thịt heo, mộc nhĩ, miến", categoryName: "Khai Vị", isAvailable: true },
+        { id: 3, name: "Trà Đào Cam Sả", price: 45000, description: "Ly khổng lồ", categoryName: "Đồ Uống", isAvailable: false }
+    ];
 }

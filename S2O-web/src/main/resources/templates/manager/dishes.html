@@ -1,18 +1,20 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns="http://www.w3.org/1999/html">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Quản Lý Món Ăn</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="../../static/css/manager/header.css">
-    <link rel="stylesheet" href="../../static/css/manager/dishes.css">
+    <link rel="stylesheet" th:href="@{/css/manager/header.css}">
+    <link rel="stylesheet" th:href="@{/css/manager/dishes.css}">
 </head>
 <body>
 <main class="content-wrapper">
-    <div class="page-header"><h2 class="title">Thực Đơn Nhà Hàng</h2>
-        <p class="subtitle">Quản lý danh sách món ăn</p></div>
+    <div class="page-header">
+        <h2 class="title">Thực Đơn Nhà Hàng</h2>
+        <p class="subtitle">Quản lý danh sách món ăn</p>
+    </div>
 
     <div id="menu-container"></div>
 
@@ -24,7 +26,8 @@
         <div class="dishes-grid" id="dishes-container">Loading...</div>
     </div>
 </main>
-<div id="modal-overlay" class="modal-overlay hidden">
+
+<div id="modal-overlay" class="modal-overlay hidden" style="display: none;">
     <div class="modal-box">
         <button class="close-btn" onclick="closeModal()">&times;</button>
         <h3 id="modal-title">Thêm Món Ăn Mới</h3>
@@ -32,6 +35,7 @@
 
         <form id="dish-form" onsubmit="handleFormSubmit(event)">
             <input type="hidden" id="dish-id">
+
             <div class="form-group">
                 <label>Tên món</label>
                 <input type="text" id="inp-name" placeholder="Ví dụ: Phở bò" required>
@@ -41,10 +45,10 @@
                 <div class="form-group">
                     <label>Danh mục</label>
                     <select id="inp-category">
-                        <option value="Món Chính">Món Chính</option>
-                        <option value="Khai Vị">Khai Vị</option>
-                        <option value="Tráng Miệng">Tráng Miệng</option>
-                        <option value="Đồ Uống">Đồ Uống</option>
+                        <option value="1">Món Chính</option>
+                        <option value="2">Khai Vị</option>
+                        <option value="3">Tráng Miệng</option>
+                        <option value="4">Đồ Uống</option>
                     </select>
                 </div>
             </div>
@@ -75,17 +79,13 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn-cancel" onclick="closeModal()">Hủy</button>
-                <button type="submit" class="btn-save" id="btn-save">Thêm Món</button>
+                <button type="submit" class="btn-save" id="btn-save">Lưu Món</button>
             </div>
         </form>
     </div>
 </div>
 
-<script src="../../static/js/manager/dishes.js"></script>
-<script src="../../static/js/manager/header.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        renderMenu('dishes');
-    });;</script>
+<script th:src="@{/js/manager/header.js}"></script>
+<script th:src="@{/js/manager/dishes.js}"></script>
 </body>
 </html>
