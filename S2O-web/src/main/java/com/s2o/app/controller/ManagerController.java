@@ -5,17 +5,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/manager") // Định nghĩa đường dẫn gốc là /manager
+@RequestMapping("/manager")
 public class ManagerController {
 
-    // Khi người dùng vào: http://localhost:8080/manager/overview
+    // Trang Thống kê
+    // URL: http://localhost:8080/manager/overview
     @GetMapping("/overview")
     public String overviewPage() {
-        // Trả về file: src/main/resources/templates/manager/overview.html
         return "manager/overview";
     }
 
-    // Bạn có thể map thêm các trang khác tương tự:
-    // @GetMapping("/dishes")
-    // public String dishesPage() { return "manager/dishes"; }
+    // Trang Quản lý món ăn
+    // URL: http://localhost:8080/manager/dishes
+    @GetMapping("/dishes")
+    public String dishesPage() {
+        return "manager/dishes";
+    }
+
 }
