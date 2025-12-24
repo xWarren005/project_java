@@ -7,14 +7,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/auth") // Gom nhóm các URL liên quan đến xác thực
 public class AuthController {
-
-    // Trang đăng nhập cho người dùng
-    @GetMapping("/login")
-    public String loginPage() {
-        // Trả về file template: src/main/resources/templates/user/login.html
-        return "user/login";
-    }
-
     // Trang đăng nhập cho admin (nếu tách riêng)
     @GetMapping("/admin/login")
     public String adminLoginPage() {

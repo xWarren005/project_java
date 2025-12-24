@@ -16,7 +16,10 @@
             <h1 class="auth-title">Đăng nhập</h1>
             <p class="auth-subtitle">Chào mừng bạn quay trở lại với S2O</p>
         </header>
-        <form action="/login" method="POST" class="login-form">
+        <div th:if="${error}" class="alert alert-danger" style="color: red; text-align: center; margin-bottom: 15px;">
+            <span th:text="${error}"></span>
+        </div>
+        <form th:action="@{/user/login}" method="POST" class="login-form">
             <div class="form-group">
                 <label for="username" class="form-label">Email hoặc số điện thoại</label>
                 <input type="text" id="username" name="username" class="form-input" placeholder="Nhập email/SĐT" required autofocus>
@@ -49,6 +52,6 @@
         </footer>
     </section>
 </main>
-<script th:src="@{/js/user/welcome.js}"></script>
+<script th:src="@{/js/user/login.js}"></script>
 </body>
 </html>
