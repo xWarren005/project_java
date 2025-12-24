@@ -103,13 +103,47 @@ private void bindRestaurant(@NonNull Restaurant r) {
             tvRating.setText(ratingText);
     });
 
-    viewModel.getErrorMessage().observe(this, msg -> {
-        if (msg != null && !msg.trim().isEmpty()) {
-            Toast.makeText(this, "Có lỗi xảy ra", Toast.LENGTH_SHORT).show();
-        }
-    });
+    if (btnCall != null) {
+        btnCall.setOnClickListener(v -> openDialer(r.getPhone()));
+    }
+
+    if (btnMap != null) {
+        btnMap.setOnClickListener(v -> openMap(r.getAddress(), r.getLatitude(), r.getLongitude()));
+    }
+
+    if (imgCover != null) {
+        imgCover.setVisibility(View.VISIBLE);
+    }
+}
+
+private void openDialer(String phone) {
+    if (phone == null || phone.trim().isEmpty()) {
+        Toast.makeText(this, "Không có số điện thoại.", Toast.LENGTH_SHORT).show();
+        return;
+    }
+    Intent intent = new Intent(Intent.ACTION_DIAL);
+    intent.setData(Uri.parse("tel:" + phone.trim()));
+    startActivity(intent);
+}
+
+private void openMap(String address, Double lat, Double lng) {
+    Uri uri;
+    if (lat != null && lng != null) {
+        uri = Uri.parse("geo:" + lat + "," + lng + "?q=" + lat + "," + lng);
+    } else {
+        String q = address == null ? "" : Uri.encode(address);
+        uri = Uri.parse("geo:0,0?q=" + q);
+    }
+    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+    startActivity(intent);
+}
+
+private void setVisible(View view, boolean visible) {
+    if (view == null) return;
+    view.setVisibility(visible ? View.VISIBLE : View.GONE);
 }
 
 private String safe(String s) {
     return s == null ? "" : s;
+}
 }
