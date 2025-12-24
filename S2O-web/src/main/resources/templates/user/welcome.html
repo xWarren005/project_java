@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chào Mừng - Restaurant Order</title>
-    <link rel="stylesheet" href="../../static/css/user/welcome.css">
     <link rel="stylesheet" th:href="@{/css/user/welcome.css}">
 </head>
 <body>
@@ -19,10 +18,16 @@
         </div>
         <h1>Chào Mừng Đến Nhà Hàng</h1>
         <p class="subtitle">Đặt món dễ dàng, nhanh chóng</p>
-
+        <input type="hidden" id="qr-res-id" th:value="${restaurantId}">
+        <input type="hidden" id="qr-table-name" th:value="${tableName}">
         <div class="button-group">
-            <a href="login.html" class="btn btn-primary">Đăng Nhập</a>
-            <a href="menuuser.html" class="btn btn-secondary">Tiếp Tục Với Khách Vãng Lai</a>
+            <a href="javascript:void(0)" onclick="saveAndGo('/auth/login')" class="btn btn-primary">
+                Đăng Nhập Thành Viên
+            </a>
+
+            <a href="javascript:void(0)" onclick="saveAndGo('/menu')" class="btn btn-secondary">
+                Tiếp Tục Với Khách Vãng Lai
+            </a>
         </div>
 
         <div class="features">
@@ -50,5 +55,6 @@
         </div>
     </div>
 </div>
+<script th:src="@{/js/user/welcome.js}"></script>
 </body>
 </html>
