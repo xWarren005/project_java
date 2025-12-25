@@ -33,4 +33,9 @@ public class ApiService {
     public RestaurantApi getRestaurantApi() {
         return retrofit.create(RestaurantApi.class);
     }
+
+    public BookingApi getBookingApi() {
+        return retrofit.create(BookingApi.class);
+    }
+
 }
