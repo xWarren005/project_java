@@ -6,6 +6,30 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.s2o_mobile.data.model.Reservation;
 import com.example.s2o_mobile.data.repository.BookingRepository;
+import com.example.s2o_mobile.data.repository.RepositoryCallback;
+
+public void loadStatus(int reservationId) {
+    loading.setValue(true);
+    error.setValue(null);
+
+    repository.getReservationById(reservationId, new RepositoryCallback<Reservation>() {
+        @Override
+        public void onSuccess(Reservation data) {
+            loading.postValue(false);
+            reservation.postValue(data);
+            statusText.postValue(extractStatus(data));
+        }
+
+        @Override
+        public void onError(String message) {
+            loading.postValue(false);
+            error.postValue(message == null
+                    ? "Khong lay duoc trang thai dat ban"
+                    : message);
+        }
+    });
+}
+
 
 public class BookingStatusViewModel extends ViewModel {
 
@@ -39,4 +63,27 @@ public class BookingStatusViewModel extends ViewModel {
     public LiveData<String> getStatusText() {
         return statusText;
     }
+
+    public void loadStatus(int reservationId) {
+        loading.setValue(true);
+        error.setValue(null);
+
+        repository.getReservationById(reservationId, new RepositoryCallback<Reservation>() {
+            @Override
+            public void onSuccess(Reservation data) {
+                loading.postValue(false);
+                reservation.postValue(data);
+                statusText.postValue(extractStatus(data));
+            }
+
+            @Override
+            public void onError(String message) {
+                loading.postValue(false);
+                error.postValue(message == null
+                        ? "Khong lay duoc trang thai dat ban"
+                        : message);
+            }
+        });
+    }
+
 }
