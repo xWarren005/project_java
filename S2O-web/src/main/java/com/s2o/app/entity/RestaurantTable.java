@@ -17,10 +17,16 @@ public class RestaurantTable {
     @Column(name = "table_name")
     private String tableName;
 
+    @Column(name = "capacity")
+    private Integer capacity; // Mapping với 'seats' bên frontend
+
     @Column(name = "qr_code_string")
     private String qrCodeString;
 
-    // Status: AVAILABLE, OCCUPIED, RESERVED
-    @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private TableStatus status;
+
+    public enum TableStatus {
+        AVAILABLE, OCCUPIED, RESERVED
+    }
 }
