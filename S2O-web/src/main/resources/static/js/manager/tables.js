@@ -1,38 +1,51 @@
-// --- DATA GIẢ LẬP ---
-// status: 0 (Trống), 1 (Có Khách), 2 (Đã Đặt)
-let tablesData = [
-    { id: 1, name: "Bàn #1", seats: 2, status: 0 },
-    { id: 2, name: "Bàn #2", seats: 4, status: 1 },
-    { id: 3, name: "Bàn #3", seats: 6, status: 2 },
-    { id: 4, name: "Bàn #4", seats: 2, status: 0 },
-    { id: 5, name: "Bàn #5", seats: 4, status: 1 },
-    { id: 6, name: "Bàn #6", seats: 6, status: 2 },
-    { id: 7, name: "Bàn #7", seats: 2, status: 0 },
-    { id: 8, name: "Bàn #8", seats: 4, status: 1 }
-];
+// Biến toàn cục
+let tablesData = [];
+const API_TABLES_URL = '/api/manager/tables';
 
 // --- INIT ---
 document.addEventListener("DOMContentLoaded", () => {
-    renderTables();
+    fetchTables();
 
-    // Sự kiện nút thêm bàn
-    document.getElementById("btn-add-table").addEventListener("click", () => {
-        document.getElementById("modal-overlay").classList.remove("hidden");
-    });
+    // Sự kiện nút mở modal thêm bàn
+    const btnAdd = document.getElementById("btn-add-table");
+    if(btnAdd) {
+        btnAdd.addEventListener("click", () => {
+            document.getElementById("modal-overlay").classList.remove("hidden");
+        });
+    }
 
     // Sự kiện submit form thêm bàn
-    document.getElementById("table-form").addEventListener("submit", handleAddTable);
+    const formTable = document.getElementById("table-form");
+    if(formTable) {
+        formTable.addEventListener("submit", handleAddTable);
+    }
 });
 
-// --- RENDER ---
+// --- 1. LẤY DỮ LIỆU TỪ SERVER (GET) ---
+function fetchTables() {
+    fetch(API_TABLES_URL)
+        .then(response => {
+            if (!response.ok) throw new Error("Không thể tải dữ liệu");
+            return response.json();
+        })
+        .then(data => {
+            tablesData = data;
+            renderTables();
+        })
+        .catch(err => console.error("Lỗi tải bàn:", err));
+}
+
+// --- RENDER GIAO DIỆN ---
 function renderTables() {
     const container = document.getElementById("tables-container");
 
+    if (!container) return; // Guard clause nếu không tìm thấy div
+
     container.innerHTML = tablesData.map(t => {
-        // Xác định class màu và text hiển thị dựa trên status
         let badgeClass = "";
         let statusText = "";
 
+        // Logic màu sắc trạng thái
         if (t.status === 0) { badgeClass = "badge-free"; statusText = "Trống"; }
         else if (t.status === 1) { badgeClass = "badge-busy"; statusText = "Có Khách"; }
         else { badgeClass = "badge-reserved"; statusText = "Đã Đặt"; }
@@ -56,9 +69,20 @@ function renderTables() {
                     </select>
                 </div>
 
-                <button class="btn-qr" onclick="showQR('${t.name}')">
-                    <i class="fa-solid fa-qrcode"></i> Xem Mã QR
-                </button>
+                <div class="qr-section" style="text-align: center; margin-top: 15px; border-top: 1px dashed #eee; padding-top: 10px;">
+                    <span style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Quét để gọi món:</span>
+                    
+                    <img src="${API_TABLES_URL}/${t.id}/qr" 
+                         alt="QR Bàn ${t.name}" 
+                         title="Click chuột phải để tải ảnh về"
+                         style="width: 140px; height: 140px; object-fit: contain; border: 1px solid #e0e0e0; border-radius: 8px; padding: 5px; background: white;">
+                         
+                    <div style="margin-top: 5px;">
+                        <a href="${API_TABLES_URL}/${t.id}/qr" download="QR_${t.name}.png" class="btn-link" style="font-size: 13px;">
+                            <i class="fa-solid fa-download"></i> Tải ảnh
+                        </a>
+                    </div>
+                </div>
             </div>
         `;
     }).join('');
@@ -66,43 +90,70 @@ function renderTables() {
 
 // --- LOGIC XỬ LÝ ---
 
-// 1. Cập nhật trạng thái khi chọn Select box
+// 2. Cập nhật trạng thái (PUT)
 function updateStatus(id, newStatus) {
-    const tableIndex = tablesData.findIndex(t => t.id === id);
-    if (tableIndex !== -1) {
-        tablesData[tableIndex].status = parseInt(newStatus);
-        renderTables(); // Render lại để cập nhật màu Badge
-    }
+    // Gọi API: /api/manager/tables/{id}/status?status={newStatus}
+    fetch(`${API_TABLES_URL}/${id}/status?status=${newStatus}`, {
+        method: 'PUT'
+    })
+        .then(response => {
+            if (response.ok) {
+                // Cập nhật local data để không cần load lại trang (giúp UI mượt hơn)
+                const table = tablesData.find(t => t.id === id);
+                if (table) table.status = parseInt(newStatus);
+                renderTables(); // Vẽ lại giao diện để cập nhật màu Badge
+            } else {
+                alert("Lỗi cập nhật trạng thái! Vui lòng thử lại.");
+            }
+        })
+        .catch(err => console.error("Lỗi update:", err));
 }
 
-// 2. Thêm bàn mới
+// 3. Thêm bàn mới (POST)
 function handleAddTable(e) {
     e.preventDefault();
-    const name = document.getElementById("inp-name").value;
-    const seats = document.getElementById("inp-seats").value;
+    const nameInput = document.getElementById("inp-name");
+    const seatsInput = document.getElementById("inp-seats");
 
-    if (name && seats) {
-        const newTable = {
-            id: Date.now(), // Tạo ID ngẫu nhiên
-            name: name,
-            seats: parseInt(seats),
-            status: 0 // Mặc định là trống
-        };
+    const payload = {
+        name: nameInput.value,
+        seats: parseInt(seatsInput.value),
+        status: 0
+    };
 
-        tablesData.push(newTable);
-        renderTables();
-        closeModal();
-        e.target.reset(); // Reset form
-        alert("Thêm bàn mới thành công!");
-    }
+    fetch(API_TABLES_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+        .then(response => {
+            if (!response.ok) throw new Error("Lỗi khi thêm bàn");
+            return response.json();
+        })
+        .then(newTable => {
+            // Server trả về đối tượng bàn mới (đã bao gồm ID và Link QR ngầm)
+            tablesData.push(newTable);
+            renderTables();
+            closeModal();
+            e.target.reset(); // Xóa trắng form
+            // alert("Thêm bàn mới thành công!"); // Có thể bỏ alert cho đỡ phiền
+        })
+        .catch(err => {
+            console.error("Lỗi thêm bàn:", err);
+            alert("Có lỗi xảy ra khi thêm bàn.");
+        });
 }
 
-// 3. Đóng modal
+// 4. Các hàm tiện ích
 function closeModal() {
-    document.getElementById("modal-overlay").classList.add("hidden");
+    const modal = document.getElementById("modal-overlay");
+    if(modal) modal.classList.add("hidden");
 }
 
-// 4. Xem QR (Giả lập)
-function showQR(tableName) {
-    alert(`Đang hiển thị mã QR cho ${tableName}\n(Chức năng in/tải QR sẽ được tích hợp sau)`);
+// Đóng modal khi click ra ngoài vùng trắng
+window.onclick = function(event) {
+    const modal = document.getElementById("modal-overlay");
+    if (event.target == modal) {
+        closeModal();
+    }
 }
