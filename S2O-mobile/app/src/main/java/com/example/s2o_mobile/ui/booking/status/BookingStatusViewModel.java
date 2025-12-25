@@ -86,4 +86,43 @@ public class BookingStatusViewModel extends ViewModel {
         });
     }
 
+    public void cancelBooking(int reservationId) {
+        loading.setValue(true);
+        error.setValue(null);
+
+        repository.cancelReservation(reservationId, new RepositoryCallback<Reservation>() {
+            @Override
+            public void onSuccess(Reservation data) {
+                loading.postValue(false);
+                reservation.postValue(data);
+                statusText.postValue(extractStatus(data));
+            }
+
+            @Override
+            public void onError(String message) {
+                loading.postValue(false);
+                error.postValue(message == null
+                        ? "Huy dat ban that bai"
+                        : message);
+            }
+        });
+    }
+
+    private String extractStatus(Reservation r) {
+        if (r == null) return "";
+
+        try {
+            Object val = r.getClass().getMethod("getStatus").invoke(r);
+            return val == null ? "" : String.valueOf(val);
+        } catch (Exception ignore) {}
+
+        try {
+            Object val = r.getClass().getMethod("getBookingStatus").invoke(r);
+            return val == null ? "" : String.valueOf(val);
+        } catch (Exception ignore) {}
+
+        return "";
+    }
+
+
 }
