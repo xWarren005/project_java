@@ -4,8 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Tổng quan - Restaurant SaaS</title>
-    <link rel="stylesheet" href="../../static/css/admin/dashboard.css">
+    <link rel="stylesheet" th:href="@{/css/admin/dashboard.css}">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* CSS bổ sung nhanh cho bộ lọc để hiển thị đẹp */
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .filter-select {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
@@ -17,29 +33,30 @@
         </div>
 
         <nav class="sidebar-nav">
-            <a href="#" class="nav-item active">
+            <a th:href="@{/admin/dashboard}" class="nav-item active">
                 <i data-lucide="layout-dashboard"></i> Dashboard
             </a>
-            <a href="#" class="nav-item">
+            <a th:href="@{/admin/restaurants}" class="nav-item">
                 <i data-lucide="store"></i> Quản lý Nhà hàng
-            </a> <a href="#" class="nav-item">
-            <i data-lucide="users"></i> Người dùng & Phân quyền
-        </a> <a href="#" class="nav-item">
-            <i data-lucide="dollar-sign"></i> Doanh thu Hệ thống
-        </a> <a href="#" class="nav-item">
-            <i data-lucide="settings"></i> Cấu hình AI
-        </a> <a href="#" class="nav-item">
-            <i data-lucide="activity"></i> Giám sát Hệ thống
-        </a> </nav>
+            </a>
+            <a th:href="@{/admin/users}" class="nav-item">
+                <i data-lucide="users"></i> Người dùng & Phân quyền
+            </a>
+            <a th:href="@{/admin/revenue}" class="nav-item">
+                <i data-lucide="dollar-sign"></i> Doanh thu Hệ thống
+            </a>
+            <a th:href="@{/admin/ai-config}" class="nav-item">
+                <i data-lucide="settings"></i> Cấu hình AI
+            </a>
+            <a th:href="@{/admin/monitor}" class="nav-item">
+                <i data-lucide="activity"></i> Giám sát Hệ thống
+            </a>
+        </nav>
     </aside>
 
     <main class="main-content">
         <header class="top-header">
             <h1>Dashboard Tổng quan</h1>
-            <div class="search-box">
-                <i data-lucide="search"></i>
-                <input type="text" placeholder="Tìm kiếm...">
-            </div>
         </header>
 
         <section class="stats-grid">
@@ -53,7 +70,6 @@
                     <i data-lucide="file-text"></i>
                 </div>
             </div>
-
             <div class="card stat-card">
                 <div class="stat-info">
                     <span class="stat-label">Tổng Người dùng</span>
@@ -64,7 +80,6 @@
                     <i data-lucide="users"></i>
                 </div>
             </div>
-
             <div class="card stat-card">
                 <div class="stat-info">
                     <span class="stat-label">Doanh thu Tháng</span>
@@ -75,7 +90,6 @@
                     <i data-lucide="dollar-sign"></i>
                 </div>
             </div>
-
             <div class="card stat-card">
                 <div class="stat-info">
                     <span class="stat-label">Uptime Hệ thống</span>
@@ -100,29 +114,61 @@
             </div>
 
             <div class="card new-registrations">
-                <div class="card-header">
-                    <h3>Nhà hàng Mới Đăng ký</h3>
-                    <p>Danh sách chờ phê duyệt</p>
+                <div class="card-header card-header-flex">
+                    <div>
+                        <h3>Danh sách Nhà hàng</h3>
+                        <p>Cập nhật mới nhất</p>
+                    </div>
+                    <div>
+                        <select id="sortFilter" onchange="sortList()" class="filter-select">
+                            <option value="newest">Mới nhất</option>
+                            <option value="oldest">Cũ nhất</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="registration-list">
-                    <div class="reg-item">
+
+                <div class="registration-list" id="restaurantList">
+                    <div class="reg-item" data-timestamp="1700000004">
                         <div class="reg-info">
                             <strong>Phở 24</strong>
                             <span>Quận 1, TP.HCM</span>
                         </div>
                         <div class="reg-action">
-                            <span class="time">2 giờ trước</span>
-                            <button class="btn-approve">Duyệt</button>
+                            <span class="time">Vừa truy cập</span>
+                            <span class="status-badge success">Hoạt động</span>
                         </div>
                     </div>
-                    <div class="reg-item">
+
+                    <div class="reg-item" data-timestamp="1700000003">
                         <div class="reg-info">
                             <strong>Sushi World</strong>
                             <span>Quận 3, TP.HCM</span>
                         </div>
                         <div class="reg-action">
-                            <span class="time">5 giờ trước</span>
-                            <button class="btn-approve">Duyệt</button>
+                            <span class="time">5 phút trước</span>
+                            <span class="status-badge success">Hoạt động</span>
+                        </div>
+                    </div>
+
+                    <div class="reg-item" data-timestamp="1700000002">
+                        <div class="reg-info">
+                            <strong>BBQ House</strong>
+                            <span>Cầu Giấy, Hà Nội</span>
+                        </div>
+                        <div class="reg-action">
+                            <span class="time">1 giờ trước</span>
+                            <span class="status-badge error" style="background:#fee2e2; color:#991b1b">Đóng cửa</span>
+                        </div>
+                    </div>
+
+                    <div class="reg-item" data-timestamp="1700000001">
+                        <div class="reg-info">
+                            <strong>Kichi Kichi</strong>
+                            <span>Đà Nẵng</span>
+                        </div>
+                        <div class="reg-action">
+                            <span class="time">2 giờ trước</span>
+                            <span class="status-badge success">Hoạt động</span>
                         </div>
                     </div>
                 </div>

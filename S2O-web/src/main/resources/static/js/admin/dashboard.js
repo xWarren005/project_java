@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Vẽ biểu đồ Doanh thu (sử dụng Chart.js)
+    // 1. Vẽ biểu đồ Doanh thu (Chart.js)
     const ctx = document.getElementById('revenueChart');
     if (ctx) {
         new Chart(ctx, {
@@ -29,14 +29,32 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // Sự kiện nút duyệt
-    const btns = document.querySelectorAll('.btn-approve');
-    btns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            btn.innerText = 'Đã duyệt';
-            btn.style.backgroundColor = '#10b981';
-            btn.disabled = true;
-        });
-    });
 });
+
+/**
+ * 2. Hàm sắp xếp danh sách nhà hàng
+ * Hàm này cần nằm ngoài DOMContentLoaded để HTML có thể gọi được qua onchange=""
+ */
+function sortList() {
+    const list = document.getElementById('restaurantList');
+    const sortValue = document.getElementById('sortFilter').value;
+
+    // Lấy tất cả các item con và chuyển thành mảng để sort
+    const items = Array.from(list.getElementsByClassName('reg-item'));
+
+    items.sort((a, b) => {
+        // Lấy giá trị timestamp từ thuộc tính data-timestamp
+        const timeA = parseInt(a.getAttribute('data-timestamp'));
+        const timeB = parseInt(b.getAttribute('data-timestamp'));
+
+        if (sortValue === 'newest') {
+            return timeB - timeA; // Giảm dần (Số lớn/Mới nhất lên đầu)
+        } else {
+            return timeA - timeB; // Tăng dần (Số nhỏ/Cũ nhất lên đầu)
+        }
+    });
+
+    // Xóa danh sách hiện tại và thêm lại theo thứ tự mới
+    list.innerHTML = '';
+    items.forEach(item => list.appendChild(item));
+}

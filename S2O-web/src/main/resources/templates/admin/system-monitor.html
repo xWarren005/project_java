@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Giám sát Hệ thống - Restaurant SaaS</title>
-    <link rel="stylesheet" href="../../static/css/admin/system-monitor.css">
+
+    <link rel="stylesheet" th:href="@{/css/admin/system-monitor.css}">
+
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
@@ -13,22 +15,27 @@
             <i data-lucide="store"></i> <span>Restaurant SaaS</span>
         </div>
         <nav class="sidebar-nav">
-            <a href="/admin/dashboard" class="nav-item">
+            <a th:href="@{/admin/dashboard}" class="nav-item">
                 <i data-lucide="layout-dashboard"></i> Dashboard
             </a>
-            <a href="/admin/restaurants" class="nav-item">
+
+            <a th:href="@{/admin/restaurants}" class="nav-item">
                 <i data-lucide="store"></i> Quản lý Nhà hàng
             </a>
-            <a href="/admin/users" class="nav-item">
+
+            <a th:href="@{/admin/users}" class="nav-item">
                 <i data-lucide="users"></i> Người dùng & Phân quyền
             </a>
-            <a href="/admin/revenue" class="nav-item">
+
+            <a th:href="@{/admin/revenue}" class="nav-item">
                 <i data-lucide="dollar-sign"></i> Doanh thu Hệ thống
             </a>
-            <a href="/admin/ai-config" class="nav-item">
+
+            <a th:href="@{/admin/ai-config}" class="nav-item">
                 <i data-lucide="settings"></i> Cấu hình AI
             </a>
-            <a href="#" class="nav-item active">
+
+            <a th:href="@{/admin/monitor}" class="nav-item active">
                 <i data-lucide="activity"></i> Giám sát Hệ thống
             </a>
         </nav>
