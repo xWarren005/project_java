@@ -22,4 +22,10 @@ public class ManagerController {
         return "manager/dishes";
     }
 
+    // Trang Quản lý bàn
+    // URL: http://localhost:8080/manager/tables
+    @GetMapping("/tables")
+    public String tablesPage() {
+        return "manager/tables";
+    }
 }
