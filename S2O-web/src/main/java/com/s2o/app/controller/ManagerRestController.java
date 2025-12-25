@@ -2,16 +2,22 @@ package com.s2o.app.controller;
 
 import com.s2o.app.dto.ProductRequest;
 import com.s2o.app.dto.response.ManagerOverviewResponse;
+import com.s2o.app.dto.response.TableDTO;
 import com.s2o.app.entity.Category;
 import com.s2o.app.entity.Product;
+import com.s2o.app.entity.RestaurantTable;
 import com.s2o.app.repository.CategoryRepository;
 import com.s2o.app.repository.ProductRepository;
+import com.s2o.app.repository.TableRepository;
 import com.s2o.app.service.ManagerDashboardService;
+import com.s2o.app.util.QRCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/manager")
@@ -26,8 +32,11 @@ public class ManagerRestController {
     @Autowired
     private CategoryRepository categoryRepository;    // Repo để tìm category khi thêm/sửa món
 
+    @Autowired
+    private TableRepository tableRepository;          // Repo cho trang Tables
+
     // ==========================================
-    // 1. API CHO OVERVIEW
+    // 1. API CHO TRANG OVERVIEW (THỐNG KÊ)
     // ==========================================
     @GetMapping("/overview")
     public ResponseEntity<ManagerOverviewResponse> getOverview() {
@@ -38,7 +47,7 @@ public class ManagerRestController {
     }
 
     // ==========================================
-    // 2. API CHO DISHES (CRUD)
+    // 2. API CHO TRANG DISHES (QUẢN LÝ MÓN ĂN)
     // ==========================================
 
     // Lấy danh sách món ăn
@@ -47,7 +56,7 @@ public class ManagerRestController {
         return productRepository.findAll();
     }
 
-    // Thêm món ăn mới (Nhận ProductRequest từ JS)
+    // Thêm món ăn mới
     @PostMapping("/dishes")
     public ResponseEntity<?> createDish(@RequestBody ProductRequest request) {
         if (request.getCategoryId() == null) {
@@ -100,6 +109,89 @@ public class ManagerRestController {
             return ResponseEntity.notFound().build();
         }
         productRepository.deleteById(id);
-        return ResponseEntity.ok().build(); // Trả về 200 OK
+        return ResponseEntity.ok().build();
+    }
+
+    // ==========================================
+    // 3. API TABLES (QUẢN LÝ BÀN & QR)
+    // ==========================================
+
+    // API 3.1: Lấy danh sách bàn
+    @GetMapping("/tables")
+    public List<TableDTO> getTables() {
+        return tableRepository.findByRestaurantId(1).stream()
+                .map(TableDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    // API 3.2: Tạo bàn mới + Tự động sinh link QR lưu vào DB
+    @PostMapping("/tables")
+    public ResponseEntity<?> createTable(@RequestBody TableDTO request) {
+        RestaurantTable table = new RestaurantTable();
+        table.setRestaurantId(1);
+        table.setTableName(request.getName());
+        table.setCapacity(request.getSeats());
+        table.setStatus(RestaurantTable.TableStatus.AVAILABLE);
+
+        // B1: Lưu lần đầu để có ID
+        RestaurantTable savedTable = tableRepository.save(table);
+
+        // B2: Tạo đường link (Lưu ý: Thay localhost bằng IP máy bạn nếu test điện thoại)
+        String qrLink = "http://localhost:8080/user/menu?tableId=" + savedTable.getId();
+
+        // B3: Update link vào DB
+        savedTable.setQrCodeString(qrLink);
+        tableRepository.save(savedTable);
+
+        return ResponseEntity.ok(TableDTO.fromEntity(savedTable));
+    }
+
+    // API 3.3: Trả về HÌNH ẢNH QR Code (Front-end dùng thẻ img src=API này)
+    @GetMapping(value = "/tables/{id}/qr", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> generateQRCode(@PathVariable Integer id) {
+        try {
+            RestaurantTable table = tableRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Table not found"));
+
+            String link = table.getQrCodeString();
+            if (link == null) link = "http://localhost:8080/user/menu?tableId=" + id;
+
+            // Vẽ ảnh 200x200 pixel
+            return ResponseEntity.ok(QRCodeGenerator.getQRCodeImage(link, 200, 200));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // API 3.4: Cập nhật trạng thái bàn (SỬA LỖI MAPPING ENUM)
+    // URL: PUT /api/manager/tables/{id}/status?status=1
+    @PutMapping("/tables/{id}/status")
+    public ResponseEntity<?> updateTableStatus(@PathVariable Integer id, @RequestParam Integer status) {
+        try {
+            RestaurantTable table = tableRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Bàn không tồn tại"));
+
+            // LOGIC QUAN TRỌNG: Chuyển đổi Số (Frontend) -> Enum (Database)
+            switch (status) {
+                case 0:
+                    table.setStatus(RestaurantTable.TableStatus.AVAILABLE);
+                    break;
+                case 1:
+                    table.setStatus(RestaurantTable.TableStatus.OCCUPIED);
+                    break;
+                case 2:
+                    table.setStatus(RestaurantTable.TableStatus.RESERVED);
+                    break;
+                default:
+                    return ResponseEntity.badRequest().body("Trạng thái không hợp lệ (chỉ nhận 0, 1, 2)");
+            }
+
+            tableRepository.save(table);
+            return ResponseEntity.ok("Cập nhật thành công");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Lỗi server: " + e.getMessage());
+        }
     }
 }
