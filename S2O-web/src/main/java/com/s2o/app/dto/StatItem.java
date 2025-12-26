@@ -1,4 +1,4 @@
-package uth.edu.dto;
+package com.s2o.app.dto;
 
 public class StatItem {
     private String label;      // Ví dụ: "Nhà hàng Hoạt động"

@@ -1,4 +1,4 @@
-package uth.edu.dto;
+package com.s2o.app.dto;
 
 public class RestaurantDTO {
     private String name;
