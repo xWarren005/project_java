@@ -47,3 +47,20 @@ public class QrScanViewModel extends ViewModel {
         return result;
     }
 }
+public void onQrScanned(String raw) {
+    loading.setValue(true);
+    error.setValue(null);
+
+    QrResult parsed = parseQr(raw);
+
+    loading.setValue(false);
+
+    if (parsed.success) {
+        result.setValue(parsed);
+    } else {
+        error.setValue(parsed.error);
+        result.setValue(parsed);
+    }
+}
+
+
