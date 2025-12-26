@@ -62,5 +62,63 @@ public void onQrScanned(String raw) {
         result.setValue(parsed);
     }
 }
+private QrResult parseQr(String raw) {
+    if (raw == null) return QrResult.fail("", "QR rong");
+    String s = raw.trim();
+    if (s.isEmpty()) return QrResult.fail(raw, "QR rong");
+
+    if (isAllDigits(s)) {
+        return QrResult.ok(raw, null, toIntSafe(s));
+    }
+
+    int q = s.indexOf('?');
+    if (q >= 0 && q < s.length() - 1) {
+        s = s.substring(q + 1);
+    }
+
+    s = s.replace(";", "&");
+
+    Integer restaurantId = null;
+    Integer tableId = null;
+
+    String[] parts = s.split("&");
+    for (String p : parts) {
+        if (p == null) continue;
+        String[] kv = p.split("=");
+        if (kv.length != 2) continue;
+
+        String key = kv[0].trim().toLowerCase();
+        String val = kv[1].trim();
+
+        if (key.equals("restaurantid") || key.equals("restaurant_id")) {
+            restaurantId = toIntSafe(val);
+        } else if (key.equals("tableid") || key.equals("table_id")) {
+            tableId = toIntSafe(val);
+        }
+    }
+
+    if (restaurantId == null && tableId == null) {
+        return QrResult.fail(raw, "QR khong dung dinh dang");
+    }
+
+    return QrResult.ok(raw, restaurantId, tableId);
+}
+
+private boolean isAllDigits(String s) {
+    for (int i = 0; i < s.length(); i++) {
+        char c = s.charAt(i);
+        if (c < '0' || c > '9') return false;
+    }
+    return true;
+}
+
+private Integer toIntSafe(String s) {
+    try {
+        return Integer.parseInt(s);
+    } catch (Exception e) {
+        return null;
+    }
+}
+
 
 
