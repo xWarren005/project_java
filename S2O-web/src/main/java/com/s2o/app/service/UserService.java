@@ -36,17 +36,12 @@ public class UserService {
 
         User user = userOpt.get();
 
-        if (!password.equals(user.getPasswordHash())) {
+
+        // 2. So sánh password nhập vào với password_hash trong DB
+        boolean match = passwordEncoder.matches(password, user.getPasswordHash());
+        if (!match) {
             return null; // Sai mật khẩu
         }
-
-        // 3. Đăng nhập thành công
-        // 2. So sánh password nhập vào với password_hash trong DB
-        //boolean match = passwordEncoder.matches(password, user.getPasswordHash());
-
-        //if (!match) {
-            //return null; // Sai mật khẩu
-        //}
 
         // 3. Đúng username + password
         return user;

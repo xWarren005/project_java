@@ -12,17 +12,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "username")
     private String username;
 
-    // Lưu password dạng hash (BCrypt)
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password_hash")
     private String passwordHash;
+
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(nullable = false)
+    @Column(name= "role")
     private String role; // USER / ADMIN / MANAGER
-    @Column(name = "is_active")
-    private Boolean isActive = true;
 }

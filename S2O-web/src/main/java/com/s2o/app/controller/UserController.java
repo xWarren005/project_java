@@ -44,13 +44,10 @@ public class UserController {
             model.addAttribute("error", "Sai tài khoản hoặc mật khẩu");
             return "user/login";
         }
-
         // Login thành công → lưu session
         session.setAttribute("LOGIN_USER", user);
-
         return "redirect:/user/menuuser";
     }
-
     // =============================
     // LOGOUT
     // =============================
