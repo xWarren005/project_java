@@ -41,8 +41,14 @@ public class ManagerRestController {
     private String uploadRootPath;
 
     // ==========================================
-    // 1. OVERVIEW
+    // 1. OVERVIEW (TỔNG QUAN)
     // ==========================================
+
+    /**
+     * API: Lấy dữ liệu tổng quan cho Dashboard
+     * URL: GET /api/manager/overview
+     * Chức năng: Trả về doanh thu hôm nay, số bàn đang có khách, số đơn hàng active...
+     */
     @GetMapping("/overview")
     public ResponseEntity<ManagerOverviewResponse> getOverview() {
         Integer currentRestaurantId = 1;
@@ -50,19 +56,34 @@ public class ManagerRestController {
     }
 
     // ==========================================
-    // 2. DISHES (MÓN ĂN)
+    // 2. DISHES (QUẢN LÝ MÓN ĂN)
     // ==========================================
+
+    /**
+     * API: Lấy danh sách danh mục
+     * URL: GET /api/manager/categories
+     * Chức năng: Lấy tất cả loại món (Khai vị, Món chính, Đồ uống...) để hiển thị dropdown chọn.
+     */
     @GetMapping("/categories")
     public ResponseEntity<List<Category>> getAllCategories() {
         return ResponseEntity.ok(categoryRepository.findAll());
     }
 
+    /**
+     * API: Lấy danh sách món ăn
+     * URL: GET /api/manager/dishes
+     * Chức năng: Hiển thị toàn bộ thực đơn hiện có.
+     */
     @GetMapping("/dishes")
     public List<Product> getAllDishes() {
         return productRepository.findAll();
     }
 
-    // --- THÊM MÓN ---
+    /**
+     * API: Thêm món ăn mới
+     * URL: POST /api/manager/dishes
+     * Chức năng: Tạo món ăn mới, lưu ảnh vào server, lưu thông tin (giá, giảm giá) vào DB.
+     */
     @PostMapping(value = "/dishes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createDish(
             @RequestParam String name,
@@ -70,7 +91,7 @@ public class ManagerRestController {
             @RequestParam String description,
             @RequestParam Integer categoryId,
             @RequestParam Boolean isAvailable,
-            @RequestParam(value = "discount", defaultValue = "0") Double discount, // <--- UPDATE: Nhận discount
+            @RequestParam(value = "discount", defaultValue = "0") Double discount, // Nhận discount
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
     ) {
         try {
@@ -83,7 +104,7 @@ public class ManagerRestController {
             product.setDescription(description);
             product.setCategory(category);
             product.setIsAvailable(isAvailable);
-            product.setDiscount(discount); // <--- UPDATE: Lưu discount
+            product.setDiscount(discount); // Lưu discount
             product.setAiGenerated(false);
 
             if (imageFile != null && !imageFile.isEmpty()) {
@@ -97,7 +118,11 @@ public class ManagerRestController {
         }
     }
 
-    // --- CẬP NHẬT MÓN ---
+    /**
+     * API: Cập nhật món ăn
+     * URL: PUT /api/manager/dishes/{id}
+     * Chức năng: Sửa thông tin món ăn (tên, giá, giảm giá, ảnh...) theo ID.
+     */
     @PutMapping(value = "/dishes/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateDish(
             @PathVariable Integer id,
@@ -106,7 +131,7 @@ public class ManagerRestController {
             @RequestParam String description,
             @RequestParam Integer categoryId,
             @RequestParam Boolean isAvailable,
-            @RequestParam(value = "discount", defaultValue = "0") Double discount, // <--- UPDATE: Nhận discount
+            @RequestParam(value = "discount", defaultValue = "0") Double discount, // Nhận discount
             @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
     ) {
         try {
@@ -121,7 +146,7 @@ public class ManagerRestController {
             product.setDescription(description);
             product.setCategory(category);
             product.setIsAvailable(isAvailable);
-            product.setDiscount(discount); // <--- UPDATE: Lưu discount
+            product.setDiscount(discount); // Lưu discount
 
             if (imageFile != null && !imageFile.isEmpty()) {
                 String imageUrl = saveImageFile(imageFile, category.getName());
@@ -134,6 +159,11 @@ public class ManagerRestController {
         }
     }
 
+    /**
+     * API: Xóa món ăn
+     * URL: DELETE /api/manager/dishes/{id}
+     * Chức năng: Xóa vĩnh viễn món ăn khỏi Database.
+     */
     @DeleteMapping("/dishes/{id}")
     public ResponseEntity<?> deleteDish(@PathVariable Integer id) {
         if (!productRepository.existsById(id)) return ResponseEntity.notFound().build();
@@ -142,8 +172,14 @@ public class ManagerRestController {
     }
 
     // ==========================================
-    // 3. TABLES + QR
+    // 3. TABLES + QR (QUẢN LÝ BÀN)
     // ==========================================
+
+    /**
+     * API: Lấy danh sách bàn
+     * URL: GET /api/manager/tables
+     * Chức năng: Lấy tất cả bàn để hiển thị sơ đồ bàn.
+     */
     @GetMapping("/tables")
     public List<TableDTO> getTables() {
         return tableRepository.findByRestaurantId(1)
@@ -152,6 +188,11 @@ public class ManagerRestController {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * API: Tạo bàn mới
+     * URL: POST /api/manager/tables
+     * Chức năng: Thêm một bàn mới vào hệ thống và tự động tạo link QR code.
+     */
     @PostMapping("/tables")
     public ResponseEntity<?> createTable(@RequestBody TableDTO request) {
         try {
@@ -171,6 +212,11 @@ public class ManagerRestController {
         }
     }
 
+    /**
+     * API: Lấy ảnh QR Code
+     * URL: GET /api/manager/tables/{id}/qr
+     * Chức năng: Trả về hình ảnh QR Code (dạng byte array - PNG) để hiển thị hoặc tải về.
+     */
     @GetMapping(value = "/tables/{id}/qr", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> generateQRCode(@PathVariable Integer id) {
         try {
@@ -185,6 +231,11 @@ public class ManagerRestController {
         }
     }
 
+    /**
+     * API: Cập nhật trạng thái bàn
+     * URL: PUT /api/manager/tables/{id}/status
+     * Chức năng: Chuyển trạng thái bàn (0: Trống, 1: Có khách, 2: Đặt trước).
+     */
     @PutMapping("/tables/{id}/status")
     public ResponseEntity<?> updateTableStatus(@PathVariable Integer id, @RequestParam Integer status) {
         try {
@@ -203,9 +254,32 @@ public class ManagerRestController {
         }
     }
 
+    /**
+     * API: Xóa bàn
+     * URL: DELETE /api/manager/tables/{id}
+     * Chức năng: Xóa bàn khỏi hệ thống.
+     */
+    @DeleteMapping("/tables/{id}")
+    public ResponseEntity<?> deleteTable(@PathVariable Integer id) {
+        if (!tableRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        try {
+            tableRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi khi xóa bàn: " + e.getMessage());
+        }
+    }
+
     // ==========================================
     // 4. UTILS – LƯU ẢNH
     // ==========================================
+
+    /**
+     * Hàm nội bộ: Lưu file ảnh upload vào thư mục server
+     * Chức năng: Nhận file Multipart, lưu vào thư mục phân loại theo tên danh mục, trả về đường dẫn URL.
+     */
     private String saveImageFile(MultipartFile file, String categoryName) throws IOException {
 
         String folderName = convertToFolderName(categoryName);
@@ -229,6 +303,10 @@ public class ManagerRestController {
         return "/uploads/image/" + folderName + "/" + fileName;
     }
 
+    /**
+     * Hàm nội bộ: Chuyển tên danh mục thành tên thư mục hợp lệ
+     * Ví dụ: "Món Chính" -> "Mon-Chinh"
+     */
     private String convertToFolderName(String categoryName) {
         if (categoryName == null) return "other";
 
