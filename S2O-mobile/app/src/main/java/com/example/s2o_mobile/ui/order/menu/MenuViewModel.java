@@ -25,9 +25,8 @@ public class MenuViewModel extends ViewModel {
     private final Gson gson = new Gson();
 
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
-    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-    private final MutableLiveData<List<MenuItem>> menuItems =
-            new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<String> errorMessage = new MutableLiveData<>(null);
+    private final MutableLiveData<List<MenuItem>> menuItems = new MutableLiveData<>(new ArrayList<>());
 
     private int currentRestaurantId = -1;
 
@@ -43,6 +42,10 @@ public class MenuViewModel extends ViewModel {
         return menuItems;
     }
 
+    public int getCurrentRestaurantId() {
+        return currentRestaurantId;
+    }
+
     public void loadMenu(int restaurantId) {
         if (restaurantId <= 0) {
             errorMessage.setValue("restaurantId không hợp lệ");
@@ -50,6 +53,8 @@ public class MenuViewModel extends ViewModel {
         }
 
         currentRestaurantId = restaurantId;
+        loading.setValue(true);
+        errorMessage.setValue(null);
 
         Call<ResponseBody> call = orderApi.getMenu(restaurantId);
         call.enqueue(new Callback<ResponseBody>() {
@@ -64,9 +69,10 @@ public class MenuViewModel extends ViewModel {
 
                 try {
                     String json = response.body().string();
-                    menuItems.setValue(parseMenuList(json));
+                    List<MenuItem> list = parseMenuList(json);
+                    menuItems.setValue(list);
                 } catch (Exception e) {
-                    errorMessage.setValue(e.getMessage());
+                    errorMessage.setValue("Lỗi parse menu: " + e.getMessage());
                 }
             }
 
@@ -78,12 +84,36 @@ public class MenuViewModel extends ViewModel {
         });
     }
 
-    private List<MenuItem> parseMenuList(String json) {
-        Type type = new TypeToken<MenuItem>() {}.getType();
-        MenuItem item = gson.fromJson(json, type);
+    public void refresh() {
+        if (currentRestaurantId > 0) {
+            loadMenu(currentRestaurantId);
+        } else {
+            errorMessage.setValue("Chưa có restaurantId để tải menu");
+        }
+    }
 
-        List<MenuItem> list = new ArrayList<>();
-        list.add(item);
-        return list;
+    private List<MenuItem> parseMenuList(String json) {
+        if (json == null) return new ArrayList<>();
+
+        json = json.trim();
+        Type listType = new TypeToken<List<MenuItem>>() {}.getType();
+
+        if (json.startsWith("[")) {
+            List<MenuItem> list = gson.fromJson(json, listType);
+            return (list == null) ? new ArrayList<>() : list;
+        }
+
+        try {
+            com.google.gson.JsonObject obj = gson.fromJson(json, com.google.gson.JsonObject.class);
+
+            if (obj.has("data") && obj.get("data").isJsonArray()) {
+                return gson.fromJson(obj.get("data"), listType);
+            }
+            if (obj.has("items") && obj.get("items").isJsonArray()) {
+                return gson.fromJson(obj.get("items"), listType);
+            }
+        } catch (Exception ignored) { }
+
+        return new ArrayList<>();
     }
 }
