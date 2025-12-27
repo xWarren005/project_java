@@ -40,6 +40,7 @@ public class MenuViewModel extends ViewModel {
     }
 
     public LiveData<List<MenuItem>> getMenuItems() {
+        menuItems.setValue(new ArrayList<>());
         return menuItems;
     }
 
@@ -76,6 +77,10 @@ public class MenuViewModel extends ViewModel {
                 errorMessage.setValue(t.getMessage());
             }
         });
+    }
+
+    public void refresh() {
+        loadMenu(0);
     }
 
     private List<MenuItem> parseMenuList(String json) {
