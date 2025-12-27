@@ -130,7 +130,7 @@ public class ManagerRestController {
     public ResponseEntity<?> createTable(@RequestBody TableDTO request) {
         try{
             RestaurantTable table = new RestaurantTable();
-            table.setRestaurantId(10);
+            table.setRestaurantId(1);
             table.setTableName(request.getName());
             table.setCapacity(request.getSeats());
             table.setStatus(RestaurantTable.TableStatus.AVAILABLE);

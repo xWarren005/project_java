@@ -26,10 +26,11 @@ services:
     depends_on:
       - mysqldb # Chờ DB chạy trước rồi mới chạy App
     environment:
-      # Ghi đè cấu hình trong application.properties để trỏ tới container 'mysqldb'
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/S2O_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: Aa@123456
+      # Thêm dòng này để giữ dữ liệu
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
     volumes:
       # Map thư mục upload ảnh ra ngoài máy thật
       - ./uploads:/app/uploads
