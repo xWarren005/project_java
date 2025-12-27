@@ -1,7 +1,11 @@
 package com.example.s2o_mobile.data.repository;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.example.s2o_mobile.data.model.Order;
 import com.example.s2o_mobile.data.model.OrderItem;
+import com.example.s2o_mobile.data.model.PaymentResult;
 import com.example.s2o_mobile.data.source.remote.OrderApi;
 import com.example.s2o_mobile.data.source.remote.RetrofitClient;
 
@@ -17,36 +21,88 @@ public class OrderRepository {
         orderApi = RetrofitClient.getInstance().create(OrderApi.class);
     }
 
-    public Call<Order> createOrder(String tableId, String restaurantId) {
-        return orderApi.createOrder(tableId, restaurantId);
+    @Nullable
+    public Call<Order> createOrder(@NonNull String tableId,
+                                   @NonNull String restaurantId,
+                                   @NonNull String note ) {
+        String tid = tableId.trim();
+        String rid = restaurantId.trim();
+        String n = note == null ? "" : note.trim();
+
+        if (tid.isEmpty()) return null;
+        if (rid.isEmpty()) return null;
+        return orderApi.createOrder(tid, rid, n);
     }
 
-    public Call<List<OrderItem>> getOrderItems(String orderId) {
-        return orderApi.getOrderItems(orderId);
+    @Nullable
+    public Call<Order> getOrderItems(@NonNull String orderId) {
+        String oid = orderId.trim();
+        if (oid.isEmpty()) return null;
+        return orderApi.getOrderItems(oid);
+    }
+    addItemToOrder(@NonNull String orderId,
+                   @NonNull String foodId,
+                   int quantity,
+                   @Nullable String note) {
+        String oid = orderId.trim();
+        String fid = foodId.trim();
+        String n = note == null ? "" : note.trim();
+
+        if (oid.isEmpty()) return null;
+        if (fid.isEmpty()) return null;
+        if (quantity <= 0) return null;
+
+        return orderApi.addItem(oid, fid, quantity, n);
     }
 
-    public Call<Order> addItem(String orderId, String foodId, int quantity) {
-        return orderApi.addItem(orderId, foodId, quantity);
+    @Nullable
+    public Call<Order> updateItemQuantity(@NonNull String orderId,
+                                          @NonNull String itemId,
+                                          int quantity) {
+        String oid = orderId.trim();
+        String iid = itemId.trim();
+
+        if (oid.isEmpty()) return null;
+        if (iid.isEmpty()) return null;
+        if (quantity <= 0) return null;
+
+        return orderApi.updateItemQuantity(oid, iid, quantity);
     }
 
-    public Call<Order> updateItemQuantity(String orderId, String itemId, int quantity) {
-        if (orderId == null || itemId == null) return null;
-        return orderApi.updateItemQuantity(orderId, itemId, quantity);
+    @Nullable
+    public Call<Order> removeItem(@NonNull String orderId,
+                                  @NonNull String itemId) {
+        String oid = orderId.trim();
+        String iid = itemId.trim();
+
+        if (oid.isEmpty()) return null;
+        if (iid.isEmpty()) return null;
+
+        return orderApi.removeItem(oid, iid);
     }
 
-    public Call<Order> removeItemFromOrder(String orderId, String itemId) {
-        if (orderId == null || itemId == null) return null;
-        return orderApi.removeItem(orderId, itemId);
+    @Nullable
+    public Call<Order> updateOrderStatus(@NonNull String orderId,
+                                         @NonNull String status) {
+        String oid = orderId.trim();
+        String st = status.trim();
+
+        if (oid.isEmpty()) return null;
+        if (st.isEmpty()) return null;
+
+        return orderApi.updateOrderStatus(oid, st);
     }
 
-    public Call<Order> updateOrderStatus(String orderId, String status) {
-        if (orderId == null || status == null) return null;
-        return orderApi.updateOrderStatus(orderId, status);
-    }
+    @Nullable
+    public Call<PaymentResult> payOrder(@NonNull String orderId,
+                                        @NonNull String method,
+                                        @Nullable Double amount) {
+        String oid = orderId.trim();
+        String m = method.trim();
 
-    public Call<PaymentResult> payOrder(String orderId, String method) {
-        if (orderId == null) return null;
-        return orderApi.payOrder(orderId, method, null);
-    }
+        if (oid.isEmpty()) return null;
+        if (m.isEmpty()) return null;
 
+        return orderApi.payOrder(oid, m, amount);
+    }
 }
