@@ -1,5 +1,6 @@
 package com.s2o.app.controller;
 
+import com.s2o.app.dto.RegisterRequest;
 import com.s2o.app.entity.User;
 import com.s2o.app.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -55,5 +56,29 @@ public class UserController {
     public String logout(HttpSession session) {
         session.invalidate(); // Xóa session
         return "redirect:/user/login";
+    }
+
+    // 1. Hiển thị trang Đăng ký
+    @GetMapping("/register")
+    public String registerPage(Model model) {
+        model.addAttribute("registerRequest", new RegisterRequest());
+        return "user/register";
+    }
+
+    // 2. Xử lý Đăng ký
+    @PostMapping("/register")
+    public String handleRegister(@ModelAttribute RegisterRequest registerRequest, Model model) {
+
+        // Gọi Service xử lý
+        String result = userService.registerUser(registerRequest);
+
+        if ("SUCCESS".equals(result)) {
+            // Đăng ký thành công -> Chuyển sang trang login và báo thành công
+            return "redirect:/user/login?success=true";
+        } else {
+            // Đăng ký thất bại -> Ở lại trang register và báo lỗi
+            model.addAttribute("error", result);
+            return "user/register";
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.s2o.app.service;
 
+import com.s2o.app.dto.RegisterRequest;
 import com.s2o.app.entity.User;
 import com.s2o.app.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -46,4 +47,32 @@ public class UserService {
         // 3. Đúng username + password
         return user;
     }
+    public String registerUser(RegisterRequest request) {
+        // 1. Kiểm tra username đã tồn tại chưa
+        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+            return "Tài khoản này đã tồn tại!";
+        }
+
+        // 2. Kiểm tra mật khẩu nhập lại có khớp không
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            return "Mật khẩu nhập lại không khớp!";
+        }
+
+        // 3. Tạo User mới
+        User newUser = new User();
+        newUser.setUsername(request.getUsername());
+        newUser.setFullName(request.getFullName());
+
+        // Mã hóa mật khẩu trước khi lưu
+        newUser.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+
+        // Set quyền mặc định là Khách hàng
+        newUser.setRole("CUSTOMER");
+
+        // 4. Lưu vào DB
+        userRepository.save(newUser);
+
+        return "SUCCESS"; // Trả về thành công
+    }
 }
+
