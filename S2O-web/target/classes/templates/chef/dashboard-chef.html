@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Đầu Bếp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../static/css/chef/dashboard-chef.css">
+</head>
+<body class="chef-dashboard-page">
+
+<header class="main-header">
+    <div class="brand-group">
+        <div class="logo-box">R</div>
+        <div class="text-group">
+            <h1 class="app-name">Restaurant Manager</h1>
+            <span class="role-label">Bếp Trưởng</span>
+        </div>
+    </div>
+    <div class="user-group">
+        <img src="https://ui-avatars.com/api/?name=Chef+Master&background=E67E22&color=fff"  alt="User" class="avatar">
+        <span class="username" id="user-name-display">Đang tải...</span>
+    </div>
+</header>
+
+<main class="content-wrapper">
+
+    <div class="page-header">
+        <h2 class="title">Bảng Điều Khiển Bếp</h2>
+        <p class="subtitle">Theo dõi trạng thái món ăn thời gian thực</p>
+    </div>
+
+    <nav class="nav-tabs" id="main-nav-tabs">
+        <div class="tab-item active" data-target="orders-view">
+            <i class="fa-solid fa-fire-burner"></i> Đơn Hàng
+        </div>
+        <div class="tab-item" data-target="menu-view">
+            <i class="fa-solid fa-list-check"></i> Thực Đơn
+        </div>
+    </nav>
+
+    <div id="orders-view" class="view-section active">
+        <div class="stats-container">
+            <div class="stat-box">
+                <span class="label">Chờ Xử Lý</span>
+                <span class="number pending" id="stat-pending">0</span>
+            </div>
+            <div class="stat-box">
+                <span class="label">Đang Nấu</span>
+                <span class="number cooking" id="stat-cooking">0</span>
+            </div>
+            <div class="stat-box">
+                <span class="label">Sẵn Sàng</span>
+                <span class="number ready" id="stat-ready">0</span>
+            </div>
+        </div>
+
+        <div class="list-section">
+            <h3 class="section-title">Đang Hoạt Động</h3>
+            <div id="active-orders-container" class="orders-grid">
+            </div>
+        </div>
+
+        <div class="list-section">
+            <h3 class="section-title">Đã Hoàn Thành</h3>
+            <div id="completed-orders-container" class="orders-grid">
+            </div>
+        </div>
+    </div>
+
+    <div id="menu-view" class="view-section" style="display: none;">
+        <div class="empty-state">
+            <i class="fa-solid fa-utensils"></i>
+            <p>Chức năng quản lý thực đơn đang phát triển...</p>
+        </div>
+    </div>
+
+</main>
+
+<script src="../../static/js/chef/dashboard-chef.js"></script>
+</body>
+</html>

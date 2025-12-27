@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh Toán - Restaurant Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../static/css/cashier/header.css">
+    <link rel="stylesheet" href="../../static/css/cashier/payment.css">
+</head>
+<body>
+
+<main class="content-wrapper">
+    <div id="cashier-menu-container"></div>
+
+    <div class="page-header">
+        <h2>Thanh Toán</h2>
+        <p>Xử lý thanh toán cho bàn và xuất hóa đơn</p>
+    </div>
+
+    <div class="payment-grid">
+        <div class="p-left-col">
+            <div class="card p-section">
+                <label class="section-label">Bàn đang thanh toán</label>
+                <div class="table-select-display" id="display-table-id">
+                    Đang tải...
+                </div>
+            </div>
+
+            <div class="card p-bill-box">
+                <h4 class="bill-title">Chi tiết đơn hàng</h4>
+                <ul class="bill-items" id="bill-items-list">
+                </ul>
+
+                <div class="bill-divider"></div>
+
+                <div class="bill-row">
+                    <span>Tạm tính:</span>
+                    <span id="bill-subtotal">0đ</span>
+                </div>
+                <div class="bill-row discount">
+                    <span>Giảm giá:</span>
+                    <span id="bill-discount">-0đ</span>
+                </div>
+
+                <div class="bill-divider"></div>
+
+                <div class="bill-row total">
+                    <span>Tổng cộng:</span>
+                    <span class="highlight" id="bill-final-total">0đ</span>
+                </div>
+            </div>
+
+            <div class="card p-methods-box">
+                <label class="section-label">Phương Thức Thanh Toán</label>
+                <div class="method-buttons">
+                    <button class="m-btn active" onclick="switchMethod('cash')" id="btn-cash">
+                        <i class="fa-solid fa-money-bill-wave"></i> Tiền Mặt
+                    </button>
+                    <button class="m-btn" onclick="switchMethod('card')" id="btn-card">
+                        <i class="fa-regular fa-credit-card"></i> Thẻ
+                    </button>
+                    <button class="m-btn" onclick="switchMethod('qr')" id="btn-qr">
+                        <i class="fa-solid fa-qrcode"></i> QR Code
+                    </button>
+                </div>
+
+                <button class="confirm-pay-btn" onclick="processPayment()">
+                    Xác Nhận Thanh Toán <span id="btn-pay-amount">0đ</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-right-col">
+
+            <div id="content-cash" class="payment-content active">
+                <div class="card">
+                    <h3>Thanh Toán Tiền Mặt</h3>
+                    <p class="sub-text">Chạm vào mệnh giá để cộng dồn số tiền khách đưa</p>
+
+                    <div class="money-section">
+                        <label class="money-label">Mệnh giá nhỏ</label>
+                        <div class="money-grid small">
+                            <button onclick="addCash(1000)">1k</button>
+                            <button onclick="addCash(2000)">2k</button>
+                            <button onclick="addCash(5000)">5k</button>
+                            <button onclick="addCash(10000)">10k</button>
+                            <button onclick="addCash(20000)">20k</button>
+                        </div>
+
+                        <label class="money-label" style="margin-top:10px;">Mệnh giá lớn</label>
+                        <div class="money-grid large">
+                            <button onclick="addCash(50000)">50k</button>
+                            <button onclick="addCash(100000)">100k</button>
+                            <button onclick="addCash(200000)">200k</button>
+                            <button onclick="addCash(500000)">500k</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group-custom with-action">
+                        <div class="input-wrapper">
+                            <label>Tổng tiền khách đưa:</label>
+                            <input type="number" id="cash-given" placeholder="0" oninput="calculateChange()">
+                        </div>
+
+                        <button class="btn-reset" onclick="resetCash()" title="Nhập lại từ đầu">
+                            <i class="fa-solid fa-rotate-left"></i> Hoàn lại
+                        </button>
+                    </div>
+
+                    <div class="change-info-box">
+                        <div class="ci-row">
+                            <span>Phải thu:</span>
+                            <span id="cash-must-pay">0đ</span>
+                        </div>
+                        <div class="ci-row big">
+                            <span>Tiền thừa trả khách:</span>
+                            <span class="highlight" id="cash-return">0đ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-card" class="payment-content" style="display:none;">
+                <div class="card center-content">
+                    <h3>Thanh Toán Thẻ</h3>
+                    <p class="sub-text">Sử dụng máy POS để quẹt thẻ</p>
+
+                    <div class="card-visual">
+                        <div class="credit-card-icon">
+                            <div class="chip"></div>
+                            <div class="dots">**** **** **** 8899</div>
+                        </div>
+                    </div>
+
+                    <div class="guide-box">
+                        <h4>Hướng dẫn:</h4>
+                        <ol>
+                            <li>Yêu cầu khách chọn loại thẻ (Visa/Master/Napas).</li>
+                            <li>Vuốt hoặc chạm thẻ vào máy POS.</li>
+                            <li>Chờ in biên lai xác nhận.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-qr" class="payment-content" style="display:none;">
+                <div class="card center-content">
+                    <h3>Mã QR Thanh Toán</h3>
+                    <p class="sub-text">Khách hàng quét mã để chuyển khoản</p>
+
+                    <div class="qr-container">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ThanhToanHoaDon" alt="QR Code">
+                    </div>
+
+                    <div class="qr-amount-display">
+                        <span id="qr-display-amount">0đ</span>
+                        <small>Số tiền cần thanh toán</small>
+                    </div>
+
+                    <div class="qr-note">
+                        <i class="fa-solid fa-circle-info"></i> Sau khi khách chuyển khoản thành công, nhấn "Xác Nhận Thanh Toán".
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script src="../../static/js/cashier/header.js"></script>
+<script src="../../static/js/cashier/payment.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        renderTopHeader();
+        renderCashierMenu('payment');
+    });
+</script>
+</body>
+</html>

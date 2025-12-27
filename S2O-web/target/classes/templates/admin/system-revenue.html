@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Doanh thu Hệ thống - Restaurant SaaS</title>
+
+    <link rel="stylesheet" th:href="@{/css/admin/system-revenue.css}">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="brand">
+            <i data-lucide="store"></i> <span>Restaurant SaaS</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a th:href="@{/admin/dashboard}" class="nav-item">
+                <i data-lucide="layout-dashboard"></i> Dashboard
+            </a>
+
+            <a th:href="@{/admin/restaurants}" class="nav-item">
+                <i data-lucide="store"></i> Quản lý Nhà hàng
+            </a>
+
+            <a th:href="@{/admin/users}" class="nav-item">
+                <i data-lucide="users"></i> Người dùng & Phân quyền
+            </a>
+
+            <a th:href="@{/admin/revenue}" class="nav-item active">
+                <i data-lucide="dollar-sign"></i> Doanh thu Hệ thống
+            </a>
+
+            <a th:href="@{/admin/ai-config}" class="nav-item">
+                <i data-lucide="settings"></i> Cấu hình AI
+            </a>
+
+            <a th:href="@{/admin/monitor}" class="nav-item">
+                <i data-lucide="activity"></i> Giám sát Hệ thống
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Doanh thu Hệ thống</h1>
+            <button class="btn-icon-only"><i data-lucide="info"></i></button>
+        </div>
+
+        <div class="content-body">
+
+            <div class="search-section">
+                <div class="search-wrapper">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text" placeholder="Tìm kiếm giao dịch, nhà hàng..." class="search-input" id="searchInput">
+                </div>
+            </div>
+
+            <section class="stats-grid">
+                <div class="card stat-card">
+                    <span class="stat-label">Doanh thu Hôm nay</span>
+                    <h3 class="stat-value">$2,847</h3>
+                    <p class="stat-desc text-green">+18.2% so với hôm qua</p>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Doanh thu Tháng</span>
+                    <h3 class="stat-value">$48,392</h3>
+                    <p class="stat-desc text-green">+15.3% so với tháng trước</p>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Dự đoán Tháng sau</span>
+                    <h3 class="stat-value">$54,200</h3>
+                    <p class="stat-desc">Dựa trên xu hướng hiện tại</p>
+                </div>
+            </section>
+
+            <section class="card table-card">
+                <div class="card-header">
+                    <h3>Chi tiết Giao dịch</h3>
+                    <p>Lịch sử thanh toán và hoa hồng</p>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="revenueTable">
+                        <thead>
+                        <tr>
+                            <th style="width: 15%">Ngày</th>
+                            <th style="width: 25%">Nhà hàng</th>
+                            <th style="width: 20%">Gói dịch vụ</th>
+                            <th style="width: 20%">Số tiền</th>
+                            <th style="width: 20%">Hoa hồng</th>
+                        </tr>
+                        </thead>
+                        <tbody id="revenueTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #999;">Đang tải dữ liệu...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<script th:src="@{/js/admin/system-revenue.js}"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
