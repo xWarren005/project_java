@@ -23,7 +23,7 @@ function generateId() {
 
 /* ========= 2. NAVIGATION ========= */
 function goToHistory() { window.location.href = "history.html" }
-function goToProfile() { window.location.href = "profile.html" }
+function goToProfile() { window.location.href = "/user/profile" }
 function switchTab(tab) {
     // 1. bỏ active khỏi tất cả nút
     document.querySelectorAll(".tab").forEach(t =>

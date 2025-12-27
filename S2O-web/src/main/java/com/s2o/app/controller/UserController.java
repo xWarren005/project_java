@@ -81,4 +81,12 @@ public class UserController {
             return "user/register";
         }
     }
+    @GetMapping("/profile")
+    public String overviewPage(HttpSession session) {
+        // Kiểm tra đăng nhập
+        if (session.getAttribute("LOGIN_USER") == null) {
+            return "redirect:/user/login";
+        }
+        return "user/profile";
+    }
 }

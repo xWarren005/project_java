@@ -54,7 +54,7 @@ public class ProfileRestController {
         List<com.s2o.app.entity.Order> orders = orderRepository.findByUserIdOrderByCreatedAtDesc(dbUser.getId());
         List<ProfileResponse.CalendarItemDTO> calendarList = new ArrayList<>();
 
-        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd/MM/");
+        DateTimeFormatter dateFmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
 
         for (Order order : orders) {
