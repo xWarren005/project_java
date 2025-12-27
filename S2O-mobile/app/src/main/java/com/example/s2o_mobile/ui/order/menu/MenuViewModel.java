@@ -61,6 +61,13 @@ public class MenuViewModel extends ViewModel {
                     errorMessage.setValue("Không lấy được menu");
                     return;
                 }
+
+                try {
+                    String json = response.body().string();
+                    menuItems.setValue(parseMenuList(json));
+                } catch (Exception e) {
+                    errorMessage.setValue(e.getMessage());
+                }
             }
 
             @Override
@@ -69,5 +76,14 @@ public class MenuViewModel extends ViewModel {
                 errorMessage.setValue(t.getMessage());
             }
         });
+    }
+
+    private List<MenuItem> parseMenuList(String json) {
+        Type type = new TypeToken<MenuItem>() {}.getType();
+        MenuItem item = gson.fromJson(json, type);
+
+        List<MenuItem> list = new ArrayList<>();
+        list.add(item);
+        return list;
     }
 }
