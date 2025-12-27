@@ -127,10 +127,12 @@ function handleAddTable(e) {
         body: JSON.stringify(payload)
     })
         .then(response => {
+            debugger;
             if (!response.ok) throw new Error("Lỗi khi thêm bàn");
             return response.json();
         })
         .then(newTable => {
+            debugger;
             // Server trả về đối tượng bàn mới (đã bao gồm ID và Link QR ngầm)
             tablesData.push(newTable);
             renderTables();

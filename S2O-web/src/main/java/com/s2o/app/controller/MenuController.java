@@ -1,6 +1,8 @@
 package com.s2o.app.controller;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -8,7 +10,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/user")
 public class MenuController {
     @GetMapping("/menuuser")
-    public String menuuserPage() {
+    public String menuuserPage(HttpSession session, Model model) {
+        Integer restaurantId =
+                (Integer) session.getAttribute("RESTAURANT_ID");
+        String tableName =
+                (String) session.getAttribute("TABLE_NAME");
+
+        if (restaurantId == null) {
+            return "redirect:/welcome";
+        }
+        model.addAttribute("restaurantId", restaurantId);
+        model.addAttribute("tableName", tableName);
         return "user/menuuser";
     }
 }

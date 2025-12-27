@@ -12,6 +12,7 @@ import com.s2o.app.repository.TableRepository;
 import com.s2o.app.service.ManagerDashboardService;
 import com.s2o.app.util.QRCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -127,23 +128,28 @@ public class ManagerRestController {
     // API 3.2: Tạo bàn mới + Tự động sinh link QR lưu vào DB
     @PostMapping("/tables")
     public ResponseEntity<?> createTable(@RequestBody TableDTO request) {
-        RestaurantTable table = new RestaurantTable();
-        table.setRestaurantId(1);
-        table.setTableName(request.getName());
-        table.setCapacity(request.getSeats());
-        table.setStatus(RestaurantTable.TableStatus.AVAILABLE);
+        try{
+            RestaurantTable table = new RestaurantTable();
+            table.setRestaurantId(10);
+            table.setTableName(request.getName());
+            table.setCapacity(request.getSeats());
+            table.setStatus(RestaurantTable.TableStatus.AVAILABLE);
 
-        // B1: Lưu lần đầu để có ID
-        RestaurantTable savedTable = tableRepository.save(table);
+            // B1: Lưu lần đầu để có ID
+            RestaurantTable savedTable = tableRepository.save(table);
 
-        // B2: Tạo đường link (Lưu ý: Thay localhost bằng IP máy bạn nếu test điện thoại)
-        String qrLink = "http://localhost:8080/user/menu?tableId=" + savedTable.getId();
+            // B2: Tạo đường link (Lưu ý: Thay localhost bằng IP máy bạn nếu test điện thoại)
+            String qrLink = "http://localhost:8080/user/menu?tableId=" + savedTable.getId();
 
-        // B3: Update link vào DB
-        savedTable.setQrCodeString(qrLink);
-        tableRepository.save(savedTable);
+            // B3: Update link vào DB
+            savedTable.setQrCodeString(qrLink);
+            tableRepository.save(savedTable);
 
-        return ResponseEntity.ok(TableDTO.fromEntity(savedTable));
+            return ResponseEntity.ok(TableDTO.fromEntity(savedTable));
+        } catch (Exception e) {
+            return ResponseEntity.ofNullable(e.getMessage()) ;
+        }
+
     }
 
     // API 3.3: Trả về HÌNH ẢNH QR Code (Front-end dùng thẻ img src=API này)
