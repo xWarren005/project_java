@@ -1,164 +1,220 @@
-// Biến toàn cục chứa danh sách món ăn
 let dishesData = [];
+let categoriesData = [];
+const DEFAULT_IMG_BASE64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiNlZWVlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjIwIiBmaWxsPSIjOTk5OTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Tk8gSU1BR0U8L3RleHQ+PC9zdmc+';
 
-// --- 1. KHỞI TẠO KHI TRANG LOAD ---
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Loading Dishes Page...");
-
-    // Gọi hàm lấy dữ liệu
+    fetchCategories();
     fetchDishes();
-
-    // Gán sự kiện cho nút "Thêm Món"
-    document.getElementById("btn-add-dish").addEventListener("click", () => {
-        openModal(); // Mở modal trống để thêm mới
-    });
-
-    // Render Menu (Sidebar)
-    if (typeof renderMenu === "function") {
-        renderMenu('dishes');
-    }
+    const btnAdd = document.getElementById("btn-add-dish");
+    if (btnAdd) btnAdd.addEventListener("click", () => openModal());
+    if (typeof renderMenu === "function") renderMenu('dishes');
 });
 
-// --- 2. GỌI API LẤY DỮ LIỆU ---
+// ===================================================
+// API
+// ===================================================
+function fetchCategories() {
+    fetch('/api/manager/categories')
+        .then(res => res.json())
+        .then(data => {
+            categoriesData = data;
+            const select = document.getElementById("inp-category");
+            select.innerHTML = '<option value="">-- Chọn danh mục --</option>';
+            data.forEach(cat => {
+                const opt = document.createElement("option");
+                opt.value = cat.id;
+                opt.textContent = cat.name;
+                select.appendChild(opt);
+            });
+        }).catch(err => console.error("Lỗi tải danh mục:", err));
+}
+
 function fetchDishes() {
-    // Giả sử API Java trả về List<ProductDTO>
     fetch('/api/manager/dishes')
-        .then(response => {
-            // Nếu chưa có API, dùng dữ liệu giả để test giao diện (comment đoạn này lại khi có API thật)
-            /*
-            if (!response.ok) return mockData();
-            */
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
+        .then(res => res.json())
         .then(data => {
             dishesData = data;
             renderDishesGrid();
-        })
-        .catch(error => {
-            console.error('Error fetching dishes:', error);
-            document.getElementById("dishes-container").innerHTML = '<p class="error">Không tải được dữ liệu.</p>';
-        });
+        }).catch(err => console.error("Lỗi tải danh sách món:", err));
 }
 
-// --- 3. HIỂN THỊ DỮ LIỆU LÊN GIAO DIỆN ---
+// ===================================================
+// HELPER
+// ===================================================
+function getFolderName(categoryName) {
+    if (!categoryName) return "other";
+    let str = categoryName.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    str = str.replace(/\s+/g, '-').toLowerCase();
+    if (str === "mon-chinh") return "Mon-chinh";
+    if (str === "khai-vi") return "Khai-vi";
+    if (str === "do-uong") return "Do-uong";
+    return str;
+}
+
+function resolveImageUrl(dish) {
+    if (!dish.imageUrl) return DEFAULT_IMG_BASE64;
+    if (dish.imageUrl.startsWith("http")) return dish.imageUrl;
+    if (dish.imageUrl.startsWith("/")) return dish.imageUrl;
+    if (dish.imageUrl.includes("uploads/")) return "/" + dish.imageUrl;
+    let folder = getFolderName(dish.category ? dish.category.name : "other");
+    return `/image/${folder}/${dish.imageUrl}`;
+}
+
+// ===================================================
+// RENDER
+// ===================================================
 function renderDishesGrid() {
     const container = document.getElementById("dishes-container");
-
     if (!dishesData || dishesData.length === 0) {
         container.innerHTML = '<p>Chưa có món ăn nào.</p>';
         return;
     }
 
     container.innerHTML = dishesData.map(dish => {
-        // Xử lý hiển thị trạng thái (true/false từ DB -> Text)
-        const statusClass = dish.isAvailable ? 'status-active' : 'status-inactive';
-        const statusText = dish.isAvailable ? 'Đang phục vụ' : 'Hết hàng';
-
-        // Format tiền tệ VNĐ
+        const discount = ('discount' in dish) ? parseFloat(dish.discount) : 0;
+        const finalPrice = dish.price * (1 - discount / 100);
         const formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(dish.price);
+        const formattedFinalPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(finalPrice);
+        const statusClass = dish.isAvailable ? 'status-active' : 'status-inactive';
+        const catName = dish.category ? dish.category.name : (dish.categoryName || "Unknown");
+        const imageSrc = resolveImageUrl(dish);
 
         return `
             <div class="dish-card">
                 <div class="dish-image">
-                    <img src="${dish.imageUrl || '/images/default-dish.png'}" alt="${dish.name}">
-                    <span class="category-badge">${dish.categoryName || 'Món ăn'}</span>
+                    <img src="${imageSrc}" alt="${dish.name}" onerror="this.src='${DEFAULT_IMG_BASE64}'">
+                    <span class="category-badge">${catName}</span>
                 </div>
                 <div class="dish-info">
                     <h4 class="dish-name">${dish.name}</h4>
-                    <p class="dish-desc">${dish.description || 'Chưa có mô tả'}</p>
-                    <div class="dish-meta">
-                        <span class="dish-price">${formattedPrice}</span>
-                        <span class="dish-status ${statusClass}">${statusText}</span>
+                    <div class="price-row">
+                        ${discount > 0
+            ? `<span class="current-price">${formattedFinalPrice}</span>
+               <span class="old-price">${formattedPrice}</span>`
+            : `<span class="current-price">${formattedPrice}</span>`}
                     </div>
+                    <span class="dish-status ${statusClass}">${dish.isAvailable ? 'Đang bán' : 'Hết hàng'}</span>
                 </div>
-                <div class="dish-actions">
-                    <button class="btn-edit" onclick="editDish(${dish.id})"><i class="fa-solid fa-pen"></i> Sửa</button>
-                    <button class="btn-delete" onclick="deleteDish(${dish.id})"><i class="fa-solid fa-trash"></i> Xóa</button>
+                <div class="card-actions">
+                    <button class="btn-edit" onclick="editDish(${dish.id})"><i class="fa-solid fa-pen"></i></button>
+                    <button class="btn-delete" onclick="deleteDish(${dish.id})"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-// --- 4. CÁC HÀM XỬ LÝ MODAL (Thêm/Sửa) ---
+// ===================================================
+// ẢNH & FORM
+// ===================================================
+function previewImage(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById("img-preview");
+    if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+    } else preview.style.display = "none";
+}
 
-// Mở Modal
 function openModal(dish = null) {
     const modal = document.getElementById("modal-overlay");
     const title = document.getElementById("modal-title");
+    const form = document.getElementById("dish-form");
+    const preview = document.getElementById("img-preview");
 
-    // Reset form
-    document.getElementById("dish-form").reset();
+    form.reset();
+    document.getElementById("inp-image-file").value = "";
+    document.getElementById("inp-discount").value = 0;
 
     if (dish) {
-        // Chế độ Sửa: Điền dữ liệu cũ vào form
-        title.textContent = "Cập Nhật Món Ăn";
+        title.textContent = "Cập Nhật Món";
         document.getElementById("dish-id").value = dish.id;
         document.getElementById("inp-name").value = dish.name;
         document.getElementById("inp-price").value = dish.price;
         document.getElementById("inp-desc").value = dish.description;
         document.getElementById("inp-status").checked = dish.isAvailable;
-        // document.getElementById("inp-category").value = dish.categoryId; // Cần map đúng value select
-    } else {
-        // Chế độ Thêm mới
-        title.textContent = "Thêm Món Ăn Mới";
-        document.getElementById("dish-id").value = "";
-    }
+        document.getElementById("inp-category").value = dish.category ? dish.category.id : "";
+        document.getElementById("inp-discount").value = dish.discount || 0;
 
+        preview.src = resolveImageUrl(dish);
+        preview.style.display = "block";
+    } else title.textContent = "Thêm Món Mới";
+
+    modal.style.display = "flex";
     modal.classList.remove("hidden");
-    modal.style.display = "flex"; // CSS của bạn có thể dùng display: flex
 }
 
-// Đóng Modal
 function closeModal() {
-    const modal = document.getElementById("modal-overlay");
-    modal.classList.add("hidden");
-    modal.style.display = "none";
+    document.getElementById("modal-overlay").style.display = "none";
 }
 
-// Xử lý khi bấm nút Lưu
-function handleFormSubmit(event) {
-    event.preventDefault(); // Chặn reload trang
+// ===================================================
+// SUBMIT FORM
+// ===================================================
+async function handleFormSubmit(event) {
+    event.preventDefault();
 
     const dishId = document.getElementById("dish-id").value;
-    const newDish = {
-        name: document.getElementById("inp-name").value,
-        price: parseFloat(document.getElementById("inp-price").value),
-        description: document.getElementById("inp-desc").value,
-        isAvailable: document.getElementById("inp-status").checked,
-        // categoryId: ... lấy từ select
-    };
+    const fileInput = document.getElementById("inp-image-file");
+    const discount = parseFloat(document.getElementById("inp-discount").value) || 0;
 
-    console.log("Saving dish:", newDish, "ID:", dishId);
+    const formData = new FormData();
+    formData.append("name", document.getElementById("inp-name").value);
+    formData.append("price", document.getElementById("inp-price").value);
+    formData.append("description", document.getElementById("inp-desc").value);
+    formData.append("categoryId", document.getElementById("inp-category").value);
+    formData.append("isAvailable", document.getElementById("inp-status").checked);
+    formData.append("discount", discount);
 
-    // TODO: Gọi API POST (Thêm) hoặc PUT (Sửa) về server Java tại đây
-    // Sau khi thành công -> fetchDishes() lại -> closeModal()
-    alert("Chức năng đang phát triển: Gửi dữ liệu về Java");
-    closeModal();
+    if (fileInput.files.length > 0) {
+        formData.append("imageFile", fileInput.files[0]);
+    }
+
+    const url = dishId ? `/api/manager/dishes/${dishId}` : '/api/manager/dishes';
+    const method = dishId ? 'PUT' : 'POST';
+
+    try {
+        const response = await fetch(url, { method, body: formData });
+        if (response.ok) {
+            alert("Lưu thành công!");
+
+            // Cập nhật dishesData ngay lập tức để render lại mà không cần fetch
+            const dishData = {
+                id: dishId ? parseInt(dishId) : Date.now(),
+                name: document.getElementById("inp-name").value,
+                price: parseFloat(document.getElementById("inp-price").value),
+                description: document.getElementById("inp-desc").value,
+                isAvailable: document.getElementById("inp-status").checked,
+                category: categoriesData.find(c => c.id == document.getElementById("inp-category").value),
+                discount: discount,
+                imageUrl: fileInput.files.length > 0 ? URL.createObjectURL(fileInput.files[0]) : undefined
+            };
+
+            if (dishId) {
+                const index = dishesData.findIndex(d => d.id == dishId);
+                if (index !== -1) dishesData[index] = dishData;
+            } else dishesData.push(dishData);
+
+            renderDishesGrid();
+            closeModal();
+        } else alert("Lỗi: " + await response.text());
+    } catch (err) {
+        alert("Lỗi kết nối!");
+        console.error(err);
+    }
 }
 
-// Hàm chuẩn bị dữ liệu để sửa (gọi từ nút Sửa trên giao diện)
+// ===================================================
+// EDIT / DELETE
+// ===================================================
 function editDish(id) {
     const dish = dishesData.find(d => d.id === id);
-    if (dish) {
-        openModal(dish);
-    }
+    if (dish) openModal(dish);
 }
 
-// Hàm xóa
 function deleteDish(id) {
-    if(confirm("Bạn có chắc muốn xóa món này?")) {
-        console.log("Delete dish id:", id);
-        // TODO: Gọi API DELETE
-    }
-}
-
-// --- HÀM DỮ LIỆU GIẢ (Dùng khi chưa có Backend) ---
-function mockData() {
-    return [
-        { id: 1, name: "Phở Bò Đặc Biệt", price: 65000, description: "Nạm, gầu, gân, bò viên", categoryName: "Món Chính", isAvailable: true },
-        { id: 2, name: "Nem Rán Hà Nội", price: 120000, description: "Thịt heo, mộc nhĩ, miến", categoryName: "Khai Vị", isAvailable: true },
-        { id: 3, name: "Trà Đào Cam Sả", price: 45000, description: "Ly khổng lồ", categoryName: "Đồ Uống", isAvailable: false }
-    ];
+    if (!confirm("Bạn có chắc chắn muốn xóa món này không?")) return;
+    fetch(`/api/manager/dishes/${id}`, { method: 'DELETE' })
+        .then(res => res.ok ? fetchDishes() : alert("Không thể xóa món ăn"))
+        .catch(() => alert("Lỗi kết nối!"));
 }

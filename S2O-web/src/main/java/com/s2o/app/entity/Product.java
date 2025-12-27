@@ -12,7 +12,6 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    // Thay thế "Integer categoryId" bằng Object Category để đúng chuẩn JPA
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
@@ -24,6 +23,10 @@ public class Product {
 
     private BigDecimal price;
 
+    // --- THÊM CỘT GIẢM GIÁ ---
+    @Column(name = "discount")
+    private Double discount = 0.0;
+
     @Column(name = "image_url")
     private String imageUrl;
 
@@ -34,13 +37,10 @@ public class Product {
     private Boolean aiGenerated;
 
     // --- Helper Methods cho Frontend ---
-
-    // Giúp Frontend lấy tên danh mục dễ dàng (dish.categoryName)
     public String getCategoryName() {
         return category != null ? category.getName() : "";
     }
 
-    // Giúp Frontend lấy ID danh mục dễ dàng (dish.categoryId)
     public Integer getCategoryId() {
         return category != null ? category.getId() : null;
     }

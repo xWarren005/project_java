@@ -41,68 +41,44 @@
     flex-direction: column;
 }
 
-.dish-img-box {
+.dish-image {
+    position: relative;
     width: 100%;
-    height: 180px;
-    background-color: #f1f2f6;
-    border-radius: 0.5rem;
-    margin-bottom: 1rem;
+    height: 160px;
     overflow: hidden;
+    border-radius: 12px;
+    background-color: #f5f5f5;
+    margin-bottom: 1rem;
 }
 
-.dish-img {
+.dish-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
 }
 
-.dish-title {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 0.3rem;
+.dish-image img:hover {
+    transform: scale(1.05);
 }
 
-.dish-desc {
-    font-size: 0.8rem;
-    color: #999;
-    margin-bottom: 0.8rem;
-}
-
-/* Các badge màu sắc */
-.badge {
-    padding: 0.25rem 0.6rem;
-    border-radius: 0.3rem;
-    font-size: 0.7rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    display: inline-block;
-}
-
-.badge-orange {
-    background: #fff3e0;
-    color: #e67e22;
-}
-
-.badge-green {
-    background: #e8f5e9;
-    color: #27ae60;
-}
-
-.badge-blue {
-    background: #e3f2fd;
-    color: #2E25D1;
-}
-
-.badge-pink {
-    background: #fce4ec;
-    color: #d81b60;
+.category-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
 }
 
 .price-row {
-    margin-bottom: 1rem;
     display: flex;
     align-items: baseline;
     gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .current-price {
@@ -149,7 +125,7 @@
     }
 }
 
-/* --- MODAL STYLES --- */
+/* MODAL */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -203,18 +179,6 @@
     color: #999;
 }
 
-#modal-title {
-    margin: 0 0 0.5rem 0;
-    color: #2d3436;
-}
-
-.modal-desc {
-    margin: 0 0 1.5rem 0;
-    color: #636e72;
-    font-size: 0.9rem;
-}
-
-/* FORM ELEMENTS */
 .form-group {
     margin-bottom: 1rem;
     display: flex;
@@ -248,7 +212,6 @@
     border-color: #2E25D1;
 }
 
-/* TOGGLE SWITCH */
 .toggle-group {
     flex-direction: row;
     align-items: center;
@@ -297,12 +260,10 @@ input:checked + .slider {
     background-color: #2d3436;
 }
 
-/* Màu đen như ảnh mẫu */
 input:checked + .slider:before {
     transform: translateX(18px);
 }
 
-/* FOOTER BUTTONS */
 .modal-footer {
     display: flex;
     justify-content: flex-end;

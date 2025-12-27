@@ -23,44 +23,48 @@
             <div class="text-info"><h3 class="section-h3">Danh sách món ăn</h3></div>
             <button class="btn-dark" id="btn-add-dish"><i class="fa-solid fa-plus"></i> Thêm Món</button>
         </div>
+
         <div class="dishes-grid" id="dishes-container">Loading...</div>
     </div>
 </main>
 
-<div id="modal-overlay" class="modal-overlay hidden" style="display: none;">
+<div id="modal-overlay" class="modal-overlay hidden">
     <div class="modal-box">
         <button class="close-btn" onclick="closeModal()">&times;</button>
         <h3 id="modal-title">Thêm Món Ăn Mới</h3>
-        <p class="modal-desc">Nhập thông tin món ăn vào hệ thống</p>
 
         <form id="dish-form" onsubmit="handleFormSubmit(event)">
             <input type="hidden" id="dish-id">
 
             <div class="form-group">
-                <label>Tên món</label>
-                <input type="text" id="inp-name" placeholder="Ví dụ: Phở bò" required>
+                <label>Tên món <span style="color:red">*</span></label>
+                <input type="text" id="inp-name" placeholder="Ví dụ: Phở Bò Tái" required>
+            </div>
+
+            <div class="form-group">
+                <label>Danh mục <span style="color:red">*</span></label>
+                <select id="inp-category" required>
+                    <option value="">-- Đang tải... --</option>
+                </select>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Danh mục</label>
-                    <select id="inp-category">
-                        <option value="1">Món Chính</option>
-                        <option value="2">Khai Vị</option>
-                        <option value="3">Tráng Miệng</option>
-                        <option value="4">Đồ Uống</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Giá gốc (VNĐ)</label>
+                    <label>Giá bán (VNĐ) <span style="color:red">*</span></label>
                     <input type="number" id="inp-price" placeholder="50000" required>
                 </div>
                 <div class="form-group">
                     <label>Giảm giá (%)</label>
-                    <input type="number" id="inp-discount" placeholder="0" value="0">
+                    <input type="number" id="inp-discount" min="0" max="100" value="0" placeholder="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Ảnh món ăn</label>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <input type="file" id="inp-image-file" accept="image/*" onchange="previewImage(event)">
+                    <img id="img-preview" src="" alt="Xem trước"
+                         style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; display: none;">
                 </div>
             </div>
 
@@ -74,7 +78,7 @@
                     <input type="checkbox" id="inp-status" checked>
                     <span class="slider round"></span>
                 </label>
-                <span>Món đang phục vụ</span>
+                <span>Đang phục vụ</span>
             </div>
 
             <div class="modal-footer">

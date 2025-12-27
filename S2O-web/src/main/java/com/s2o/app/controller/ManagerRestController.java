@@ -1,6 +1,5 @@
 package com.s2o.app.controller;
 
-import com.s2o.app.dto.ProductRequest;
 import com.s2o.app.dto.response.ManagerOverviewResponse;
 import com.s2o.app.dto.response.TableDTO;
 import com.s2o.app.entity.Category;
@@ -12,192 +11,238 @@ import com.s2o.app.repository.TableRepository;
 import com.s2o.app.service.ManagerDashboardService;
 import com.s2o.app.util.QRCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.text.Normalizer;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/manager")
 public class ManagerRestController {
 
-    @Autowired
-    private ManagerDashboardService dashboardService; // Service cho trang Overview
+    @Autowired private ManagerDashboardService dashboardService;
+    @Autowired private ProductRepository productRepository;
+    @Autowired private CategoryRepository categoryRepository;
+    @Autowired private TableRepository tableRepository;
 
-    @Autowired
-    private ProductRepository productRepository;      // Repo cho trang Dishes
-
-    @Autowired
-    private CategoryRepository categoryRepository;    // Repo để tìm category khi thêm/sửa món
-
-    @Autowired
-    private TableRepository tableRepository;          // Repo cho trang Tables
+    @Value("${upload.path}")
+    private String uploadRootPath;
 
     // ==========================================
-    // 1. API CHO TRANG OVERVIEW (THỐNG KÊ)
+    // 1. OVERVIEW
     // ==========================================
     @GetMapping("/overview")
     public ResponseEntity<ManagerOverviewResponse> getOverview() {
-        // Tạm thời fix cứng ID nhà hàng (Sau này lấy từ Security User)
         Integer currentRestaurantId = 1;
-        ManagerOverviewResponse data = dashboardService.getDashboardData(currentRestaurantId);
-        return ResponseEntity.ok(data);
+        return ResponseEntity.ok(dashboardService.getDashboardData(currentRestaurantId));
     }
 
     // ==========================================
-    // 2. API CHO TRANG DISHES (QUẢN LÝ MÓN ĂN)
+    // 2. DISHES (MÓN ĂN)
     // ==========================================
+    @GetMapping("/categories")
+    public ResponseEntity<List<Category>> getAllCategories() {
+        return ResponseEntity.ok(categoryRepository.findAll());
+    }
 
-    // Lấy danh sách món ăn
     @GetMapping("/dishes")
     public List<Product> getAllDishes() {
         return productRepository.findAll();
     }
 
-    // Thêm món ăn mới
-    @PostMapping("/dishes")
-    public ResponseEntity<?> createDish(@RequestBody ProductRequest request) {
-        if (request.getCategoryId() == null) {
-            return ResponseEntity.badRequest().body("Vui lòng chọn danh mục (Category ID is required)");
-        }
+    // --- THÊM MÓN ---
+    @PostMapping(value = "/dishes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createDish(
+            @RequestParam String name,
+            @RequestParam BigDecimal price,
+            @RequestParam String description,
+            @RequestParam Integer categoryId,
+            @RequestParam Boolean isAvailable,
+            @RequestParam(value = "discount", defaultValue = "0") Double discount, // <--- UPDATE: Nhận discount
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+    ) {
+        try {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
 
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category không tồn tại!"));
+            Product product = new Product();
+            product.setName(name);
+            product.setPrice(price);
+            product.setDescription(description);
+            product.setCategory(category);
+            product.setIsAvailable(isAvailable);
+            product.setDiscount(discount); // <--- UPDATE: Lưu discount
+            product.setAiGenerated(false);
 
-        Product product = new Product();
-        product.setName(request.getName());
-        product.setPrice(request.getPrice());
-        product.setDescription(request.getDescription());
-        product.setImageUrl(request.getImageUrl());
-        product.setIsAvailable(request.getIsAvailable());
-        product.setAiGenerated(false); // Mặc định
-        product.setCategory(category); // Gán quan hệ
-
-        return ResponseEntity.ok(productRepository.save(product));
-    }
-
-    // Cập nhật món ăn
-    @PutMapping("/dishes/{id}")
-    public ResponseEntity<?> updateDish(@PathVariable Integer id, @RequestBody ProductRequest request) {
-        return productRepository.findById(id).map(product -> {
-            product.setName(request.getName());
-            product.setPrice(request.getPrice());
-            product.setDescription(request.getDescription());
-            product.setIsAvailable(request.getIsAvailable());
-
-            if (request.getImageUrl() != null) {
-                product.setImageUrl(request.getImageUrl());
-            }
-
-            // Nếu người dùng đổi danh mục
-            if (request.getCategoryId() != null) {
-                Category category = categoryRepository.findById(request.getCategoryId())
-                        .orElseThrow(() -> new RuntimeException("Category không tồn tại!"));
-                product.setCategory(category);
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String imageUrl = saveImageFile(imageFile, category.getName());
+                product.setImageUrl(imageUrl);
             }
 
             return ResponseEntity.ok(productRepository.save(product));
-        }).orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi: " + e.getMessage());
+        }
     }
 
-    // Xóa món ăn
+    // --- CẬP NHẬT MÓN ---
+    @PutMapping(value = "/dishes/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateDish(
+            @PathVariable Integer id,
+            @RequestParam String name,
+            @RequestParam BigDecimal price,
+            @RequestParam String description,
+            @RequestParam Integer categoryId,
+            @RequestParam Boolean isAvailable,
+            @RequestParam(value = "discount", defaultValue = "0") Double discount, // <--- UPDATE: Nhận discount
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile
+    ) {
+        try {
+            Product product = productRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Món ăn không tồn tại"));
+
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new RuntimeException("Danh mục không tồn tại"));
+
+            product.setName(name);
+            product.setPrice(price);
+            product.setDescription(description);
+            product.setCategory(category);
+            product.setIsAvailable(isAvailable);
+            product.setDiscount(discount); // <--- UPDATE: Lưu discount
+
+            if (imageFile != null && !imageFile.isEmpty()) {
+                String imageUrl = saveImageFile(imageFile, category.getName());
+                product.setImageUrl(imageUrl);
+            }
+
+            return ResponseEntity.ok(productRepository.save(product));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Lỗi cập nhật: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/dishes/{id}")
     public ResponseEntity<?> deleteDish(@PathVariable Integer id) {
-        if (!productRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
+        if (!productRepository.existsById(id)) return ResponseEntity.notFound().build();
         productRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
     // ==========================================
-    // 3. API TABLES (QUẢN LÝ BÀN & QR)
+    // 3. TABLES + QR
     // ==========================================
-
-    // API 3.1: Lấy danh sách bàn
     @GetMapping("/tables")
     public List<TableDTO> getTables() {
-        return tableRepository.findByRestaurantId(1).stream()
+        return tableRepository.findByRestaurantId(1)
+                .stream()
                 .map(TableDTO::fromEntity)
                 .collect(Collectors.toList());
     }
 
-    // API 3.2: Tạo bàn mới + Tự động sinh link QR lưu vào DB
     @PostMapping("/tables")
     public ResponseEntity<?> createTable(@RequestBody TableDTO request) {
-        try{
+        try {
             RestaurantTable table = new RestaurantTable();
             table.setRestaurantId(1);
             table.setTableName(request.getName());
             table.setCapacity(request.getSeats());
             table.setStatus(RestaurantTable.TableStatus.AVAILABLE);
 
-            // B1: Lưu lần đầu để có ID
-            RestaurantTable savedTable = tableRepository.save(table);
+            RestaurantTable saved = tableRepository.save(table);
+            saved.setQrCodeString("http://localhost:8080/user/menu?tableId=" + saved.getId());
+            tableRepository.save(saved);
 
-            // B2: Tạo đường link (Lưu ý: Thay localhost bằng IP máy bạn nếu test điện thoại)
-            String qrLink = "http://localhost:8080/user/menu?tableId=" + savedTable.getId();
-
-            // B3: Update link vào DB
-            savedTable.setQrCodeString(qrLink);
-            tableRepository.save(savedTable);
-
-            return ResponseEntity.ok(TableDTO.fromEntity(savedTable));
+            return ResponseEntity.ok(TableDTO.fromEntity(saved));
         } catch (Exception e) {
-            return ResponseEntity.ofNullable(e.getMessage()) ;
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
-
     }
 
-    // API 3.3: Trả về HÌNH ẢNH QR Code (Front-end dùng thẻ img src=API này)
     @GetMapping(value = "/tables/{id}/qr", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> generateQRCode(@PathVariable Integer id) {
         try {
             RestaurantTable table = tableRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Table not found"));
-
             String link = table.getQrCodeString();
             if (link == null) link = "http://localhost:8080/user/menu?tableId=" + id;
 
-            // Vẽ ảnh 200x200 pixel
             return ResponseEntity.ok(QRCodeGenerator.getQRCodeImage(link, 200, 200));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
-    // API 3.4: Cập nhật trạng thái bàn (SỬA LỖI MAPPING ENUM)
-    // URL: PUT /api/manager/tables/{id}/status?status=1
     @PutMapping("/tables/{id}/status")
     public ResponseEntity<?> updateTableStatus(@PathVariable Integer id, @RequestParam Integer status) {
         try {
             RestaurantTable table = tableRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Bàn không tồn tại"));
-
-            // LOGIC QUAN TRỌNG: Chuyển đổi Số (Frontend) -> Enum (Database)
             switch (status) {
-                case 0:
-                    table.setStatus(RestaurantTable.TableStatus.AVAILABLE);
-                    break;
-                case 1:
-                    table.setStatus(RestaurantTable.TableStatus.OCCUPIED);
-                    break;
-                case 2:
-                    table.setStatus(RestaurantTable.TableStatus.RESERVED);
-                    break;
-                default:
-                    return ResponseEntity.badRequest().body("Trạng thái không hợp lệ (chỉ nhận 0, 1, 2)");
+                case 0 -> table.setStatus(RestaurantTable.TableStatus.AVAILABLE);
+                case 1 -> table.setStatus(RestaurantTable.TableStatus.OCCUPIED);
+                case 2 -> table.setStatus(RestaurantTable.TableStatus.RESERVED);
+                default -> { return ResponseEntity.badRequest().body("Trạng thái không hợp lệ"); }
             }
-
             tableRepository.save(table);
             return ResponseEntity.ok("Cập nhật thành công");
-
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body("Lỗi server: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Lỗi: " + e.getMessage());
         }
+    }
+
+    // ==========================================
+    // 4. UTILS – LƯU ẢNH
+    // ==========================================
+    private String saveImageFile(MultipartFile file, String categoryName) throws IOException {
+
+        String folderName = convertToFolderName(categoryName);
+
+        Path uploadDir = Paths.get(uploadRootPath, folderName);
+        Files.createDirectories(uploadDir);
+
+        String ext = "";
+        if (file.getOriginalFilename() != null && file.getOriginalFilename().contains(".")) {
+            ext = file.getOriginalFilename()
+                    .substring(file.getOriginalFilename().lastIndexOf("."));
+        }
+
+        String fileName = System.currentTimeMillis() + ext;
+        Path filePath = uploadDir.resolve(fileName);
+
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        System.out.println(">>> Saved image: " + filePath.toAbsolutePath());
+
+        return "/uploads/image/" + folderName + "/" + fileName;
+    }
+
+    private String convertToFolderName(String categoryName) {
+        if (categoryName == null) return "other";
+
+        String temp = Normalizer.normalize(categoryName, Normalizer.Form.NFD);
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        String noSign = pattern.matcher(temp).replaceAll("")
+                .replace('đ', 'd').replace('Đ', 'D');
+
+        String clean = noSign.replace(" ", "-");
+
+        if (clean.equalsIgnoreCase("Mon-Chinh")) return "Mon-chinh";
+        if (clean.equalsIgnoreCase("Do-Uong")) return "Do-uong";
+        if (clean.equalsIgnoreCase("Khai-Vi")) return "Khai-vi";
+
+        return clean;
     }
 }

@@ -9,6 +9,7 @@ public class ProductRequest {
     private BigDecimal price;
     private String description;
     private String imageUrl;
-    private Boolean isAvailable; // Frontend gửi true/false
-    private Integer categoryId;  // Frontend gửi ID (VD: 1, 2)
+    private Double discount;
+    private Boolean isAvailable;
+    private Integer categoryId;
 }
