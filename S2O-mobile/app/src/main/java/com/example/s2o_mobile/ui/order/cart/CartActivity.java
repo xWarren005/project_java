@@ -7,8 +7,10 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.s2o_mobile.R;
+import java.util.ArrayList;
 
 public class CartActivity extends AppCompatActivity {
 
@@ -17,6 +19,7 @@ public class CartActivity extends AppCompatActivity {
     protected TextView txtTotal;
     protected Button btnCheckout;
     protected ProgressBar progress;
+    protected CartAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,5 +34,32 @@ public class CartActivity extends AppCompatActivity {
         txtTotal = findViewById(R.id.txtTotal);
         btnCheckout = findViewById(R.id.btnCheckout);
         progress = findViewById(R.id.progress);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_cart);
+
+        bindViews();
+        setupRecycler();
+        setupActions();
+    }
+
+    protected void setupRecycler() {
+        adapter = new CartAdapter(
+                new ArrayList<>(),
+                item -> {},
+                item -> {},
+                item -> {}
+        );
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+    }
+
+    protected void setupActions() {
+        btnCheckout.setOnClickListener(v -> {
+        });
     }
 }
