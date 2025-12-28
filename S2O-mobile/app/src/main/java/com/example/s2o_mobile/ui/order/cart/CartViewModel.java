@@ -11,6 +11,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class CartViewModel extends ViewModel {
+    private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
+    private final MutableLiveData<String> errorMessage = new MutableLiveData<>(null);
+
+    private Call<?> runningCall;
 
     private final MutableLiveData<List<CartItem>> cartItems =
             new MutableLiveData<>(Collections.emptyList());
@@ -28,6 +32,13 @@ public class CartViewModel extends ViewModel {
 
     public LiveData<Double> getTotalPrice() {
         return totalPrice;
+    }
+    public LiveData<Boolean> getLoading() {
+        return loading;
+    }
+
+    public LiveData<String> getErrorMessage() {
+        return errorMessage;
     }
 
     public void addItem(@NonNull String foodId,
