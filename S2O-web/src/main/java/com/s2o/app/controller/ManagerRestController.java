@@ -1,6 +1,7 @@
 package com.s2o.app.controller;
 
 import com.s2o.app.dto.response.ManagerOverviewResponse;
+import com.s2o.app.dto.response.RevenueDashboardResponse;
 import com.s2o.app.dto.response.TableDTO;
 import com.s2o.app.entity.Category;
 import com.s2o.app.entity.Product;
@@ -53,6 +54,22 @@ public class ManagerRestController {
     public ResponseEntity<ManagerOverviewResponse> getOverview() {
         Integer currentRestaurantId = 1;
         return ResponseEntity.ok(dashboardService.getDashboardData(currentRestaurantId));
+    }
+
+    // ==========================================
+    // 5. REVENUE (BÁO CÁO DOANH THU)
+    // ==========================================
+
+    /**
+     * API: Lấy dữ liệu chi tiết cho trang Báo Cáo Doanh Thu
+     * URL: GET /api/manager/revenue-stats
+     * Chức năng: Trả về Summary card, Biểu đồ 7 ngày, Top món ăn.
+     */
+    @GetMapping("/revenue-stats")
+    public ResponseEntity<RevenueDashboardResponse> getRevenueStats() {
+        // Tạm thời hardcode ID nhà hàng là 1 (sau này lấy từ Token/Session)
+        Integer currentRestaurantId = 1;
+        return ResponseEntity.ok(dashboardService.getRevenueStats(currentRestaurantId));
     }
 
     // ==========================================
