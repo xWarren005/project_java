@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/manager")
 public class ManagerController {
 
-    // Trang Thống kê
+    // Trang Thống kê (Dashboard)
     // URL: http://localhost:8080/manager/overview
     @GetMapping("/overview")
     public String overviewPage() {
@@ -27,5 +27,19 @@ public class ManagerController {
     @GetMapping("/tables")
     public String tablesPage() {
         return "manager/tables";
+    }
+
+    // Trang Báo cáo doanh thu
+    // URL: http://localhost:8080/manager/revenue
+    @GetMapping("/revenue")
+    public String revenuePage() {
+        return "manager/revenue";
+    }
+
+    //Trang QR Code nếu bạn cần
+    // URL: http://localhost:8080/manager/qr
+    @GetMapping("/qr")
+    public String qrPage() {
+        return "manager/qr";
     }
 }
