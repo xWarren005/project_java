@@ -6,15 +6,33 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.s2o_mobile.data.model.Order;
+import com.example.s2o_mobile.data.repository.OrderRepository;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import com.example.s2o_mobile.data.model.Order;
+import com.example.s2o_mobile.data.repository.OrderRepository;
+
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CartViewModel extends ViewModel {
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>(null);
 
-    private Call<?> runningCall;
+    private Call<Order> runningCall;
+    private final OrderRepository orderRepository;
+
+    public CartViewModel() {
+        this.orderRepository = new OrderRepository();
+    }
+
+    public CartViewModel(@NonNull OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
+
 
     private final MutableLiveData<List<CartItem>> cartItems =
             new MutableLiveData<>(Collections.emptyList());
@@ -147,6 +165,143 @@ public class CartViewModel extends ViewModel {
 
         totalQuantity.setValue(qty);
         totalPrice.setValue(sum);
+    }
+    public void placeOrder(@NonNull String tableId,
+                           @NonNull String restaurantId,
+                           @Nullable String note) {
+
+        List<CartItem> items = snapshot();
+        if (items.isEmpty()) {
+            errorMessage.setValue("Giỏ hàng đang trống.");
+            return;
+        }
+        if (tableId.trim().isEmpty() || restaurantId.trim().isEmpty()) {
+            errorMessage.setValue("Thiếu thông tin bàn/nhà hàng.");
+            return;
+        }
+
+        cancelRunningCall();
+        loading.setValue(true);
+        errorMessage.setValue(null);
+
+        Call<Order> call = orderRepository.createOrder(
+                tableId.trim(),
+                restaurantId.trim(),
+                note
+        );
+
+        if (call == null) {
+            loading.setValue(false);
+            errorMessage.setValue("Không thể tạo đơn hàng.");
+            return;
+        }
+
+        runningCall = call;
+
+        runningCall.enqueue(new Callback<Order>() {
+            @Override
+            public void onResponse(@NonNull Call<Order> call,
+                                   @NonNull Response<Order> response) {
+
+                if (!response.isSuccessful()) {
+                    loading.setValue(false);
+                    errorMessage.setValue("Tạo đơn thất bại (" + response.code() + ").");
+                    return;
+                }
+
+                Order order = response.body();
+                String orderId = order == null ? "" : safe(order.getId());
+
+                if (orderId.isEmpty()) {
+                    loading.setValue(false);
+                    errorMessage.setValue("Không nhận được mã đơn hàng.");
+                    return;
+                }
+
+                submitItemsSequential(orderId, items, 0);
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Order> call, @NonNull Throwable t) {
+                loading.setValue(false);
+                if (call.isCanceled()) return;
+                errorMessage.setValue(msgOf(t));
+            }
+        });
+    }
+
+    private void submitItemsSequential(@NonNull String orderId,
+                                       @NonNull List<CartItem> items,
+                                       int index) {
+
+        if (index >= items.size()) {
+            loading.setValue(false);
+            clearCart();
+            return;
+        }
+
+        CartItem it = items.get(index);
+
+        Call<Order> addCall = orderRepository.addItemToOrder(
+                orderId,
+                it.foodId,
+                it.quantity,
+                it.note
+        );
+
+        if (addCall == null) {
+            loading.setValue(false);
+            errorMessage.setValue("Không thể thêm món vào đơn.");
+            return;
+        }
+
+        runningCall = addCall;
+
+        addCall.enqueue(new Callback<Order>() {
+            @Override
+            public void onResponse(@NonNull Call<Order> call,
+                                   @NonNull Response<Order> response) {
+
+                if (!response.isSuccessful()) {
+                    loading.setValue(false);
+                    errorMessage.setValue("Thêm món thất bại (" + response.code() + ").");
+                    return;
+                }
+
+                submitItemsSequential(orderId, items, index + 1);
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Order> call, @NonNull Throwable t) {
+                loading.setValue(false);
+                if (call.isCanceled()) return;
+                errorMessage.setValue(msgOf(t));
+            }
+        });
+    }
+
+    private void cancelRunningCall() {
+        if (runningCall != null) {
+            runningCall.cancel();
+            runningCall = null;
+        }
+    }
+
+    @Override
+    protected void onCleared() {
+        cancelRunningCall();
+        super.onCleared();
+    }
+
+    private String msgOf(Throwable t) {
+        String m = t == null ? null : t.getMessage();
+        return (m == null || m.trim().isEmpty())
+                ? "Lỗi kết nối. Vui lòng thử lại."
+                : m;
+    }
+
+    private String safe(String s) {
+        return s == null ? "" : s;
     }
 
     public static class CartItem {
