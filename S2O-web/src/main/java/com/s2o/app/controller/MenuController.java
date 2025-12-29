@@ -15,11 +15,13 @@ public class MenuController {
                 (Integer) session.getAttribute("RESTAURANT_ID");
         String tableName =
                 (String) session.getAttribute("TABLE_NAME");
+        Integer tableId = (Integer) session.getAttribute("TABLE_ID");
 
         if (restaurantId == null) {
-            return "redirect:user/welcome";
+            return "redirect:user/welcome?tableId=1";
         }
         model.addAttribute("restaurantId", restaurantId);
+        model.addAttribute("tableId", tableId);
         model.addAttribute("tableName", tableName);
         return "user/menuuser";
     }
