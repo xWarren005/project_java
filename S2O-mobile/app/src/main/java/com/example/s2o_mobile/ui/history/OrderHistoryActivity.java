@@ -2,6 +2,7 @@ package com.example.s2o_mobile.ui.history;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,10 +25,13 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private TextView tvEmpty;
+    private ProgressBar progressBar;
 
     private OrdersAdapter adapter;
     private OrderRepository orderRepository;
 
+    private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
+    private final MutableLiveData<String> errorMessage = new MutableLiveData<>(null);
     private final MutableLiveData<List<Order>> orders = new MutableLiveData<>(new ArrayList<>());
 
     @Override
@@ -37,6 +41,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         tvEmpty = findViewById(R.id.tvEmpty);
+        progressBar = findViewById(R.id.progressBar);
 
         adapter = new OrdersAdapter(new ArrayList<>(), order ->
                 Toast.makeText(this, "Order #" + order.getId(), Toast.LENGTH_SHORT).show()
@@ -48,12 +53,22 @@ public class OrderHistoryActivity extends AppCompatActivity {
         SessionManager sessionManager = new SessionManager(getApplication());
         orderRepository = OrderRepository.getInstance(sessionManager);
 
-        orders.observe(this, list -> {
-            adapter.setData(list);
-            tvEmpty.setVisibility(list.size() == 0 ? View.VISIBLE : View.GONE);
+        loading.observe(this, isLoading -> {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         });
 
-        orderRepository.getMyOrders(orders, null, null);
+        errorMessage.observe(this, msg -> {
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        });
+
+        orders.observe(this, list -> {
+            adapter.setData(list);
+            boolean empty = list.size() == 0;
+            tvEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+            recyclerView.setVisibility(empty ? View.GONE : View.VISIBLE);
+        });
+
+        orderRepository.getMyOrders(orders, errorMessage, loading);
     }
 
     private static class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.VH> {
