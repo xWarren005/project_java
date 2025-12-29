@@ -1,11 +1,14 @@
 package com.example.s2o_mobile.ui.history;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,8 +23,12 @@ import java.util.List;
 public class OrderHistoryActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
+    private TextView tvEmpty;
+
     private OrdersAdapter adapter;
     private OrderRepository orderRepository;
+
+    private final MutableLiveData<List<Order>> orders = new MutableLiveData<>(new ArrayList<>());
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -29,6 +36,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_order_history);
 
         recyclerView = findViewById(R.id.recyclerView);
+        tvEmpty = findViewById(R.id.tvEmpty);
 
         adapter = new OrdersAdapter(new ArrayList<>(), order ->
                 Toast.makeText(this, "Order #" + order.getId(), Toast.LENGTH_SHORT).show()
@@ -40,7 +48,12 @@ public class OrderHistoryActivity extends AppCompatActivity {
         SessionManager sessionManager = new SessionManager(getApplication());
         orderRepository = OrderRepository.getInstance(sessionManager);
 
-        orderRepository.getMyOrders(adapter.getData(), null, null);
+        orders.observe(this, list -> {
+            adapter.setData(list);
+            tvEmpty.setVisibility(list.size() == 0 ? View.VISIBLE : View.GONE);
+        });
+
+        orderRepository.getMyOrders(orders, null, null);
     }
 
     private static class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.VH> {
@@ -57,8 +70,9 @@ public class OrderHistoryActivity extends AppCompatActivity {
             this.onItemClick = onItemClick;
         }
 
-        List<Order> getData() {
-            return data;
+        void setData(List<Order> newData) {
+            data = newData;
+            notifyDataSetChanged();
         }
 
         @NonNull
