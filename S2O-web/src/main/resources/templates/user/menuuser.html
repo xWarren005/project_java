@@ -14,8 +14,8 @@
 <header class="header">
     <div class="header-content">
         <div class="header-left">
-            <h1 class="restaurant-name">Nhà hàng Phố</h1>
-            <p class="table-number">Bàn <span id="table-number">A5</span></p>
+            <h1 class="restaurant-name" th:text="${restaurantName}">Nhà hàng Phố</h1>
+            <p class="table-number" th:if="${tableName}">Bàn <span id="table-number-display" th:text="${tableName}">A5</span></p>
         </div>
         <div class="header-right">
             <button class="btn-icon btn-profile" onclick="goToProfile()">
@@ -32,6 +32,8 @@
         </div>
     </div>
 </header>
+<input type="hidden" id="restaurant-id" th:value="${restaurantId}">
+<input type="hidden" id="table-id" th:value="${tableId}">
 <!-- Tabs -->
 <div class="tabs">
     <button class="tab active" data-tab="menu" onclick="switchTab('menu')">Thực đơn</button>
