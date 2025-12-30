@@ -14,13 +14,15 @@ public class Review implements Serializable {
     private int rating;
     private String content;
 
+    private String createdAt;
+
     public Review() {
     }
 
     public Review(int restaurantId, int userId, int rating, String content) {
         this.restaurantId = restaurantId;
         this.userId = userId;
-        this.rating = rating;
+        setRating(rating);
         this.content = content;
     }
 
@@ -69,6 +71,8 @@ public class Review implements Serializable {
     }
 
     public void setRating(int rating) {
+        if (rating < 1) rating = 1;
+        if (rating > 5) rating = 5;
         this.rating = rating;
     }
 
@@ -78,5 +82,13 @@ public class Review implements Serializable {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 }
