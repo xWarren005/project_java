@@ -1,5 +1,6 @@
 package com.s2o.app.controller;
 
+import com.s2o.app.dto.BankQrConfigDTO;
 import com.s2o.app.dto.response.ManagerOverviewResponse;
 import com.s2o.app.dto.response.RevenueDashboardResponse;
 import com.s2o.app.dto.response.TableDTO;
@@ -10,11 +11,14 @@ import com.s2o.app.repository.CategoryRepository;
 import com.s2o.app.repository.ProductRepository;
 import com.s2o.app.repository.TableRepository;
 import com.s2o.app.service.ManagerDashboardService;
+import com.s2o.app.service.RestaurantService;
 import com.s2o.app.util.QRCodeGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,6 +42,7 @@ public class ManagerRestController {
     @Autowired private ProductRepository productRepository;
     @Autowired private CategoryRepository categoryRepository;
     @Autowired private TableRepository tableRepository;
+    @Autowired private RestaurantService restaurantService;
 
     @Value("${upload.path}")
     private String uploadRootPath;
@@ -71,10 +76,6 @@ public class ManagerRestController {
         return productRepository.findAll();
     }
 
-    /**
-     * SỬA ĐỔI: Nhận categoryName thay vì categoryId
-     * Tự động tìm hoặc tạo Category mới
-     */
     @PostMapping(value = "/dishes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createDish(
             @RequestParam String name,
@@ -110,9 +111,6 @@ public class ManagerRestController {
         }
     }
 
-    /**
-     Nhận categoryName thay vì categoryId khi update
-     */
     @PutMapping(value = "/dishes/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateDish(
             @PathVariable Integer id,
@@ -156,7 +154,10 @@ public class ManagerRestController {
         return ResponseEntity.ok().build();
     }
 
-    // ... (Giữ nguyên phần Tables + QR) ...
+    // ==========================================
+    // 3. TABLES (QUẢN LÝ BÀN)
+    // ==========================================
+
     @GetMapping("/tables")
     public List<TableDTO> getTables() {
         return tableRepository.findByRestaurantId(1)
@@ -175,6 +176,7 @@ public class ManagerRestController {
             table.setStatus(RestaurantTable.TableStatus.AVAILABLE);
 
             RestaurantTable saved = tableRepository.save(table);
+            // Tạo link QR (đây là QR bàn ăn, khác với QR ngân hàng)
             saved.setQrCodeString("http://localhost:8080/user/menu?tableId=" + saved.getId());
             tableRepository.save(saved);
 
@@ -229,15 +231,29 @@ public class ManagerRestController {
     }
 
     // ==========================================
+    // 4. QR CONFIGURATION (CẤU HÌNH NGÂN HÀNG)
+    // ==========================================
+
+    @GetMapping("/qr-config")
+    public ResponseEntity<BankQrConfigDTO> getQrConfig() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        return ResponseEntity.ok(restaurantService.getQrConfig(username));
+    }
+
+    @PostMapping("/qr-config")
+    public ResponseEntity<String> saveQrConfig(@RequestBody BankQrConfigDTO configDTO) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        restaurantService.updateQrConfig(username, configDTO);
+        return ResponseEntity.ok("Cập nhật mã QR thành công!");
+    }
+
+    // ==========================================
     // HELPER METHODS
     // ==========================================
 
-    /**
-     * Logic: Tìm Category theo tên, nếu chưa có thì tạo mới.
-     * Dùng stream để lọc thủ công tránh lỗi nếu Repository chưa có method findByName
-     */
     private Category getOrCreateCategory(String name) {
-        // Lấy tất cả và lọc (Giải pháp an toàn nếu không muốn sửa Repository Interface)
         List<Category> all = categoryRepository.findAll();
         Optional<Category> existing = all.stream()
                 .filter(c -> c.getName().equalsIgnoreCase(name))
@@ -246,10 +262,9 @@ public class ManagerRestController {
         if (existing.isPresent()) {
             return existing.get();
         } else {
-            // Tạo mới nếu chưa tồn tại
             Category newCat = new Category();
             newCat.setName(name);
-            newCat.setRestaurantId(1); // Mặc định ID nhà hàng
+            newCat.setRestaurantId(1);
             newCat.setDisplayOrder(all.size() + 1);
             return categoryRepository.save(newCat);
         }
@@ -275,32 +290,24 @@ public class ManagerRestController {
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         System.out.println(">>> Saved image: " + filePath.toAbsolutePath());
-        // Trả về đường dẫn web access
         return "/uploads/image/" + folderName + "/" + fileName;
     }
 
-    /**
-     * SỬA ĐỔI: Logic map tên folder theo đúng cấu trúc thư mục user đã tạo
-     */
     private String convertToFolderName(String categoryName) {
         if (categoryName == null) return "other";
 
-        // Chuẩn hóa tiếng Việt có dấu thành không dấu
         String temp = Normalizer.normalize(categoryName, Normalizer.Form.NFD);
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         String noSign = pattern.matcher(temp).replaceAll("")
                 .replace('đ', 'd').replace('Đ', 'D');
 
-        // Thay khoảng trắng bằng dấu gạch ngang
         String clean = noSign.trim().replace(" ", "-");
 
-        // Map cứng các trường hợp đặc biệt để khớp với thư mục hiện có
         if (clean.equalsIgnoreCase("Mon-chinh")) return "Mon-chinh";
         if (clean.equalsIgnoreCase("Do-uong")) return "Do-uong";
         if (clean.equalsIgnoreCase("Khai-vi")) return "Khai-vi";
-        // Cấu trúc thư mục user cung cấp là "Trang-Mieng" (Viết hoa chữ M)
         if (clean.equalsIgnoreCase("Trang-mieng")) return "Trang-Mieng";
 
-        return clean; // Mặc định
+        return clean;
     }
 }
