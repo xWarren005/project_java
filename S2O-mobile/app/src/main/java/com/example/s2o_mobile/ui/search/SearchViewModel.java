@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.s2o_mobile.data.model.Restaurant;
-import com.example.s2o_mobile.data.repository.RestaurantRepository;
 import com.example.s2o_mobile.data.repository.RepositoryCallback;
+import com.example.s2o_mobile.data.repository.RestaurantRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +28,7 @@ public class SearchViewModel extends ViewModel {
         this.repository = new RestaurantRepository();
     }
 
+
     public LiveData<Boolean> getLoading() {
         return loading;
     }
@@ -40,42 +41,45 @@ public class SearchViewModel extends ViewModel {
         return results;
     }
 
-}
+    public void search(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            results.setValue(new ArrayList<>());
+            return;
+        }
 
-public void search(String keyword) {
-    if (keyword == null || keyword.trim().isEmpty()) {
-        results.setValue(new ArrayList<>());
-        return;
-    }
+        loading.setValue(true);
+        error.setValue(null);
 
-    loading.setValue(true);
-    error.setValue(null);
+        repository.getAllRestaurants(new RepositoryCallback<List<Restaurant>>() {
+            @Override
+            public void onSuccess(List<Restaurant> data) {
+                loading.postValue(false);
 
-    repository.getAllRestaurants(new RepositoryCallback<List<Restaurant>>() {
-        @Override
-        public void onSuccess(List<Restaurant> data) {
-            loading.postValue(false);
+                List<Restaurant> filtered = new ArrayList<>();
+                for (Restaurant r : data) {
+                    if (r == null) continue;
 
-            List<Restaurant> filtered = new ArrayList<>();
-            for (Restaurant r : data) {
-                if (r == null) continue;
+                    String name = safe(r.getName());
+                    String address = safe(r.getAddress());
 
-                String name = safe(r.getName());
-                String address = safe(r.getAddress());
-
-                if (name.toLowerCase().contains(keyword.toLowerCase())
-                        || address.toLowerCase().contains(keyword.toLowerCase())) {
-                    filtered.add(r);
+                    if (name.toLowerCase().contains(keyword.toLowerCase())
+                            || address.toLowerCase().contains(keyword.toLowerCase())) {
+                        filtered.add(r);
+                    }
                 }
+
+                results.postValue(filtered);
             }
 
-            results.postValue(filtered);
-        }
+            @Override
+            public void onError(String message) {
+                loading.postValue(false);
+                error.postValue(message == null ? "Loi tim kiem" : message);
+            }
+        });
+    }
 
-        @Override
-        public void onError(String message) {
-            loading.postValue(false);
-            error.postValue(message == null ? "Loi tim kiem" : message);
-        }
-    });
+    private String safe(String s) {
+        return s == null ? "" : s;
+    }
 }
