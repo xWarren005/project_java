@@ -17,11 +17,17 @@ import java.util.List;
 public class ReviewViewModel extends AndroidViewModel {
 
     private final ReviewRepository reviewRepository;
+
+    private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     private final MutableLiveData<List<Review>> reviews = new MutableLiveData<>(new ArrayList<>());
 
     public ReviewViewModel(@NonNull Application application) {
         super(application);
         reviewRepository = ReviewRepository.getInstance(new SessionManager(application));
+    }
+
+    public LiveData<Boolean> getLoading() {
+        return loading;
     }
 
     public LiveData<List<Review>> getReviews() {
@@ -33,7 +39,7 @@ public class ReviewViewModel extends AndroidViewModel {
                 restaurantId,
                 reviews,
                 null,
-                null
+                loading
         );
     }
 }
