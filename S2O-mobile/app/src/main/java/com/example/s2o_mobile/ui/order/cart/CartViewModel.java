@@ -12,13 +12,19 @@ import com.example.s2o_mobile.data.repository.OrderRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import com.example.s2o_mobile.data.model.Order;
-import com.example.s2o_mobile.data.repository.OrderRepository;
 
+import retrofit2.Callback;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class CartViewModel extends ViewModel {
+    private final OrderRepository orderRepository;
+
+    private final MutableLiveData<List<CartItem>> cartItems =
+            new MutableLiveData<>(Collections.emptyList());
+
+    private final MutableLiveData<Integer> totalQuantity = new MutableLiveData<>(0);
+    private final MutableLiveData<Double> totalPrice = new MutableLiveData<>(0.0);
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>(null);
 
@@ -32,17 +38,12 @@ public class CartViewModel extends ViewModel {
     public CartViewModel(@NonNull OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
-
-
-    private final MutableLiveData<List<CartItem>> cartItems =
-            new MutableLiveData<>(Collections.emptyList());
-
-    private final MutableLiveData<Integer> totalQuantity = new MutableLiveData<>(0);
-    private final MutableLiveData<Double> totalPrice = new MutableLiveData<>(0.0);
-
     public LiveData<List<CartItem>> getCartItems() {
         return cartItems;
     }
+
+    private final MutableLiveData<List<CartItem>> cartItems =
+            new MutableLiveData<>(Collections.emptyList());
 
     public LiveData<Integer> getTotalQuantity() {
         return totalQuantity;
@@ -132,40 +133,6 @@ public class CartViewModel extends ViewModel {
         return list == null || list.isEmpty();
     }
 
-    private List<CartItem> snapshot() {
-        List<CartItem> list = cartItems.getValue();
-        if (list == null) return new ArrayList<>();
-        return new ArrayList<>(list);
-    }
-
-    private int indexOf(List<CartItem> list, String foodId) {
-        for (int i = 0; i < list.size(); i++) {
-            CartItem it = list.get(i);
-            if (it != null && foodId.equals(it.foodId)) return i;
-        }
-        return -1;
-    }
-
-    private void updateCart(List<CartItem> newList) {
-        cartItems.setValue(newList == null ? Collections.emptyList() : newList);
-        recalcTotals(newList);
-    }
-
-    private void recalcTotals(List<CartItem> list) {
-        int qty = 0;
-        double sum = 0.0;
-
-        if (list != null) {
-            for (CartItem it : list) {
-                if (it == null) continue;
-                qty += Math.max(it.quantity, 0);
-                sum += (it.unitPrice * Math.max(it.quantity, 0));
-            }
-        }
-
-        totalQuantity.setValue(qty);
-        totalPrice.setValue(sum);
-    }
     public void placeOrder(@NonNull String tableId,
                            @NonNull String restaurantId,
                            @Nullable String note) {
@@ -280,6 +247,40 @@ public class CartViewModel extends ViewModel {
         });
     }
 
+    private List<CartItem> snapshot() {
+        List<CartItem> list = cartItems.getValue();
+        if (list == null) return new ArrayList<>();
+        return new ArrayList<>(list);
+    }
+
+    private int indexOf(List<CartItem> list, String foodId) {
+        for (int i = 0; i < list.size(); i++) {
+            CartItem it = list.get(i);
+            if (it != null && foodId.equals(it.foodId)) return i;
+        }
+        return -1;
+    }
+
+    private void updateCart(List<CartItem> newList) {
+        cartItems.setValue(newList == null ? Collections.emptyList() : newList);
+        recalcTotals(newList);
+    }
+
+    private void recalcTotals(List<CartItem> list) {
+        int qty = 0;
+        double sum = 0.0;
+
+        if (list != null) {
+            for (CartItem it : list) {
+                if (it == null) continue;
+                qty += Math.max(it.quantity, 0);
+                sum += (it.unitPrice * Math.max(it.quantity, 0));
+            }
+        }
+
+        totalQuantity.setValue(qty);
+        totalPrice.setValue(sum);
+    }
     private void cancelRunningCall() {
         if (runningCall != null) {
             runningCall.cancel();
@@ -295,9 +296,7 @@ public class CartViewModel extends ViewModel {
 
     private String msgOf(Throwable t) {
         String m = t == null ? null : t.getMessage();
-        return (m == null || m.trim().isEmpty())
-                ? "Lỗi kết nối. Vui lòng thử lại."
-                : m;
+        return (m == null || m.trim().isEmpty()) ? "Lỗi kết nối. Vui lòng thử lại." : m;
     }
 
     private String safe(String s) {
