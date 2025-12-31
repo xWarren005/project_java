@@ -22,7 +22,7 @@ public class Review implements Serializable {
     public Review(int restaurantId, int userId, int rating, String content) {
         this.restaurantId = restaurantId;
         this.userId = userId;
-        setRating(rating);
+        this.rating = rating;
         this.content = content;
     }
 
