@@ -1,295 +1,367 @@
-/* --- CSS CHỈ DÀNH CHO TRANG MÓN ĂN --- */
+:root {
+    /* MÀU CHỦ ĐẠO: Xanh Dương Đậm */
+    --primary-blue: #2E25D1;
+    --primary-blue-hover: #4a40ff;
+
+    /* MÀU GIÁ & TRẠNG THÁI */
+    --price-color: #8B4513;    /* Màu nâu đỏ cho giá tiền (giống thiết kế) */
+    --danger-red: #d32f2f;     /* Màu đỏ cho nút xóa/cảnh báo */
+    --text-dark: #333333;
+    --text-gray: #757575;
+    --bg-light: #f5f7fa;
+    --border-color: #e0e0e0;
+    --card-radius: 12px;
+}
+
+/* =========================================
+   1. LAYOUT CHUNG
+   ========================================= */
+body {
+    background-color: var(--bg-light);
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-dark);
+}
+
+.view-section {
+    padding: 20px;
+}
+
 .section-header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 24px;
 }
 
 .section-h3 {
-    font-size: 1.25rem;
-    color: #2E25D1;
+    font-size: 24px;
+    font-weight: 700;
+    color: #5d4037;
     margin: 0;
 }
 
-.btn-dark {
-    background: #2d3436;
+/* Nút Thêm Món */
+#btn-add-dish {
+    background-color: var(--primary-blue);
     color: white;
     border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 0.5rem;
+    padding: 10px 24px;
+    border-radius: 6px;
     font-weight: 600;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 6px rgba(46, 37, 209, 0.2);
 }
 
-.btn-dark:hover {
-    background: #000;
+#btn-add-dish:hover {
+    background-color: var(--primary-blue-hover);
+    box-shadow: 0 6px 10px rgba(46, 37, 209, 0.3);
 }
 
+/* =========================================
+   2. LƯỚI SẢN PHẨM (GRID SYSTEM)
+   ========================================= */
 .dishes-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    /* Tự động chia cột: min 300px */
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 24px;
 }
 
+/* =========================================
+   3. THẺ MÓN ĂN (CARD)
+   ========================================= */
 .dish-card {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 0.8rem;
-    padding: 1rem;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--card-radius);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.dish-image {
-    position: relative;
+.dish-card:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
+}
+
+/* Ảnh món ăn */
+.card-img-top {
     width: 100%;
-    height: 160px;
-    overflow: hidden;
-    border-radius: 12px;
-    background-color: #f5f5f5;
-    margin-bottom: 1rem;
+    height: 200px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #eee;
+    position: relative;
 }
 
-.dish-image img {
+.card-img-top img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
-    transition: transform 0.3s ease;
 }
 
-.dish-image img:hover {
-    transform: scale(1.05);
+/* Nội dung thẻ */
+.card-body {
+    padding: 16px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.category-badge {
-    position: absolute;
-    bottom: 8px;
-    left: 8px;
-    background: rgba(0, 0, 0, 0.6);
-    color: #fff;
-    font-size: 12px;
-    padding: 4px 8px;
-    border-radius: 6px;
+.card-body h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.3;
 }
 
+/* --- PHẦN HIỂN THỊ GIÁ (QUAN TRỌNG) --- */
 .price-row {
     display: flex;
     align-items: baseline;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
 }
 
-.current-price {
-    font-size: 1.1rem;
+/* Giá mặc định (khi không giảm) */
+.price {
+    color: var(--price-color);
+    font-weight: 700;
+    font-size: 18px;
+}
+
+/* Giá MỚI (sau khi giảm) - To và đậm */
+.price-new {
+    color: var(--price-color);
     font-weight: 800;
-    color: #2E25D1;
+    font-size: 20px;
 }
 
-.old-price {
-    font-size: 0.85rem;
-    color: #b2bec3;
+/* Giá CŨ (trước khi giảm) - Gạch ngang */
+.price-old {
     text-decoration: line-through;
+    color: #999;
+    font-size: 14px;
 }
 
-.card-actions {
-    display: grid;
-    grid-template-columns: 3fr 1fr;
-    gap: 0.5rem;
+/* Tem giảm giá % */
+.discount-tag {
+    background-color: #ffebee;
+    color: #c62828;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    transform: translateY(-2px);
+}
+/* ------------------------------------- */
+
+.desc {
+    font-size: 14px;
+    color: var(--text-gray);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
+
+/* Tags (Trạng thái & Danh mục) */
+.tags {
     margin-top: auto;
+    display: flex;
+    gap: 8px;
+    padding-top: 12px;
+}
+
+.badge {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.badge.available {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.badge.unavailable {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.category-tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background-color: #fff3e0;
+    color: #ef6c00;
+    font-weight: 600;
+}
+
+/* Nút hành động (Sửa / Xóa) */
+.card-actions {
+    padding: 12px 16px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    gap: 12px;
 }
 
 .btn-edit {
-    background: #2E25D1;
+    flex: 1;
+    background-color: var(--primary-blue);
     color: white;
     border: none;
-    padding: 0.5rem;
-    border-radius: 0.4rem;
-    cursor: pointer;
+    padding: 10px;
+    border-radius: 6px;
     font-weight: 600;
-}
-
-.btn-delete {
-    background: white;
-    color: #e74c3c;
-    border: 1px solid #fab1a0;
-    padding: 0.5rem;
-    border-radius: 0.4rem;
     cursor: pointer;
-}
-
-@media (max-width: 900px) {
-    .dishes-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-/* MODAL */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
-    opacity: 1;
+    gap: 6px;
+    transition: background 0.2s;
+}
+
+.btn-edit:hover {
+    background-color: var(--primary-blue-hover);
+}
+
+.btn-delete {
+    background-color: white;
+    color: var(--danger-red);
+    border: 1px solid #ffcdd2;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.btn-delete:hover {
+    background-color: #ffebee;
+    border-color: var(--danger-red);
+}
+
+/* =========================================
+   4. MODAL (POPUP FORM)
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
     transition: opacity 0.3s;
 }
 
-.modal-overlay.hidden {
-    display: none;
-    opacity: 0;
-}
+.modal-overlay.hidden { display: none; }
 
 .modal-box {
     background: white;
-    width: 500px;
-    max-width: 90%;
-    padding: 2rem;
+    width: 550px;
+    max-width: 95%;
     border-radius: 12px;
+    padding: 24px;
     position: relative;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.25);
     animation: slideDown 0.3s ease-out;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 @keyframes slideDown {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .close-btn {
-    position: absolute;
-    top: 1rem;
-    right: 1.5rem;
-    border: none;
-    background: none;
-    font-size: 1.5rem;
-    cursor: pointer;
-    color: #999;
+    position: absolute; top: 15px; right: 20px;
+    font-size: 28px; border: none; background: none;
+    cursor: pointer; color: #aaa;
+    line-height: 1;
+}
+.close-btn:hover { color: #333; }
+
+.modal-box h3 {
+    margin-top: 0; margin-bottom: 24px;
+    font-size: 22px; color: #333;
+    border-bottom: 1px solid #eee; padding-bottom: 15px;
 }
 
-.form-group {
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: column;
-}
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #444; }
 
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-}
-
-.form-group label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 0.4rem;
-    color: #2d3436;
-}
-
-.form-group input, .form-group select, .form-group textarea {
-    padding: 0.6rem;
-    border: 1px solid #dfe6e9;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 0.95rem;
-    outline: none;
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%; padding: 12px;
+    border: 1px solid #ddd; border-radius: 8px;
+    font-size: 14px; box-sizing: border-box;
     transition: border 0.2s;
 }
 
-.form-group input:focus {
-    border-color: #2E25D1;
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--primary-blue);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(46, 37, 209, 0.1);
 }
 
-.toggle-group {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.8rem;
-    margin-top: 0.5rem;
-}
+.form-row { display: flex; gap: 16px; }
+.form-row .form-group { flex: 1; }
 
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 22px;
-}
+/* Toggle Switch */
+.toggle-group { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.switch { position: relative; display: inline-block; width: 48px; height: 26px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
 
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
+input:checked + .slider { background-color: var(--primary-blue); }
+input:checked + .slider:before { transform: translateX(22px); }
 
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
-    border-radius: 22px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-}
-
-input:checked + .slider {
-    background-color: #2d3436;
-}
-
-input:checked + .slider:before {
-    transform: translateX(18px);
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.8rem;
-    margin-top: 1.5rem;
-}
-
-.btn-cancel {
-    background: white;
-    border: 1px solid #ccc;
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-}
+/* Footer Modal */
+.modal-footer { margin-top: 30px; display: flex; justify-content: flex-end; gap: 12px; }
 
 .btn-save {
-    background: #000;
+    background-color: var(--primary-blue);
     color: white;
     border: none;
-    padding: 0.6rem 1.5rem;
-    border-radius: 6px;
-    cursor: pointer;
+    padding: 12px 28px;
+    border-radius: 8px;
     font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
 }
+.btn-save:hover { background-color: var(--primary-blue-hover); }
 
-.btn-save:hover {
-    background: #333;
+.btn-cancel {
+    background-color: #f1f1f1;
+    color: #333;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
 }
+.btn-cancel:hover { background-color: #e0e0e0; }
