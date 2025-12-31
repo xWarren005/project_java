@@ -3,6 +3,7 @@ package com.s2o.app.controller;
 import com.s2o.app.service.AdminDashboardService;
 import com.s2o.app.service.AdminRestaurantService;
 import com.s2o.app.service.AdminUserService;
+import com.s2o.app.service.AdminRevenueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,10 +22,13 @@ public class AdminController {
     private AdminDashboardService adminDashboardService;
 
     @Autowired
-    private AdminRestaurantService adminRestaurantService; // Quản lý Nhà hàng
+    private AdminRestaurantService adminRestaurantService;
 
     @Autowired
-    private AdminUserService adminUserService; // Quản lý User (MỚI)
+    private AdminUserService adminUserService;
+
+    @Autowired
+    private AdminRevenueService adminRevenueService;
 
 
     // =========================================================
@@ -46,10 +50,10 @@ public class AdminController {
     // =========================================================
     @GetMapping("/restaurants")
     public String restaurantManagement(Model model) {
-        // Lấy danh sách nhà hàng
+        // Danh sách nhà hàng
         model.addAttribute("restaurantList", adminRestaurantService.getAllRestaurants());
 
-        // Lấy số liệu thống kê
+        // Số liệu thống kê
         model.addAttribute("totalCount", adminRestaurantService.getTotalCount());
         model.addAttribute("pendingCount", adminRestaurantService.getPendingCount());
         model.addAttribute("avgRating", adminRestaurantService.getAvgRating());
@@ -63,10 +67,10 @@ public class AdminController {
     // =========================================================
     @GetMapping("/users")
     public String userManagement(Model model) {
-        // Lấy danh sách User để render bảng
+        // Danh sách User
         model.addAttribute("userList", adminUserService.getAllUsers());
 
-        // Lấy số liệu thống kê (3 thẻ bài đầu trang)
+        // Số liệu thống kê
         model.addAttribute("totalUsers", adminUserService.getTotalUsers());
         model.addAttribute("activeCount", adminUserService.getActiveUsers());
         model.addAttribute("newCount", adminUserService.getNewUsersThisWeek());
@@ -75,10 +79,26 @@ public class AdminController {
     }
 
 
+    // =========================================================
+    // 5. TRANG DOANH THU HỆ THỐNG (MỚI CẬP NHẬT)
+    // =========================================================
     @GetMapping("/revenue")
-    public String systemRevenue() {
+    public String systemRevenue(Model model) {
+        // Đẩy danh sách giao dịch sang View
+        model.addAttribute("transactionList", adminRevenueService.getAllTransactions());
+
+        // Đẩy các con số thống kê (đã format tiền tệ $)
+        model.addAttribute("todayRev", adminRevenueService.getTodayRevenue());
+        model.addAttribute("monthRev", adminRevenueService.getMonthRevenue());
+        model.addAttribute("predictRev", adminRevenueService.getPredictedRevenue());
+
         return "admin/system-revenue";
     }
+
+
+    // =========================================================
+    // 6. CÁC TRANG KHÁC (Chưa có logic, giữ nguyên tĩnh)
+    // =========================================================
 
     @GetMapping("/ai-config")
     public String aiConfig() {
