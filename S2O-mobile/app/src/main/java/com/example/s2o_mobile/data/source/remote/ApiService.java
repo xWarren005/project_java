@@ -38,4 +38,8 @@ public class ApiService {
         return retrofit.create(BookingApi.class);
     }
 
+    public ReviewApi getReviewApi() {
+        return retrofit.create(ReviewApi.class);
+    }
+
 }
