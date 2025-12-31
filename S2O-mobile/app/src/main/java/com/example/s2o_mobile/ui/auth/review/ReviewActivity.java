@@ -146,3 +146,21 @@ private void openWriteDialog(Review editing) {
 
     dialog.show();
 }
+private void confirmDelete(Review review) {
+    new AlertDialog.Builder(this)
+            .setTitle("Xóa đánh giá")
+            .setMessage("Bạn chắc chắn muốn xóa đánh giá này?")
+            .setNegativeButton("Hủy", null)
+            .setPositiveButton("Xóa",
+                    (d, w) -> viewModel.deleteReview(review.getId()))
+            .show();
+}
+@Override
+public void onEdit(Review review) {
+    openWriteDialog(review);
+}
+
+@Override
+public void onDelete(Review review) {
+    confirmDelete(review);
+}
