@@ -40,4 +40,15 @@ public class Order {
     private LocalDateTime createdAt;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items;
+
+    // ========================================================================
+    // CODE MỚI THÊM CHO CHEF DASHBOARD
+    // ========================================================================
+
+    // Mapping thêm quan hệ để Chef lấy tên bàn.
+    // "insertable = false, updatable = false" nghĩa là field này chỉ để ĐỌC dữ liệu,
+    // việc thêm sửa vẫn thông qua field "tableId" ở trên -> An toàn tuyệt đối cho code cũ.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "table_id", insertable = false, updatable = false)
+    private RestaurantTable restaurantTable;
 }
