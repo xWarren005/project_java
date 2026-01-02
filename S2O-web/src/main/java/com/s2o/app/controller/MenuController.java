@@ -18,7 +18,7 @@ public class MenuController {
         Integer tableId = (Integer) session.getAttribute("TABLE_ID");
 
         if (restaurantId == null) {
-            return "redirect:user/welcome?tableId=1";
+            return "redirect:welcome?tableId=1";
         }
         model.addAttribute("restaurantId", restaurantId);
         model.addAttribute("tableId", tableId);
