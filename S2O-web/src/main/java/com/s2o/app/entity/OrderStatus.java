@@ -4,6 +4,8 @@ public enum OrderStatus {
     PENDING,    // Chờ xử lý
     COOKING,    // Đang nấu
     READY,      // Sẵn sàng
+    PAYMENT_PENDING,
+    PAID,
     COMPLETED,  // Đã phục vụ
     CANCELLED   // Đã hủy
 }
