@@ -104,12 +104,13 @@ function formatDateOrders(dateString) {
 
 function getStatusBadgeClass(status) {
     switch (status) {
-        case 'PENDING':   return 'badge-warning'; // Vàng (Chờ)
-        case 'COOKING':   return 'badge-info';    // Xanh Dương (Đang nấu)
-        case 'READY':     return 'badge-purple';  // Tím (Đã xong, chờ bưng)
-        case 'COMPLETED': return 'badge-success'; // Xanh Lá (Đã ăn)
-        case 'CANCELLED': return 'badge-danger';  // Đỏ (Hủy)
-        case 'PAID':      return 'badge-dark';    // Đen (Đã trả tiền)
-        default:          return 'badge-secondary';
+        case 'PENDING':         return 'badge-warning'; // Vàng: Chờ xác nhận
+        case 'COOKING':         return 'badge-info';    // Xanh dương: Đang nấu
+        case 'READY':           return 'badge-primary'; // Xanh đậm: Đã xong
+        case 'COMPLETED':       return 'badge-success'; // Xanh lá: Đang ăn
+        case 'PAYMENT_PENDING': return 'badge-danger';  // Đỏ: Chờ thanh toán
+        case 'PAID':            return 'badge-secondary'; // Xám: Đã xong xuôi
+        case 'CANCELLED':       return 'badge-dark';    // Đen: Hủy
+        default:                return 'badge-secondary';
     }
 }
