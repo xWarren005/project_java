@@ -23,7 +23,19 @@ public class OrderHistoryService {
                 .filter(o -> o.getUserId() != null && o.getUserId().equals(userId))
                 .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt())) // Mới nhất lên đầu
                 .collect(Collectors.toList());
+        return convertToDTO(orders);
+    }
+    // --- HÀM 2: Dành cho Trang "History.html" - Chỉ lấy ĐÃ THANH TOÁN ---
+    public List<OrderHistoryResponse> getPaidOrders(Integer userId) {
+        List<Order> orders = orderRepository.findAll().stream()
+                .filter(o -> o.getUserId() != null && o.getUserId().equals(userId))
+                .filter(o -> "PAID".equals(o.getStatus())) // <--- CHỈ LẤY ĐÃ TRẢ TIỀN
+                .sorted((o1, o2) -> o2.getCreatedAt().compareTo(o1.getCreatedAt()))
+                .collect(Collectors.toList());
 
+        return convertToDTO(orders);
+    }
+    private List<OrderHistoryResponse> convertToDTO(List<Order> orders) {
         // 2. Chuyển đổi sang DTO
         List<OrderHistoryResponse> responseList = new ArrayList<>();
         for (Order o : orders) {
