@@ -13,8 +13,11 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     // --- Code Cũ (Giữ nguyên) ---
     // Tìm đơn hàng theo User ID, sắp xếp mới nhất lên đầu
-    List<Order> findByUserIdOrderByCreatedAtDesc(Integer userId);
-
+    @Query("SELECT o FROM Order o " +
+            "LEFT JOIN FETCH o.restaurant " +  // <-- Lấy luôn thông tin Nhà hàng
+            "WHERE o.userId = :userId " +
+            "ORDER BY o.createdAt DESC")
+    List<Order> findByUserIdOrderByCreatedAtDesc(@Param("userId") Integer userId);
 
     // ========================================================================
     // CODE MỚI THÊM CHO CHEF DASHBOARD
