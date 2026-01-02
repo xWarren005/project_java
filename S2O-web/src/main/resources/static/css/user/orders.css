@@ -89,3 +89,19 @@
         grid-template-columns: 1fr;
     }
 }
+/* Badge Styles */
+.badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.badge-warning { background-color: #f39c12; } /* PENDING */
+.badge-info    { background-color: #3498db; } /* COOKING - Quan trọng */
+.badge-purple  { background-color: #9b59b6; } /* READY - Quan trọng */
+.badge-success { background-color: #27ae60; } /* COMPLETED */
+.badge-danger  { background-color: #e74c3c; } /* CANCELLED */
+.badge-dark    { background-color: #2c3e50; } /* PAID */
