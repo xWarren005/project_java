@@ -14,6 +14,7 @@ public class ProfileViewModel extends AndroidViewModel {
 
     private final SessionManager sessionManager;
     private final MutableLiveData<User> user = new MutableLiveData<>(null);
+    private final MutableLiveData<Boolean> loggedIn = new MutableLiveData<>(false);
 
     public ProfileViewModel(@NonNull Application application) {
         super(application);
@@ -25,8 +26,19 @@ public class ProfileViewModel extends AndroidViewModel {
         return user;
     }
 
+    public LiveData<Boolean> getLoggedIn() {
+        return loggedIn;
+    }
+
     public void loadProfile() {
-        User u = sessionManager.getUser();
-        user.setValue(u);
+        String token = sessionManager.getAuthToken();
+        boolean isLogged = token != null && !token.isEmpty();
+        loggedIn.setValue(isLogged);
+
+        if (isLogged) {
+            user.setValue(sessionManager.getUser());
+        } else {
+            user.setValue(null);
+        }
     }
 }
