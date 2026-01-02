@@ -19,7 +19,7 @@ public class InvoiceService {
 
     public List<OrderHistoryResponse> getCurrentSessionOrders(Integer userId) {
         // Lấy các trạng thái "đang ăn" (Trừ PAID và CANCELLED)
-        List<String> activeStatuses = Arrays.asList("PENDING", "COOKING", "READY", "COMPLETED");
+        List<String> activeStatuses = Arrays.asList("PENDING", "COOKING", "READY", "COMPLETED", "PAYMENT_PENDING");
 
         // Giả sử repository có hàm findByUserIdAndStatusIn
         // Hoặc dùng findAll() rồi filter như bên dưới (đơn giản nhưng chưa tối ưu nếu data lớn)

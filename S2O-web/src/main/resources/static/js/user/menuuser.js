@@ -56,6 +56,11 @@ function switchTab(tab) {
             loadInvoice();
         }
     }
+    if (tab === 'payment') {
+        if (typeof renderPayment === "function") {
+            renderPayment();
+        }
+    }
 }
 /* ========= 3. STORAGE (LocalStorage) ========= */
 const Storage = {

@@ -165,6 +165,9 @@ const App = {
         else if (action === 'act_update') {
             alert("Tính năng cập nhật thông tin đang phát triển!");
         }
+        else if (action === 'history') {
+            window.location.href = '/user/history';
+        }
     },
 
     flipCard: function(element) {
