@@ -51,13 +51,19 @@ function renderTables() {
         else { badgeClass = "badge-reserved"; statusText = "Đã Đặt"; }
 
         return `
-            <div class="table-card">
-                <div class="card-header">
+            <div class="table-card" style="position: relative;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: start;">
                     <div>
                         <h4 class="table-name">${t.name}</h4>
                         <span class="table-seats"><i class="fa-solid fa-user-group"></i> ${t.seats} chỗ ngồi</span>
                     </div>
-                    <span class="status-badge ${badgeClass}">${statusText}</span>
+                    <div style="text-align: right;">
+                        <span class="status-badge ${badgeClass}" style="display: block; margin-bottom: 5px;">${statusText}</span>
+                        
+                        <button onclick="deleteTable(${t.id})" style="background: none; border: none; color: #ff4d4f; cursor: pointer; font-size: 14px;" title="Xóa bàn">
+                            <i class="fa-solid fa-trash"></i> Xóa
+                        </button>
+                    </div>
                 </div>
 
                 <div class="status-select-group">
@@ -92,16 +98,14 @@ function renderTables() {
 
 // 2. Cập nhật trạng thái (PUT)
 function updateStatus(id, newStatus) {
-    // Gọi API: /api/manager/tables/{id}/status?status={newStatus}
     fetch(`${API_TABLES_URL}/${id}/status?status=${newStatus}`, {
         method: 'PUT'
     })
         .then(response => {
             if (response.ok) {
-                // Cập nhật local data để không cần load lại trang (giúp UI mượt hơn)
                 const table = tablesData.find(t => t.id === id);
                 if (table) table.status = parseInt(newStatus);
-                renderTables(); // Vẽ lại giao diện để cập nhật màu Badge
+                renderTables();
             } else {
                 alert("Lỗi cập nhật trạng thái! Vui lòng thử lại.");
             }
@@ -127,18 +131,14 @@ function handleAddTable(e) {
         body: JSON.stringify(payload)
     })
         .then(response => {
-            debugger;
             if (!response.ok) throw new Error("Lỗi khi thêm bàn");
             return response.json();
         })
         .then(newTable => {
-            debugger;
-            // Server trả về đối tượng bàn mới (đã bao gồm ID và Link QR ngầm)
             tablesData.push(newTable);
             renderTables();
             closeModal();
-            e.target.reset(); // Xóa trắng form
-            // alert("Thêm bàn mới thành công!"); // Có thể bỏ alert cho đỡ phiền
+            e.target.reset();
         })
         .catch(err => {
             console.error("Lỗi thêm bàn:", err);
@@ -146,13 +146,34 @@ function handleAddTable(e) {
         });
 }
 
-// 4. Các hàm tiện ích
+// 4. Xóa bàn (DELETE) - MỚI THÊM
+function deleteTable(id) {
+    if (!confirm("Bạn có chắc chắn muốn xóa bàn này không?")) return;
+
+    fetch(`${API_TABLES_URL}/${id}`, {
+        method: 'DELETE'
+    })
+        .then(response => {
+            if (response.ok) {
+                // Xóa thành công, cập nhật mảng local và vẽ lại
+                tablesData = tablesData.filter(t => t.id !== id);
+                renderTables();
+            } else {
+                alert("Không thể xóa bàn (Có thể lỗi server).");
+            }
+        })
+        .catch(err => {
+            console.error("Lỗi xóa bàn:", err);
+            alert("Lỗi kết nối!");
+        });
+}
+
+// 5. Các hàm tiện ích
 function closeModal() {
     const modal = document.getElementById("modal-overlay");
     if(modal) modal.classList.add("hidden");
 }
 
-// Đóng modal khi click ra ngoài vùng trắng
 window.onclick = function(event) {
     const modal = document.getElementById("modal-overlay");
     if (event.target == modal) {
