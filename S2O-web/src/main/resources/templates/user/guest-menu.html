@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Thực đơn - Nhà hàng Phố</title>
-  <link rel="stylesheet" href="../../static/css/user/menuuser.css">
-  <link rel="stylesheet" href="../../static/css/user/orders.css">
-  <link rel="stylesheet" href="../../static/css/user/invoice.css">
-  <link rel="stylesheet" href="../../static/css/user/payment.css">
+  <link rel="stylesheet" th:href="@{/css/user/menuuser.css}">
+  <link rel="stylesheet" th:href="@{/css/user/orders.css}">
+  <link rel="stylesheet" th:href="@{/css/user/invoice.css}">
+  <link rel="stylesheet" th:href="@{/css/user/payment.css}">
 </head>
 <body>
 <!-- Header -->
 <header class="header">
   <div class="header-content">
     <div class="header-left">
-      <h1 class="restaurant-name">Nhà hàng Phố</h1>
-      <p class="table-number">Bàn <span id="table-number">A5</span></p>
+      <h1 class="restaurant-name" th:text="${restaurantName}">Nhà hàng Phố</h1>
+      <p class="table-number" th:if="${tableName}">Bàn <span id="table-number-display" th:text="${tableName}">A5</span></p>
     </div>
     <div class="header-right">
       <button class="btn-icon btn-profile" onclick="goToProfile()">
@@ -32,7 +32,8 @@
     </div>
   </div>
 </header>
-
+<input type="hidden" id="restaurant-id" th:value="${restaurantId}">
+<input type="hidden" id="table-id" th:value="${tableId}">
 <!-- Tabs -->
 <div class="tabs">
   <button class="tab active" data-tab="menu" onclick="switchTab('menu')">Thực đơn</button>
@@ -97,9 +98,9 @@
     <button class="btn btn-primary" onclick="placeOrder()">Đặt món</button>
   </div>
 </div>
-<script src="../../static/js/user/guest-menu.js"></script>
-<script src="../../static/js/user/guest-invoice.js"></script>
-<script src="../../static/js/user/guest-orders.js"></script>
-<script src="../../static/js/user/guest-payment.js"></script>
+<script th:src="@{/js/user/guest-menu.js}"></script>
+<script th:src="@{/js/user/guest-orders.js}"></script>
+<script th:src="@{/js/user/guest-invoice.js}"></script>
+<script th:src="@{/js/user/guest-payment.js}"></script>
 </body>
 </html>
