@@ -56,19 +56,18 @@ async function fetchAndRenderOrders(container) {
 
 function renderOrdersHTML(container, orders) {
     if (!orders || orders.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <p>Bạn chưa gọi món nào</p>
-                <button class="btn btn-primary" onclick="switchTab('menu')" 
-                    style="margin-top:10px; background:var(--color-secondary); border:none; color:white; padding:8px 16px; border-radius:4px;">
-                    Xem thực đơn
-                </button>
-            </div>
-        `;
+        showEmptyState(container);
+        return;
+    }
+    const activeOrders = orders.filter(o => o.status !== 'PAID' && o.status !== 'CANCELLED');
+
+    // Nếu sau khi lọc mà không còn đơn nào (tức là đã trả tiền hết rồi) -> Hiện trống
+    if (activeOrders.length === 0) {
+        showEmptyState(container);
         return;
     }
 
-    container.innerHTML = orders.map(o => `
+    container.innerHTML = activeOrders.map(o => `
     <div class="order-card">
       <div class="order-header">
         <div>
@@ -103,6 +102,18 @@ function renderOrdersHTML(container, orders) {
       </div>
     </div>
   `).join("");
+}
+// Hàm hiển thị trạng thái trống
+function showEmptyState(container) {
+    container.innerHTML = `
+        <div class="empty-state">
+            <p>Bạn chưa gọi món nào</p>
+            <button class="btn btn-primary" onclick="switchTab('menu')" 
+                style="margin-top:10px; background:var(--color-secondary); border:none; color:white; padding:8px 16px; border-radius:4px;">
+                Xem thực đơn
+            </button>
+        </div>
+    `;
 }
 
 // Hàm chọn màu cho badge dựa trên trạng thái Server trả về

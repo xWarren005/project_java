@@ -7,17 +7,6 @@ async function loadOrderHistory(showLoading = true) {
     }
 
     try {
-        const response = await fetch('/api/user/orders/orders');
-        if (response.ok) {
-            const orders = await response.json();
-            renderOrders(orders);
-        }
-    } catch (error) {
-        console.error("Lỗi:", error);
-    }
-    container.innerHTML = '<div class="loading-state" style="text-align:center; padding:20px;">⏳ Đang tải lịch sử...</div>';
-
-    try {
         // GỌI API MỚI (TỪ OrderHistoryController)
         const response = await fetch('/api/user/orders/orders');
 
@@ -27,11 +16,15 @@ async function loadOrderHistory(showLoading = true) {
         } else if (response.status === 401) {
             container.innerHTML = '<div class="empty-state">Vui lòng <a href="/user/login">đăng nhập</a> để xem lịch sử.</div>';
         } else {
-            container.innerHTML = '<div class="empty-state">Không thể tải dữ liệu.</div>';
+            if (showLoading) {
+                container.innerHTML = '<div class="empty-state">Không thể tải dữ liệu.</div>';
+            }
         }
     } catch (error) {
         console.error("Lỗi:", error);
-        container.innerHTML = '<div class="empty-state">Lỗi kết nối server.</div>';
+        if (showLoading) {
+            container.innerHTML = '<div class="empty-state">Lỗi kết nối server.</div>';
+        }
     }
 }
 function renderOrders(orders) {
@@ -53,7 +46,7 @@ function renderOrders(orders) {
                     <div class="order-id">${o.id}</div>
                     <div class="order-date">${formatDateOrders(o.createdAt)}</div>
                 </div>
-                <span class="badge${getStatusBadgeClass(o.status)}">
+                <span class="badge ${getStatusBadgeClass(o.status)}">
                     ${o.statusVietnamese}
                 </span>
             </div>
@@ -77,18 +70,19 @@ function renderOrders(orders) {
 document.addEventListener("DOMContentLoaded", () => {
     document
         .querySelector('[data-tab="orders"]')
-        ?.addEventListener("click", renderOrders)
-})
+        ?.addEventListener("click", () => loadOrderHistory(true));
+});
 let orderInterval = null;
 
 function startOrderPolling() {
     if (orderInterval) clearInterval(orderInterval);
     orderInterval = setInterval(() => {
         // Chỉ gọi lại API nếu đang ở tab Orders
-        if (document.querySelector('.tab[data-tab="orders"]').classList.contains('active')) {
-            loadOrderHistory(false); // false nghĩa là không hiện loading spinner để tránh nháy màn hình
+        const ordersTab = document.querySelector('.tab[data-tab="orders"]');
+        if (ordersTab && ordersTab.classList.contains('active')) {
+            loadOrderHistory(false);
         }
-    }, 30000); // Cập nhật mỗi 30 giây
+    }, 3000); // Cập nhật mỗi 3 giây
 }
 // Utils
 function formatPriceOrders(price) {

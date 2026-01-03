@@ -312,8 +312,6 @@ async function placeOrder() {
     return;
   }
 
-  if (!confirm("Xác nhận gửi gọi món xuống bếp?")) return;
-
   // Chuẩn bị Payload khớp với GuestOrderRequest DTO
   const payload = {
     restaurantId: parseInt(RESTAURANT_ID),
@@ -341,7 +339,6 @@ async function placeOrder() {
 
     if (res.ok) {
       alert("Đã gửi đơn thành công! Vui lòng chờ xác nhận.");
-
       // Reset Cart
       cart = [];
       Storage.clearCart();

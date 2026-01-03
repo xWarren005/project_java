@@ -313,7 +313,6 @@ async function placeOrder() {
     if (!tableId) {
         alert("Vui lòng quét lại mã QR tại bàn."); return;
     }
-    if (!confirm("Xác nhận gửi món xuống bếp?")) return;
     // Chuẩn bị dữ liệu gửi (UserOrderRequest)
     const payload = {
         restaurantId: parseInt(restaurantId),
