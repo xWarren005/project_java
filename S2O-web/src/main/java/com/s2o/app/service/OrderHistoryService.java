@@ -69,7 +69,8 @@ public class OrderHistoryService {
             case "PENDING":     return "Chờ xác nhận";   // Mới đặt
             case "COOKING":     return "Đang chế biến";  // Bếp đã bấm "Bắt đầu nấu"
             case "READY":       return "Món đã xong";    // Bếp đã bấm "Sẵn sàng"
-            case "COMPLETED":   return "Đã phục vụ";     // Bếp/Nhân viên bấm "Hoàn thành"
+            case "COMPLETED":   return "Đã phục vụ";
+            case "PAYMENT_PENDING": return "Chờ thu ngân";// Bếp/Nhân viên bấm "Hoàn thành"
             case "CANCELLED":   return "Đã hủy";
             case "PAID":        return "Đã thanh toán";
             default:            return status;
