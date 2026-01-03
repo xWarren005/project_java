@@ -30,21 +30,28 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
 
+        buildUi();
+
+        viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
+        observeVm();
+
+        viewModel.loadProfile();
+    }
+
+    private void buildUi() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-        ));
 
         progressBar = new ProgressBar(this);
+        progressBar.setVisibility(android.view.View.GONE);
+
         tvName = new TextView(this);
         tvEmail = new TextView(this);
         tvPhone = new TextView(this);
         tvRank = new TextView(this);
 
         btnEdit = new Button(this);
-        btnEdit.setText("Chỉnh sửa");
+        btnEdit.setText("Chỉnh sửa hồ sơ");
 
         btnMemberRank = new Button(this);
         btnMemberRank.setText("Hạng thành viên");
@@ -63,29 +70,55 @@ public class ProfileActivity extends AppCompatActivity {
 
         setContentView(root);
 
-        viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
-
-        viewModel.getLoggedIn().observe(this, logged -> {
-            if (!Boolean.TRUE.equals(logged)) {
-                Toast.makeText(this, "Chưa đăng nhập", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        viewModel.getUser().observe(this, this::renderUser);
-
         btnLogout.setOnClickListener(v -> {
             viewModel.logout();
-            startActivity(new Intent(this, LoginActivity.class));
+            Intent i = new Intent(this, LoginActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(i);
             finish();
         });
     }
 
-    private void renderUser(User u) {
-        if (u == null) return;
+    private void observeVm() {
+        viewModel.getErrorMessage().observe(this, msg -> {
+            if (msg != null && !msg.isEmpty()) {
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
 
-        tvName.setText("Họ tên: " + u.getName());
-        tvEmail.setText("Email: " + u.getEmail());
-        tvPhone.setText("SĐT: " + u.getPhone());
-        tvRank.setText("Hạng: " + u.getRank());
+        viewModel.getUser().observe(this, this::renderUser);
+    }
+
+    private void renderUser(User u) {
+        if (u == null) {
+            tvName.setText("Họ tên: (trống)");
+            tvEmail.setText("Email: (trống)");
+            tvPhone.setText("SĐT: (trống)");
+            tvRank.setText("Hạng: (trống)");
+            return;
+        }
+
+        tvName.setText("Họ tên: " + safe(getField(u, "getFullName", "getName")));
+        tvEmail.setText("Email: " + safe(getField(u, "getEmail")));
+        tvPhone.setText("SĐT: " + safe(getField(u, "getPhone", "getPhoneNumber")));
+        tvRank.setText("Hạng: " + safe(getField(u, "getRank", "getMemberRank")));
+    }
+
+    private String getField(User u, String... methods) {
+        try {
+            for (String m : methods) {
+                try {
+                    Object v = u.getClass().getMethod(m).invoke(u);
+                    if (v != null) return String.valueOf(v);
+                } catch (Exception ignored) {}
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    private String safe(String s) {
+        if (s == null) return "(trống)";
+        s = s.trim();
+        return s.isEmpty() ? "(trống)" : s;
     }
 }
