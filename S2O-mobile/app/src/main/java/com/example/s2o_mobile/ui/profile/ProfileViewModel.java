@@ -39,18 +39,26 @@ public class ProfileViewModel extends AndroidViewModel {
     public void loadProfile() {
         try {
             String token = sessionManager.getAuthToken();
+            User u = sessionManager.getUser();
+
             boolean isLogged = token != null && !token.trim().isEmpty();
             loggedIn.setValue(isLogged);
 
-            if (isLogged) {
-                user.setValue(sessionManager.getUser());
+            if (isLogged && u != null) {
+                user.setValue(u);
             } else {
                 user.setValue(null);
             }
         } catch (Exception e) {
             errorMessage.setValue(e.getMessage());
-            loggedIn.setValue(false);
             user.setValue(null);
+            loggedIn.setValue(false);
         }
+    }
+
+    public void logout() {
+        sessionManager.clearSession();
+        user.setValue(null);
+        loggedIn.setValue(false);
     }
 }
