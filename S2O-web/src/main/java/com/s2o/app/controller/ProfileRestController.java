@@ -60,17 +60,33 @@ public class ProfileRestController {
         for (Order order : orders) {
             ProfileResponse.CalendarItemDTO item = new ProfileResponse.CalendarItemDTO();
             item.setId("ORD-" + order.getId());
-            item.setPlace("Nhà hàng Phố"); // Hoặc query tên nhà hàng từ RestaurantRepository
-            item.setDate(order.getCreatedAt().format(dateFmt));
-            item.setTime(order.getCreatedAt().format(timeFmt));
 
+            if (order.getRestaurant() != null) {
+                item.setPlace(order.getRestaurant().getName());
+            } else {
+                // Fallback nếu dữ liệu cũ bị null hoặc lỗi liên kết
+                item.setPlace("Nhà hàng (ID: " + order.getRestaurantId() + ")");
+            }
+            // ------------------------
+
+            // Format ngày giờ an toàn (tránh null pointer)
+            if (order.getCreatedAt() != null) {
+                item.setDate(order.getCreatedAt().format(dateFmt));
+                item.setTime(order.getCreatedAt().format(timeFmt));
+            } else {
+                item.setDate("");
+                item.setTime("");
+            }
             // Xử lý trạng thái để tô màu
             if ("PENDING".equals(order.getStatus())) {
                 item.setStatus("upcoming"); // Màu vàng
                 item.setStatusText("Chờ xác nhận");
-            } else if ("COMPLETED".equals(order.getStatus())) {
+            } else if ("COMPLETED".equals(order.getStatus()) || "PAID".equals(order.getStatus())){
                 item.setStatus("finished"); // Màu xám
                 item.setStatusText("Hoàn thành");
+            } else if ("CANCELLED".equals(order.getStatus())) {
+                item.setStatus("finished");
+                item.setStatusText("Đã hủy");
             } else {
                 item.setStatus("upcoming"); // Màu xanh
                 item.setStatusText("Đang phục vụ");

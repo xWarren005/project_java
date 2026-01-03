@@ -3,49 +3,8 @@ let currentUser = null
 function goBack() {
   window.history.back()
 }
-function goToHistory() { window.location.href = "history.html" }
-function goToProfile() { window.location.href = "profile.html" }
-// LocalStorage management
-const Storage = {
-  getCurrentUser() {
-    return JSON.parse(localStorage.getItem("currentUser") || "null")
-  },
-  setCurrentUser(user) {
-    localStorage.setItem("currentUser", JSON.stringify(user))
-  },
-  // Orders
-  getOrders(tableNumber) {
-    return JSON.parse(localStorage.getItem(`orders_${tableNumber}`) || "[]")
-  },
-  saveOrder(tableNumber, order) {
-    const orders = this.getOrders(tableNumber)
-    orders.push(order)
-    localStorage.setItem(`orders_${tableNumber}`, JSON.stringify(orders))
-  },
-  // User History
-  getUserHistory(userId) {
-    return JSON.parse(
-        localStorage.getItem(`history_${userId}`)
-    ) || {
-      invoices: [],
-      totalSpent: 0,
-      visitCount: 0,
-    }
-  }
-  ,
-
-  saveUserHistory(userId, history) {
-    localStorage.setItem(`history_${userId}`, JSON.stringify(history))
-  },
-
-  addToUserHistory(userId, invoice) {
-    const history = this.getUserHistory(userId)
-    history.invoices.push(invoice)
-    history.totalSpent += invoice.total
-    history.visitCount += 1
-    this.saveUserHistory(userId, history)
-  },
-}
+function goToHistory() { window.location.href = "/user/history" }
+function goToProfile() { window.location.href = "/user/profile" }
 
 function formatPrice(price) {
   return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" })
@@ -57,49 +16,78 @@ function formatDate(date) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  currentUser = Storage.getCurrentUser()
-  if (!currentUser) {
-    window.location.href = "../login.html"
-    return
+  fetchHistoryData();
+});
+async function fetchHistoryData() {
+  const listContainer = document.getElementById("history-list");
+
+  try {
+    const response = await fetch('/api/user/orders/history');
+
+    if (response.status === 401) {
+      alert("Phiên đăng nhập hết hạn.");
+      window.location.href = "/user/login";
+      return;
+    }
+
+    if (response.ok) {
+      const orders = await response.json();
+
+      // 1. Tính toán thống kê
+      calculateStats(orders);
+
+      // 2. Vẽ danh sách hóa đơn
+      renderHistoryList(orders);
+    } else {
+      listContainer.innerHTML = '<div class="empty-state">Không thể tải dữ liệu</div>';
+    }
+  } catch (error) {
+    console.error("Lỗi:", error);
+    listContainer.innerHTML = '<div class="empty-state">Lỗi kết nối server</div>';
   }
+}
+function calculateStats(orders) {
+  // Chỉ tính các đơn đã hoàn thành hoặc đã thanh toán (Tùy logic nhà hàng)
+  // Ở đây mình tính tất cả đơn KHÔNG bị hủy
+  const validOrders = orders.filter(o => o.status !== 'CANCELLED');
 
-  loadHistory()
-})
+  const totalSpent = validOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+  const totalOrders = validOrders.length;
+  const totalVisits = validOrders.length; // Tạm tính 1 đơn = 1 lần ghé thăm
 
-function loadHistory() {
-  const history = Storage.getUserHistory(currentUser.id)
-  // Update stats
-  document.getElementById("total-spent").textContent = formatPrice(history.totalSpent)
-  document.getElementById("total-orders").textContent = history.invoices.length
-  document.getElementById("total-visits").textContent = history.visitCount
+  // Update UI
+  animateValue("total-spent", totalSpent, formatPrice);
+  document.getElementById("total-orders").textContent = totalOrders;
+  document.getElementById("total-visits").textContent = totalVisits;
+}
 
-  // Load history list
-  const historyListContainer = document.getElementById("history-list")
+function renderHistoryList(orders) {
+  const listContainer = document.getElementById("history-list");
 
-  if (history.invoices.length === 0) {
-    historyListContainer.innerHTML = '<div class="card"><div class="empty-state">Chưa có lịch sử nào</div></div>'
-    return
+  if (!orders || orders.length === 0) {
+    listContainer.innerHTML = `
+            <div class="empty-state" style="text-align: center; padding: 30px;">
+                <img src="/images/empty-history.png" onerror="this.style.display='none'" style="width: 60px; opacity: 0.5;">
+                <p>Bạn chưa có lịch sử giao dịch nào.</p>
+            </div>`;
+    return;
   }
-
-  historyListContainer.innerHTML = history.invoices
-    .reverse()
-    .map(
-      (invoice) => `
+  ListContainer.innerHTML = orders.map(order => `
         <div class="history-item">
             <div class="history-header">
                 <div class="history-info">
-                    <h4>${invoice.id}</h4>
-                    <p>${formatDate(invoice.date)} - Bàn ${invoice.tableNumber}</p>
+                    <h4>${order.id}</h4>
+                    <p>${formatDate(order.createdAt)}</p>
                 </div>
-                <span class="badge badge-${invoice.status}">${getStatusText(invoice.status)}</span>
+                <span class="badge ${getStatusClass(order.status)}">
+                    ${order.statusVietnamese || order.status}
+                </span>
             </div>
             <div class="history-items">
-                ${invoice.items
-                  .map(
-                    (item) => `
+                ${order.items.map(item => `
                     <div class="history-item-row">
-                        <span>${item.quantity}x ${item.name}</span>
-                        <span>${formatPrice(item.price * item.quantity)}</span>
+                        <span>${item.quantity}x ${item.productName}</span>
+                        <span>${formatPrice(item.unitPrice * item.quantity)}</span>
                     </div>
                 `,
                   )
@@ -107,20 +95,25 @@ function loadHistory() {
             </div>
             <div class="history-total">
                 <span>Tổng cộng</span>
-                <span class="history-total-price">${formatPrice(invoice.total)}</span>
+                <span class="history-total-price">${formatPrice(order.totalAmount)}</span>
             </div>
         </div>
-    `,
-    )
-    .join("")
+    `).join("")
 }
 
-function getStatusText(status) {
-  const statusMap = {
-    pending: "Chờ xử lý",
-    preparing: "Đang chuẩn bị",
-    ready: "Sẵn sàng",
-    completed: "đã thanh toán",
+function getStatusClass(status) {
+  switch(status) {
+  case 'PENDING': return 'badge-warning';   // class CSS trong history.css
+  case 'CONFIRMED': return 'badge-info';
+  case 'COMPLETED': return 'badge-success';
+  case 'PAID': return 'badge-dark';
+  case 'CANCELLED': return 'badge-danger';
+  default: return 'badge-secondary';
   }
-  return statusMap[status] || status
+  }
+// Hiệu ứng chạy số (Optional - cho đẹp)
+function animateValue(id, value, formatFunc) {
+  const obj = document.getElementById(id);
+  if(!obj) return;
+  obj.textContent = formatFunc(value);
 }

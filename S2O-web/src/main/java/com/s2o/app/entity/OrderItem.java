@@ -14,13 +14,23 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
+    // Quan hệ cũ (Giữ nguyên để code cũ hoạt động bình thường)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
 
-    @ManyToOne
+    // Quan hệ cũ (Giữ nguyên)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
+
+    // ========================================================================
+    // CODE MỚI THÊM: Read-only field để lấy ID sản phẩm
+    // Giúp sửa lỗi "Cannot resolve method getProductId" bên Service
+    // "insertable = false, updatable = false" -> Dùng chung cột product_id với biến 'product' ở trên
+    // ========================================================================
+    @Column(name = "product_id", insertable = false, updatable = false)
+    private Integer productId;
 
     private Integer quantity;
 

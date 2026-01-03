@@ -1,85 +1,106 @@
-// --- DỮ LIỆU GIẢ LẬP (MOCK DATA) ---
-
-// 1. Dữ liệu tổng quan
-const summaryData = [
-    { title: "Doanh Thu Hôm Nay", value: "5.2tr", sub: "+11.8%", icon: "fa-dollar-sign" },
-    { title: "Đơn Hàng", value: "24", sub: "+3 đơn mới", icon: "fa-cart-shopping" },
-    { title: "Món Bán Chạy", value: "Phở Bò", sub: "68 bát", icon: "fa-fire" },
-    { title: "Khách Hàng", value: "48", sub: "+12 khách", icon: "fa-users" }
-];
-
-// 2. Dữ liệu biểu đồ (7 ngày)
-const chartData = [
-    { day: "Thứ 2", revenue: 4200000 },
-    { day: "Thứ 3", revenue: 3800000 },
-    { day: "Thứ 4", revenue: 4500000 },
-    { day: "Thứ 5", revenue: 5100000 },
-    { day: "Thứ 6", revenue: 5800000 },
-    { day: "Thứ 7", revenue: 6200000 },
-    { day: "CN",    revenue: 5200000 }
-];
-
-// 3. Dữ liệu Top món
-const topDishes = [
-    { id: 1, name: "Phở Bò Đặc Biệt", count: 39, total: 2415000, img: "https://source.unsplash.com/100x100/?pho" },
-    { id: 2, name: "Bún Chả Hà Nội", count: 50, total: 1940000, img: "https://source.unsplash.com/100x100/?noodle" },
-    { id: 3, name: "Gỏi Cuốn Tôm Thịt", count: 52, total: 2750000, img: "https://source.unsplash.com/100x100/?springroll" },
-    { id: 4, name: "Chè Ba Màu", count: 29, total: 2811000, img: "https://source.unsplash.com/100x100/?dessert" },
-    { id: 5, name: "Nước Chanh Dây", count: 46, total: 2273000, img: "https://source.unsplash.com/100x100/?drink" }
-];
-
-// --- RENDER FUNCTIONS ---
-
 document.addEventListener("DOMContentLoaded", () => {
-    renderSummary();
-    renderChart();
-    renderTopDishes();
+    if (typeof renderMenu === "function") {
+        renderMenu('revenue');
+    }
+    fetchRevenueData();
 });
 
-function renderSummary() {
+async function fetchRevenueData() {
+    try {
+        const response = await fetch('/api/manager/revenue-stats');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        renderSummary(data.summary);
+        renderChart(data.chartData);     // ✅ đúng key backend
+        renderTopDishes(data.top5Dishes); // ✅ đúng key backend
+
+    } catch (error) {
+        console.error("Lỗi tải dữ liệu:", error);
+        document.getElementById("summary-container").innerHTML =
+            `<p style="color:red">Không thể tải dữ liệu báo cáo. Vui lòng thử lại sau.</p>`;
+    }
+}
+
+function renderSummary(summaryData) {
     const container = document.getElementById("summary-container");
+    if (!summaryData) return;
+
     container.innerHTML = summaryData.map(item => `
         <div class="stat-card">
             <div>
                 <div class="stat-title">${item.title}</div>
                 <div class="stat-value">${item.value}</div>
-                <div class="stat-desc">${item.sub}</div>
+                <div class="stat-desc">${item.subtitle}</div> <!-- ✅ FIX -->
             </div>
-            <div class="stat-icon"><i class="fa-solid ${item.icon}"></i></div>
+            <div class="stat-icon">
+                <i class="fa-solid ${item.icon}"></i>
+            </div>
         </div>
     `).join('');
 }
 
-function renderChart() {
+function renderChart(chartData) {
     const container = document.getElementById("chart-container");
-    // Tìm giá trị lớn nhất để tính % chiều dài thanh
-    const maxVal = Math.max(...chartData.map(d => d.revenue));
+    if (!chartData || chartData.length === 0) {
+        container.innerHTML =
+            "<div style='text-align:center; padding:20px'>Chưa có dữ liệu doanh thu tuần này</div>";
+        return;
+    }
+
+    const maxVal = Math.max(...chartData.map(d => d.value));
 
     container.innerHTML = chartData.map(d => {
-        const percent = (d.revenue / maxVal) * 100;
-        const displayRev = (d.revenue / 1000000).toFixed(1) + "tr"; // Đổi sang triệu
+        const percent = maxVal > 0 ? (d.value / maxVal) * 100 : 0;
+
+        let displayRev = d.value >= 1_000_000
+            ? (d.value / 1_000_000).toFixed(1) + "tr"
+            : d.value >= 1_000
+                ? (d.value / 1_000).toFixed(0) + "k"
+                : "0đ";
+
         return `
             <div class="bar-row">
                 <div class="bar-label">${d.day}</div>
                 <div class="bar-track">
-                    <div class="bar-fill" style="width: ${percent}%">${displayRev}</div>
+                    <div class="bar-fill" style="width: ${percent}%">
+                        ${displayRev}
+                    </div>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-function renderTopDishes() {
+function renderTopDishes(topDishes) {
     const container = document.getElementById("top-dishes-container");
-    container.innerHTML = topDishes.map((d, index) => `
+    if (!topDishes || topDishes.length === 0) {
+        container.innerHTML =
+            "<div style='text-align:center; padding:20px'>Chưa có dữ liệu món ăn</div>";
+        return;
+    }
+
+    container.innerHTML = topDishes.map((d, index) => {
+        const imgUrl = d.imageUrl && d.imageUrl.trim() !== ""
+            ? d.imageUrl
+            : "https://via.placeholder.com/100?text=No+Img";
+
+        const totalFormatted = d.total.toLocaleString('vi-VN') + "đ";
+
+        return `
         <div class="top-item">
             <div class="rank-badge">${index + 1}</div>
-            <img src="${d.img}" class="dish-thumb" onerror="this.src='https://via.placeholder.com/50'">
+            <img src="${imgUrl}" class="dish-thumb"
+                 onerror="this.src='https://via.placeholder.com/50?text=Err'">
             <div class="dish-info">
                 <span class="dish-name">${d.name}</span>
-                <span class="dish-count">${d.count} đơn</span>
+                <span class="dish-count">${d.count} phần</span>
             </div>
-            <div class="dish-total">${d.total.toLocaleString()}đ</div>
+            <div class="dish-total">${totalFormatted}</div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }

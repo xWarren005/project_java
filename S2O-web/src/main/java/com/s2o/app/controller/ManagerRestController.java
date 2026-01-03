@@ -177,7 +177,7 @@ public class ManagerRestController {
 
             RestaurantTable saved = tableRepository.save(table);
             // Tạo link QR (đây là QR bàn ăn, khác với QR ngân hàng)
-            saved.setQrCodeString("http://localhost:8080/user/menu?tableId=" + saved.getId());
+            saved.setQrCodeString("http://localhost:8080/user/welcome?tableId=" + saved.getId());
             tableRepository.save(saved);
 
             return ResponseEntity.ok(TableDTO.fromEntity(saved));
@@ -192,7 +192,7 @@ public class ManagerRestController {
             RestaurantTable table = tableRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Table not found"));
             String link = table.getQrCodeString();
-            if (link == null) link = "http://localhost:8080/user/menu?tableId=" + id;
+            if (link == null) link = "http://localhost:8080/user/welcome?tableId=" + id;
             return ResponseEntity.ok(QRCodeGenerator.getQRCodeImage(link, 200, 200));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();

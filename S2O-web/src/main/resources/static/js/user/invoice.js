@@ -1,44 +1,78 @@
 /* ===============================
+   INVOICE JS - TẠM TÍNH TỪ API
+   =============================== */
+
+async function loadInvoice() {
+    const content = document.getElementById("invoice-content");
+    const tableDisplay = document.getElementById("invoice-table");
+
+    // Hiển thị số bàn từ Header (nếu có)
+    const currentTableName = document.getElementById("table-number-display")?.textContent || "";
+    if(tableDisplay) tableDisplay.textContent = currentTableName;
+
+    if (!content) return;
+
+    // Loading State
+    content.innerHTML = '<div class="loading-state" style="text-align:center; padding:20px;">⏳ Đang tính tiền...</div>';
+
+    try {
+        // 1. Gọi API lấy các đơn chưa thanh toán
+        const response = await fetch('/api/user/invoice/current');
+
+        if (response.ok) {
+            const orders = await response.json();
+            renderInvoice(orders);
+        } else if (response.status === 401) {
+            content.innerHTML = '<div class="invoice-empty">Vui lòng đăng nhập</div>';
+        } else {
+            content.innerHTML = '<div class="invoice-empty">Lỗi tải hóa đơn</div>';
+        }
+    } catch (error) {
+        console.error("Lỗi:", error);
+        content.innerHTML = '<div class="invoice-empty">Lỗi kết nối server</div>';
+    }
+}
+
+/* ===============================
    INVOICE - FROM ORDERS
    =============================== */
-function renderInvoice() {
+function renderInvoice(orders) {
     const content = document.getElementById("invoice-content")
-    if (!content) return
 
-    const tableNumber = document.getElementById("table-number").textContent
-    document.getElementById("invoice-table").textContent = tableNumber
-
-    const orders = Storage.getOrders(tableNumber)
-
-    if (!orders.length) {
+    if (!orders || orders.length === 0) {
         content.innerHTML = `
-            <div class="invoice-empty">
-                Bàn chưa có đơn hàng
+            <div class="invoice-empty" style="text-align:center; padding:40px; color:#888;">
+                <p>Bàn chưa có đơn hàng nào.</p>
+                <button class="btn btn-primary" onclick="switchTab('menu')">Gọi món ngay</button>
             </div>
-        `
-        return
+        `;
+        return;
     }
-
-    // gộp món từ nhiều order
-    const itemsMap = {}
+    // --- LOGIC GỘP MÓN (AGGREGATION) ---
+    const itemsMap = {};
     let total = 0
     orders.forEach(order => {
         order.items.forEach(item => {
-            if (!itemsMap[item.id]) {
-                itemsMap[item.id] = { ...item }
-            } else {
-                itemsMap[item.id].quantity += item.quantity
+            // Dùng tên món làm Key để gộp (hoặc dùng ProductId nếu API trả về)
+            const key = item.productName;
+            if (!itemsMap[key]) {
+                itemsMap[key] = {
+                    name: item.productName,
+                    price: item.unitPrice,
+                    quantity: 0,
+                };
             }
-            total += item.price * item.quantity
-        })
-    })
+            itemsMap[key].quantity += item.quantity;
+            total += (item.unitPrice * item.quantity);
+        });
+    });
     content.innerHTML = `
         <div class="invoice-card">
             <div class="invoice-items">
-                ${Object.values(itemsMap).map(i => `
+                ${Object.values(itemsMap).map(item => `
                     <div class="invoice-item-row">
-                        <span>${i.quantity} x ${i.name}</span>
-                        <span>${formatPrice(i.price * i.quantity)}</span>
+                        <span><b>${item.quantity}x</b> ${item.name}</span>
+                        <span>${formatInvoicePrice(item.price * item.quantity)}</span>
                     </div>
                 `).join("")}
             </div>
@@ -46,9 +80,19 @@ function renderInvoice() {
             <div class="invoice-total">
                 <span>Tổng cộng</span>
                 <span class="invoice-total-price">
-                    ${formatPrice(total)}
+                    ${formatInvoicePrice(total)}
                 </span>
             </div>
+        <div style="margin-top: 20px;">
+                <button onclick="switchTab('payment')" 
+                        style="width:100%; padding:12px; background:var(--color-secondary); color:white; border:none; border-radius:var(--radius); font-weight:bold; cursor:pointer;">
+                    Thanh toán ngay
+                </button>
+            </div>
         </div>
-    `
+    `;
+}
+// Utils riêng cho file này
+function formatInvoicePrice(price) {
+    return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
 }

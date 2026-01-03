@@ -30,3 +30,16 @@
     color: #6b7280;
     padding: 24px;
 }
+/* ... CSS cũ của bạn giữ nguyên ... */
+
+.btn-full {
+    width: 100%;
+    display: block;
+    text-align: center;
+    transition: opacity 0.3s;
+}
+
+.btn-full:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}

@@ -15,6 +15,9 @@
             </div>
             <h1 class="auth-title">Đăng nhập</h1>
             <p class="auth-subtitle">Chào mừng bạn quay trở lại với S2O</p>
+            <div th:if="${param.success}" class="alert alert-success" style="color: green; text-align: center; margin-bottom: 15px;">
+                Đăng ký thành công! Vui lòng đăng nhập.
+            </div>
         </header>
         <div th:if="${error}" class="alert alert-danger" style="color: red; text-align: center; margin-bottom: 15px;">
             <span th:text="${error}"></span>
@@ -46,7 +49,7 @@
 
         <footer class="auth-footer">
             <p class="text-register">
-                Chưa có tài khoản? <a href="/register">Đăng ký ngay</a>
+                Chưa có tài khoản? <a href="/user/register">Đăng ký ngay</a>
             </p>
             <a href="/" class="link-back-home">&larr; Quay lại trang chủ</a>
         </footer>
