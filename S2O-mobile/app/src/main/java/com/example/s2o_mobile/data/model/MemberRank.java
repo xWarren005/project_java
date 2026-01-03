@@ -1,6 +1,8 @@
 package com.example.s2o_mobile.data.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MemberRank implements Serializable {
 
@@ -11,14 +13,11 @@ public class MemberRank implements Serializable {
 
     private double discountPercent;
     private double pointMultiplier;
+    private double minTotalSpend;
+
+    private List<String> benefits = new ArrayList<>();
 
     public MemberRank() {
-    }
-
-    public MemberRank(int id, String code, String name) {
-        this.id = id;
-        this.code = code;
-        this.name = name;
     }
 
     public int getId() {
@@ -45,20 +44,12 @@ public class MemberRank implements Serializable {
         return pointMultiplier;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public double getMinTotalSpend() {
+        return minTotalSpend;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
+    public List<String> getBenefits() {
+        return benefits;
     }
 
     public void setDiscountPercent(double discountPercent) {
@@ -67,5 +58,13 @@ public class MemberRank implements Serializable {
 
     public void setPointMultiplier(double pointMultiplier) {
         this.pointMultiplier = pointMultiplier;
+    }
+
+    public void setMinTotalSpend(double minTotalSpend) {
+        this.minTotalSpend = minTotalSpend;
+    }
+
+    public void setBenefits(List<String> benefits) {
+        this.benefits = benefits;
     }
 }
