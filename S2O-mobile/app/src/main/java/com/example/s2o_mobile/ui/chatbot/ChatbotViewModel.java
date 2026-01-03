@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ChatbotViewModel extends ViewModel {
 
@@ -40,4 +41,24 @@ public class ChatbotViewModel extends ViewModel {
     public LiveData<String> getError() {
         return error;
     }
+
+    public void initIfEmpty() {
+        List<ChatMessage> cur = messages.getValue();
+        if (cur == null || cur.isEmpty()) {
+            List<ChatMessage> init = new ArrayList<>();
+            init.add(new ChatMessage(ChatMessage.Sender.BOT,
+                    "Xin chao, minh co the giup gi cho ban? (goi y: menu, dat ban, thanh toan, voucher)",
+                    System.currentTimeMillis()));
+            messages.setValue(init);
+        }
+    }
+
+    private void append(ChatMessage m) {
+        List<ChatMessage> cur = messages.getValue();
+        if (cur == null) cur = new ArrayList<>();
+        List<ChatMessage> next = new ArrayList<>(cur);
+        next.add(m);
+        messages.setValue(next);
+    }
+
 }
