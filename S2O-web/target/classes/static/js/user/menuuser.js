@@ -6,7 +6,6 @@ function formatPrice(price) {
         currency: "VND",
     }).format(price)
 }
-
 function formatDate(date) {
     return new Date(date).toLocaleString("vi-VN", {
         year: "numeric",
@@ -16,20 +15,22 @@ function formatDate(date) {
         minute: "2-digit",
     })
 }
+// Lấy ID từ HTML
+const restaurantId = document.getElementById("restaurant-id")?.value;
+const tableId = document.getElementById("table-id")?.value;
 
 function generateId() {
     return "id_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9)
 }
-
 /* ========= 2. NAVIGATION ========= */
-function goToHistory() { window.location.href = "history.html" }
-function goToProfile() { window.location.href = "profile.html" }
+function goToHistory() { window.location.href = "/user/history" }
+function goToProfile() { window.location.href = "/user/profile" }
+
 function switchTab(tab) {
     // 1. bỏ active khỏi tất cả nút
     document.querySelectorAll(".tab").forEach(t =>
         t.classList.remove("active")
     )
-
     // 2. active nút đang click
     document.querySelector(`.tab[data-tab="${tab}"]`)
         .classList.add("active")
@@ -44,10 +45,10 @@ function switchTab(tab) {
 /* ========= 3. STORAGE (LocalStorage) ========= */
 const Storage = {
     getCart(table) {
-        return JSON.parse(localStorage.getItem(`cart_${table}`) || "[]")
+        return JSON.parse(localStorage.getItem(`cart_${restaurantId}`) || "[]")
     },
     saveCart(table, cart) {
-        localStorage.setItem(`cart_${table}`, JSON.stringify(cart))
+        localStorage.setItem(`cart_${restaurantId}`, JSON.stringify(cart))
     },
     getOrders(table) {
         return JSON.parse(localStorage.getItem(`orders_${table}`) || "[]")
@@ -57,60 +58,24 @@ const Storage = {
         orders.push(order)
         localStorage.setItem(`orders_${table}`, JSON.stringify(orders))
     },
+    clearCart() {
+        localStorage.removeItem(`cart_res_${restaurantId}`);
+    },
     getCurrentUser() {
         return JSON.parse(localStorage.getItem("currentUser") || "null")
     },
-    addToUserHistory(userId, invoice) {
-        const key = `history_${userId}`
-        const history = JSON.parse(localStorage.getItem(key) || '{"invoices":[],"totalSpent":0,"visitCount":0}')
-        history.invoices.push(invoice)
-        history.totalSpent += invoice.total
-        history.visitCount += 1
-        localStorage.setItem(key, JSON.stringify(history))
-    },
 }
+/* ========= 4. SERVER DATA (Thay thế MockData) ========= */
+let ServerData = {
+    categories: [],
+    menuItems: [],
 
-/* ========= 4. MOCK DATA ========= */
-const MockData = {
-    categories: [
-        { id: "all", name: "Tất cả" },
-        { id: "appetizers", name: "Khai vị" },
-        { id: "main", name: "Món chính" },
-        { id: "drink", name: "Đồ uống" },
-    ],
-
-    menuItems: [
-        {
-            id: "pho",
-            name: "Phở Bò",
-            description: "Phở bò truyền thống",
-            price: 650,
-            category: "main",
-            image: "../../../../../../public/pho-bo-vietnamese-beef-noodle-soup.jpg",
-        },
-        {
-            id: "comtam",
-            name: "Cơm Tấm",
-            description: "Cơm tấm sườn bì",
-            price: 50000,
-            category: "main",
-            image: "../../../../../../public/com-tam-broken-rice.jpg",
-        },
-        {
-            id: "trada",
-            name: "Trà đá",
-            description: "Trà đá mát lạnh",
-            price: 10000,
-            category: "drink",
-            image: "../../../../../../public/iced-tea.jpg",
-        },
-    ],
-
+// Getter giống hệt MockData cũ
     getCategories() { return this.categories },
 
     getMenuItems(category = "all", search = "") {
         let items = this.menuItems
-        if (category !== "all") items = items.filter(i => i.category === category)
+        if (category !== "all"){ items = items.filter(i => i.category === category)}
         if (search) {
             const q = search.toLowerCase()
             items = items.filter(i => i.name.toLowerCase().includes(q))
@@ -119,34 +84,58 @@ const MockData = {
     },
 
     getMenuItem(id) {
-        return this.menuItems.find(i => i.id === id)
+        return this.menuItems.find(i => i.id === id);
     },
 }
 
 /* ========= 5. MENU LOGIC ========= */
 let selectedCategory = "all"
 let cart = []
-const tableNumber = "A5"
-let currentUser = null
 
 /* INIT */
-document.addEventListener("DOMContentLoaded", () => {
-    currentUser = Storage.getCurrentUser()
-    if (!currentUser) return
+document.addEventListener("DOMContentLoaded",async () => {
+    cart = Storage.getCart();
+    // 2. GỌI API LẤY MENU THẬT
+// 2. GỌI API LẤY MENU TỪ DB
+    if(restaurantId) {
+        await fetchMenuData();
+    } else {
+        console.error("Lỗi: Không tìm thấy Restaurant ID");
+    }
 
-    cart = Storage.getCart(tableNumber)
-    loadCategories()
-    loadMenuItems()
-    updateCartBadge()
+    // 3. Update UI
+    updateCartBadge();
+    const totalEl = document.getElementById("cart-total");
+    if(totalEl) totalEl.textContent = "0đ";
+});
+/* --- HÀM GỌI API (Tách ra cho gọn) --- */
+async function fetchMenuData() {
+    try {
+        const res = await fetch('/api/user/menu-data');
+        if(res.ok) {
+            const data = await res.json();
 
-    document.getElementById("table-number").textContent = tableNumber
-    document.getElementById("invoice-table").textContent = tableNumber
-})
+            // Đổ dữ liệu từ API vào biến ServerData
+            ServerData.categories = data.categories;
+            ServerData.menuItems = data.menuItems;
+
+            // Render giao diện
+            loadCategories();
+            loadMenuItems();
+        } else {
+            console.error("Lỗi HTTP:", res.status);
+            if(res.status === 401) window.location.href = "/user/login";
+        }
+    } catch(e) {
+        console.error("Lỗi tải menu:", e);
+        document.getElementById("menu-items").innerHTML = "<div class='empty-state'>Lỗi kết nối server</div>";
+    }
+}
 
 /* ========= CATEGORY ========= */
 function loadCategories() {
     const el = document.getElementById("categories")
-    el.innerHTML = MockData.getCategories().map(c => `
+    el.innerHTML = ServerData.getCategories().map(c => `
     <button class="category-btn ${c.id === selectedCategory ? "active" : ""}" 
       onclick="selectCategory('${c.id}')">${c.name}</button>
   `).join("")
@@ -164,26 +153,30 @@ function searchMenu() { loadMenuItems() }
 function loadMenuItems() {
     const search = document.getElementById("search-input").value
     const el = document.getElementById("menu-items")
-    const items = MockData.getMenuItems(selectedCategory, search)
+    const items = ServerData.getMenuItems(selectedCategory, search)
 
     if (!items.length) {
         el.innerHTML = '<div class="empty-state">Không có món</div>'
         return
     }
 
-    el.innerHTML = items.map(i => `
+    el.innerHTML = items.map(i =>{
+        // Xử lý ảnh null
+        const imgUrl = (i.image && i.image.trim() !== "") ? i.image : "/images/default-food.png";
+
+        return`
     <div class="menu-item-card">
-      <img class="menu-item-image" src="${i.image}" onerror="this.src='../public/placeholder.svg'">
+      <img class="menu-item-image" src="${imgUrl}" onerror="this.src='/images/default-food.png'">
       <div class="menu-item-content">
       <h3 class="menu-item-name">${i.name}</h3>
-      <p class="menu-item-desc">${i.description}</p>
+      <p class="menu-item-desc">${i.description || ''}</p>
       <div class="menu-item-footer">
         <span> &nbsp; ${formatPrice(i.price)}</span>
         <button class="btn-add" onclick="addToCart('${i.id}')">Thêm</button>
       </div>
       </div>
     </div>
-  `).join("")
+  `}).join("")
 }
 
 function renderCart() {
@@ -198,10 +191,10 @@ function renderCart() {
 
     el.innerHTML = cart.map(i => `
         <div class="cart-item">
-            <img class="cart-item-image" src="${i.image}">
+            <img class="cart-item-image" src="${i.image || '/images/default-food.png'}" onerror="this.src='/images/default-food.png'">
             <div class="cart-item-info">
                 <div class="cart-item-name">${i.name}</div>
-                <div class="cart-item-price">${formatPrice(i.price)}</div>
+                <div class="cart-item-price">${formatPrice(i.price * i.quantity)}</div>
 
                 <div class="cart-item-controls">
                     <button class="btn-quantity" onclick="decreaseQty('${i.id}')">−</button>
@@ -224,19 +217,28 @@ function updateCartTotal() {
 
 /* ========= CART ========= */
 function addToCart(id) {
-    const item = MockData.getMenuItem(id)
+    const item = ServerData.getMenuItem(id)
+    if (!item) return;
     const exist = cart.find(i => i.id === id)
-    exist ? exist.quantity++ : cart.push({ ...item, quantity: 1 })
-    Storage.saveCart(tableNumber, cart)
+    if (exist) { exist.quantity++ }
+    else {
+        cart.push({...item, quantity: 1})
+    }
+    Storage.saveCart(null, cart)
     updateCartBadge()
     renderCart()
+// Mở cart ngay (UX)
+const overlay = document.getElementById("cart-overlay");
+if(overlay && !overlay.classList.contains("active")) toggleCart();
 }
 
 function updateCartBadge() {
     const badge = document.getElementById("cart-badge")
-    const total = cart.reduce((s, i) => s + i.quantity, 0)
-    badge.textContent = total
-    badge.style.display = total ? "flex" : "none"
+    if (badge) {
+        const total = cart.reduce((s, i) => s + i.quantity, 0)
+        badge.textContent = total
+        badge.style.display = total ? "flex" : "none"
+    }
 }
 
 function toggleCart() {
@@ -245,51 +247,77 @@ function toggleCart() {
 }
 
 /* ========= ORDER ========= */
-function placeOrder() {
-    if (!cart.length) return
-
-    const total = cart.reduce((s, i) => s + i.price * i.quantity, 0)
-    const order = {
-        id: "ORD-" + Date.now(),
-        tableNumber,
-        items: cart,
-        total,
-        status: "pending",
-        date: new Date().toISOString(),
+async function placeOrder() {
+    if (!cart.length) {
+        alert("Giỏ hàng trống!");
+        return;
     }
+    if (!tableId) {
+        alert("Vui lòng quét lại mã QR tại bàn."); return;
+    }
+    if (!confirm("Xác nhận gửi món xuống bếp?")) return;
+    // Chuẩn bị dữ liệu gửi (UserOrderRequest)
+    const payload = {
+        restaurantId: parseInt(restaurantId),
+        tableId: parseInt(tableId),
+        note: "",
+        items: cart.map(i => ({ productId: parseInt(i.id), quantity: i.quantity }))
+    };
+    const btn = document.querySelector(".cart-footer button");
+    btn.innerText = "Đang gửi...";
+    btn.disabled = true;
+    try {
+        const res = await fetch("/api/user/menu/order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
 
-    Storage.saveOrder(tableNumber, order)
-    cart = []
-    Storage.saveCart(tableNumber, cart)
-    updateCartBadge()
-    toggleCart()
-    alert("Đặt món thành công!")
+        if (res.ok) {
+            alert("Đặt món thành công! Vui lòng đợi nhân viên.");
+            cart = [];
+            Storage.clearCart(); // Xóa cart sau khi đặt xong
+            renderCart();
+            updateCartBadge();
+            toggleCart();
+        } else {
+            const txt = await res.text();
+            if(res.status === 401) window.location.href = "/user/login";
+            else alert("Lỗi: " + txt);
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Lỗi kết nối server!");
+    } finally {
+        btn.innerText = "Đặt món";
+        btn.disabled = false;
+    }
 }
+
 function increaseQty(id) {
     const item = cart.find(i => i.id === id)
     if (!item) return
     item.quantity++
-    saveCartAndUpdate()
+    Storage.saveCart(null, cart)
+    updateCartBadge()
+    renderCart()
 }
 
 function decreaseQty(id) {
     const item = cart.find(i => i.id === id)
     if (!item) return
-
     item.quantity--
     if (item.quantity <= 0) {
         cart = cart.filter(i => i.id !== id)
     }
-    saveCartAndUpdate()
+    Storage.saveCart(null, cart)
+    updateCartBadge()
+    renderCart()
 }
 
 function removeItem(id) {
     cart = cart.filter(i => i.id !== id)
-    saveCartAndUpdate()
-}
-
-function saveCartAndUpdate() {
-    Storage.saveCart(tableNumber, cart)
+    Storage.saveCart(null, cart)
     updateCartBadge()
     renderCart()
 }

@@ -35,7 +35,7 @@ public class WelcomeController {
 // 3. Truyền dữ liệu ra view
         model.addAttribute("tableName", table.getTableName());
         model.addAttribute("restaurantId", table.getRestaurantId());
-        model.addAttribute("TABLE_ID", table.getId());
+        model.addAttribute("tableId", table.getId());
         return "user/welcome";
     }
 }

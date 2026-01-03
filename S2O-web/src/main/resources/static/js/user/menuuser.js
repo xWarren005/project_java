@@ -41,6 +41,26 @@ function switchTab(tab) {
     // 4. hiện tab được chọn
     document.getElementById(`tab-${tab}`)
         .classList.add("active")
+    // 2. KẾT NỐI VỚI FILE orders.js
+    if (tab === 'orders') {
+        // Kiểm tra xem hàm loadOrderHistory đã tồn tại chưa (do file orders.js load)
+        if (typeof loadOrderHistory === "function") {
+            loadOrderHistory(true);
+        if (typeof startOrderPolling === "function") {
+            startOrderPolling();
+        }
+        }
+    }
+    if (tab === 'invoice') {
+        if (typeof loadInvoice === "function") {
+            loadInvoice();
+        }
+    }
+    if (tab === 'payment') {
+        if (typeof renderPayment === "function") {
+            renderPayment();
+        }
+    }
 }
 /* ========= 3. STORAGE (LocalStorage) ========= */
 const Storage = {

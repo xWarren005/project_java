@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lịch sử - Nhà hàng Phố</title>
-    <link rel="stylesheet" href="../../static/css/user/menuuser.css">
-    <link rel="stylesheet" href="../../static/css/user/history.css">
+    <link rel="stylesheet" th:href="@{/css/user/menuuser.css}">
+    <link rel="stylesheet" th:href="@{/css/user/history.css}">
 </head>
 <body>
 <header class="header">
@@ -56,6 +56,6 @@
         <span>Tài khoản</span>
     </button>
 </nav>
-<script src="../../static/js/user/history.js"></script>
+<script th:src="@{/js/user/history.js}"></script>
 </body>
 </html>

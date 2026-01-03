@@ -1,85 +1,123 @@
 package com.example.s2o_mobile.ui.search;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.s2o_mobile.R;
+import com.example.s2o_mobile.base.BaseActivity;
 import com.example.s2o_mobile.data.model.Restaurant;
-import com.example.s2o_mobile.data.repository.RepositoryCallback;
-import com.example.s2o_mobile.data.repository.RestaurantRepository;
+import com.example.s2o_mobile.ui.restaurant.detail.RestaurantDetailActivity;
+import com.example.s2o_mobile.ui.restaurant.list.RestaurantAdapter;
+import com.example.s2o_mobile.ui.restaurant.list.RestaurantClickListener;
+import com.example.s2o_mobile.ui.restaurant.list.RestaurantListViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SearchViewModel extends ViewModel {
+public class SearchViewModel extends BaseActivity
+        implements RestaurantClickListener {
 
-    private final RestaurantRepository repository;
+    private EditText edtSearch;
+    private RecyclerView rvResult;
+    private View progress;
+    private View emptyView;
 
-    private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
-    private final MutableLiveData<String> error = new MutableLiveData<>(null);
-    private final MutableLiveData<List<Restaurant>> results =
-            new MutableLiveData<>(new ArrayList<>());
+    private RestaurantAdapter adapter;
+    private RestaurantListViewModel viewModel;
 
-    public SearchViewModel(RestaurantRepository repository) {
-        this.repository = repository;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_search);
+
+        bindViews();
+        setupRecyclerView();
+        setupViewModel();
+        setupSearchListener();
+        observeViewModel();
     }
 
-    public SearchViewModel() {
-        this.repository = new RestaurantRepository();
+    private void bindViews() {
+        edtSearch = findViewById(R.id.edtSearch);
+        rvResult = findViewById(R.id.rvResult);
+        progress = findViewById(R.id.progress);
+        emptyView = findViewById(R.id.emptyView);
     }
 
-
-    public LiveData<Boolean> getLoading() {
-        return loading;
+    private void setupRecyclerView() {
+        adapter = new RestaurantAdapter(false, this);
+        rvResult.setLayoutManager(new LinearLayoutManager(this));
+        rvResult.setAdapter(adapter);
     }
 
-    public LiveData<String> getError() {
-        return error;
+    private void setupViewModel() {
+        viewModel = new ViewModelProvider(this)
+                .get(RestaurantListViewModel.class);
     }
 
-    public LiveData<List<Restaurant>> getResults() {
-        return results;
-    }
-
-    public void search(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            results.setValue(new ArrayList<>());
-            return;
-        }
-
-        loading.setValue(true);
-        error.setValue(null);
-
-        repository.getAllRestaurants(new RepositoryCallback<List<Restaurant>>() {
+    private void setupSearchListener() {
+        edtSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onSuccess(List<Restaurant> data) {
-                loading.postValue(false);
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-                List<Restaurant> filtered = new ArrayList<>();
-                for (Restaurant r : data) {
-                    if (r == null) continue;
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
-                    String name = safe(r.getName());
-                    String address = safe(r.getAddress());
-
-                    if (name.toLowerCase().contains(keyword.toLowerCase())
-                            || address.toLowerCase().contains(keyword.toLowerCase())) {
-                        filtered.add(r);
-                    }
+            @Override
+            public void afterTextChanged(Editable s) {
+                String keyword = s.toString().trim();
+                if (keyword.isEmpty()) {
+                    adapter.submitList(Collections.emptyList());
+                    setVisible(emptyView, false);
+                } else {
+                    viewModel.search(keyword);
                 }
-
-                results.postValue(filtered);
-            }
-
-            @Override
-            public void onError(String message) {
-                loading.postValue(false);
-                error.postValue(message == null ? "Loi tim kiem" : message);
             }
         });
     }
 
-    private String safe(String s) {
-        return s == null ? "" : s;
+    private void observeViewModel() {
+        viewModel.getLoading().observe(this,
+                isLoading -> setVisible(progress, Boolean.TRUE.equals(isLoading)));
+
+        viewModel.getRestaurants().observe(this, list -> {
+            List<Restaurant> safe = list == null
+                    ? Collections.emptyList()
+                    : list;
+
+            adapter.submitList(safe);
+            setVisible(emptyView, safe.isEmpty());
+        });
+
+        viewModel.getErrorMessage().observe(this, msg -> {
+            if (msg != null && !msg.trim().isEmpty()) {
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setVisible(View v, boolean visible) {
+        if (v == null) return;
+        v.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void onRestaurantClick(@NonNull Restaurant restaurant) {
+        Intent intent = new Intent(this, RestaurantDetailActivity.class);
+        intent.putExtra(
+                RestaurantDetailActivity.EXTRA_RESTAURANT_ID,
+                restaurant.getId()
+        );
+        startActivity(intent);
     }
 }
