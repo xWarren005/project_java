@@ -100,9 +100,16 @@
 <!-- Cart Sidebar -->
 <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
 <div class="cart-sidebar" id="cart-sidebar">
-    <div class="cart-header">
+    <div class="cart-header" style="display: flex; align-items: center;">
+        <button onclick="toggleCart()" class="btn-back-sidebar" title="Đóng giỏ hàng">
+            <svg class="icon-back-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <div>
         <h3>Giỏ hàng</h3>
         <p id="cart-count">Giỏ hàng trống</p>
+            </div>
     </div>
     <div class="cart-items" id="cart-items">
         <!-- Cart items will be loaded here -->

@@ -1,6 +1,6 @@
 const staticUI = {
     menu: [
-        { id: "menu_cal", icon: "far fa-calendar-alt", label: "Lịch của tôi", action: "history" },
+        { id: "menu_cal", icon: "far fa-calendar-alt", label: "Lịch sử", action: "history" },
         { id: "menu_vou", icon: "fas fa-gift", label: "Voucher của tôi", action: "voucher" }
     ],
     actions: [
