@@ -17,7 +17,10 @@ import com.example.s2o_mobile.ui.auth.login.LoginActivity;
 public class ProfileActivity extends AppCompatActivity {
 
     private ProfileViewModel viewModel;
+
     private TextView tvName;
+    private TextView tvEmail;
+    private TextView tvPhone;
     private Button btnLogout;
 
     @Override
@@ -29,10 +32,15 @@ public class ProfileActivity extends AppCompatActivity {
         root.setOrientation(LinearLayout.VERTICAL);
 
         tvName = new TextView(this);
+        tvEmail = new TextView(this);
+        tvPhone = new TextView(this);
+
         btnLogout = new Button(this);
         btnLogout.setText("Đăng xuất");
 
         root.addView(tvName);
+        root.addView(tvEmail);
+        root.addView(tvPhone);
         root.addView(btnLogout);
 
         setContentView(root);
@@ -50,9 +58,14 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void renderUser(User u) {
         if (u == null) {
-            tvName.setText("Chưa đăng nhập");
-        } else {
-            tvName.setText("Xin chào: " + u.toString());
+            tvName.setText("Họ tên: ?");
+            tvEmail.setText("Email: ?");
+            tvPhone.setText("SĐT: ?");
+            return;
         }
+
+        tvName.setText("Họ tên: " + u.getName());
+        tvEmail.setText("Email: " + u.getEmail());
+        tvPhone.setText("SĐT: " + u.getPhone());
     }
 }
