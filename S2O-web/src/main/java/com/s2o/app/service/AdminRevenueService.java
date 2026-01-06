@@ -1,45 +1,44 @@
 package com.s2o.app.service;
 
 import com.s2o.app.dto.TransactionDTO;
+import com.s2o.app.entity.Order;
+import com.s2o.app.repository.OrderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminRevenueService {
 
-    private List<TransactionDTO> transactionList = new ArrayList<>();
+    @Autowired
+    private OrderRepository orderRepository;
 
-    public AdminRevenueService() {
-        // Mock Data: Khớp với dữ liệu mẫu trong file JS
-        transactionList.add(new TransactionDTO(1L, "2024-01-15", "Phở 24", "Premium", 299.0, 45.0));
-        transactionList.add(new TransactionDTO(2L, "2024-01-15", "Sushi World", "Enterprise", 599.0, 90.0));
-        transactionList.add(new TransactionDTO(3L, "2024-01-14", "BBQ House", "Basic", 99.0, 15.0));
-        transactionList.add(new TransactionDTO(4L, "2024-01-14", "Vegan Garden", "Premium", 299.0, 45.0));
-        transactionList.add(new TransactionDTO(5L, "2024-01-13", "Pizza Express", "Basic", 99.0, 15.0));
-        transactionList.add(new TransactionDTO(6L, "2024-01-12", "Burger King", "Enterprise", 599.0, 90.0));
-        transactionList.add(new TransactionDTO(7L, "2024-01-11", "Kichi Kichi", "Premium", 299.0, 45.0));
-        transactionList.add(new TransactionDTO(8L, "2024-01-10", "The Coffee House", "Basic", 99.0, 15.0));
-    }
-
-    // 1. Lấy danh sách giao dịch
     public List<TransactionDTO> getAllTransactions() {
-        return transactionList;
+        // Lấy 10 đơn hàng mới nhất
+        List<Order> orders = orderRepository.findTop10ByOrderByCreatedAtDesc();
+
+        return orders.stream().map(o -> {
+            String resName = "Unknown";
+            // Code đồng đội dùng FetchType.LAZY, cần cẩn thận null pointer
+            if (o.getRestaurant() != null) {
+                resName = o.getRestaurant().getName();
+            }
+
+            return new TransactionDTO(
+                    o.getId().longValue(), // Order ID Integer -> Long
+                    o.getCreatedAt() != null ? o.getCreatedAt().toString() : "N/A",
+                    resName,
+                    "Standard",
+                    o.getTotalAmount() != null ? o.getTotalAmount().doubleValue() : 0.0,
+                    o.getTotalAmount() != null ? o.getTotalAmount().doubleValue() * 0.1 : 0.0
+            );
+        }).collect(Collectors.toList());
     }
 
-    // 2. Doanh thu hôm nay (Giả lập số liệu)
-    public String getTodayRevenue() {
-        return "$2,847";
-    }
-
-    // 3. Doanh thu tháng này
-    public String getMonthRevenue() {
-        return "$48,392";
-    }
-
-    // 4. Dự đoán doanh thu tháng sau
-    public String getPredictedRevenue() {
-        return "$54,200";
-    }
+    // Các hàm thống kê tạm giữ nguyên hoặc trả về String tĩnh
+    public String getTodayRevenue() { return "$0"; }
+    public String getMonthRevenue() { return "$0"; }
+    public String getPredictedRevenue() { return "$0"; }
 }
