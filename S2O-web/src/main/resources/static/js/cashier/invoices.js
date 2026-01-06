@@ -2,7 +2,6 @@
 
 // Biến lưu trữ dữ liệu toàn cục
 let invoicesData = [];
-// SỬA: Mặc định filter là UNPAID (in hoa)
 let currentFilter = 'UNPAID';
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -11,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if(typeof renderCashierMenu === 'function') renderCashierMenu('invoices');
 
     fetchInvoices();
+    // Tự động refresh sau mỗi 30s
     setInterval(fetchInvoices, 30000);
 });
 
@@ -22,6 +22,7 @@ async function fetchInvoices() {
 
         invoicesData = await response.json();
         updateStats();
+        // Giữ nguyên tab đang chọn khi reload
         filterInvoices(currentFilter);
     } catch (error) {
         console.error('Error fetching invoices:', error);
@@ -36,9 +37,11 @@ function filterInvoices(status) {
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
     const btns = document.querySelectorAll('.filter-btn');
 
-    // SỬA: Check active theo UNPAID/PAID
-    if(status === 'UNPAID') btns[0].classList.add('active');
-    else btns[1].classList.add('active');
+    if(status === 'UNPAID') {
+        if(btns[0]) btns[0].classList.add('active');
+    } else {
+        if(btns[1]) btns[1].classList.add('active');
+    }
 
     // Filter Data
     const filtered = invoicesData.filter(inv => inv.status === status);
@@ -53,10 +56,9 @@ function filterInvoices(status) {
     }
 
     container.innerHTML = filtered.map(inv => {
-        // SỬA: So sánh với 'UNPAID'
         const badgeClass = inv.status === 'UNPAID' ? 'unpaid' : 'paid';
         const badgeText = inv.status === 'UNPAID' ? 'Chờ thanh toán' : 'Đã thanh toán';
-        // SỬA: So sánh với 'PAID'
+
         const methodText = inv.status === 'PAID' && inv.method
             ? `<span style="font-size:0.8rem; color:#00b894; margin-left:10px;">(${inv.method})</span>`
             : '';
@@ -89,14 +91,18 @@ function filterInvoices(status) {
 
 /* --- 2. STATS --- */
 function updateStats() {
-    // SỬA: Filter theo 'PAID'
     const paidInvoices = invoicesData.filter(i => i.status === 'PAID');
     const totalRevenue = paidInvoices.reduce((sum, item) => sum + item.total, 0);
     const avg = paidInvoices.length ? totalRevenue / paidInvoices.length : 0;
 
-    document.getElementById('stat-count').innerText = invoicesData.length;
-    document.getElementById('stat-revenue').innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenue);
-    document.getElementById('stat-avg').innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(avg);
+    const countEl = document.getElementById('stat-count');
+    if(countEl) countEl.innerText = invoicesData.length;
+
+    const revEl = document.getElementById('stat-revenue');
+    if(revEl) revEl.innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenue);
+
+    const avgEl = document.getElementById('stat-avg');
+    if(avgEl) avgEl.innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(avg);
 }
 
 /* --- 3. MODAL LOGIC --- */
@@ -120,9 +126,9 @@ function openInvoiceDetail(id) {
     const actionContainer = document.getElementById('m-actions');
     const paymentInfoBox = document.getElementById('m-payment-info');
 
-    // SỬA: Check 'UNPAID'
     if (inv.status === 'UNPAID') {
         paymentInfoBox.style.display = 'none';
+        // Nút Thanh Toán gọi hàm goToPayment
         actionContainer.innerHTML = `
             <button class="btn-print" onclick="printInvoice('${inv.id}')">
                 <i class="fa-solid fa-print"></i> In Bill
@@ -133,7 +139,7 @@ function openInvoiceDetail(id) {
         `;
     } else {
         paymentInfoBox.style.display = 'block';
-        document.getElementById('m-method').innerText = inv.method;
+        document.getElementById('m-method').innerText = inv.method || 'N/A';
         actionContainer.innerHTML = `
              <button class="btn-print" style="width:100%" onclick="printInvoice('${inv.id}')">
                 <i class="fa-solid fa-print"></i> In Lại Hóa Đơn
@@ -159,10 +165,17 @@ function printInvoice(id) {
     alert(`Đang gửi lệnh in hóa đơn ${id}...`);
 }
 
+// [UPDATED] Hàm chuyển hướng thanh toán
 function goToPayment(id) {
+    // id tham số là chuỗi hiển thị (ví dụ: INV-001)
     const inv = invoicesData.find(i => i.id === id);
-    if (inv) {
-        localStorage.setItem('pendingInvoice', JSON.stringify(inv));
-        window.location.href = '/cashier/payment';
+
+    // Kiểm tra xem có orderId (Long/Int từ DB) không
+    if (inv && inv.orderId) {
+        // Chuyển hướng sang trang Payment với Query Param
+        window.location.href = `/cashier/payment?orderId=${inv.orderId}`;
+    } else {
+        alert("Không tìm thấy dữ liệu đơn hàng để thanh toán!");
+        console.error("Missing orderId for invoice:", inv);
     }
 }
