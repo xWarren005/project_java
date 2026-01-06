@@ -33,6 +33,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     // --- GIỮ NGUYÊN ---
     long countByRestaurantIdAndStatus(Integer restaurantId, String status);
 
+
     Optional<Order> findFirstByTableIdAndStatusInOrderByCreatedAtDesc(
             Integer tableId,
             List<OrderStatus> statuses
@@ -42,4 +43,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             "WHERE o.restaurantId = :restaurantId " +
             "ORDER BY o.createdAt DESC")
     List<Order> findOrdersByRestaurantId(@Param("restaurantId") Integer restaurantId);
+
+    List<Order> findTop10ByOrderByCreatedAtDesc();
 }

@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
+    long countByApprovalStatus(String approvalStatus);
     // JpaRepository đã có sẵn các hàm save, findById
 }
