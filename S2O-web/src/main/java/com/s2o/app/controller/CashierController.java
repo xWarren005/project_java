@@ -10,7 +10,13 @@ public class CashierController {
 
     // URL: http://localhost:8080/cashier/tables
     @GetMapping("/tables")
-    public String showDashboard() {
+    public String showTable() {
         return "cashier/tables";
+    }
+
+    // URL: http://localhost:8080/cashier/invoices
+    @GetMapping("/invoices")
+    public String showInvoices() {
+        return "cashier/invoices";
     }
 }
