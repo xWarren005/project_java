@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>Quản Lý Hóa Đơn</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="../../static/css/cashier/header.css">
-  <link rel="stylesheet" href="../../static/css/cashier/tables.css">
-  <link rel="stylesheet" href="../../static/css/cashier/invoices.css">
+  <link rel="stylesheet" th:href="@{/css/cashier/header.css}">
+  <link rel="stylesheet" th:href="@{/css/cashier/invoices.css}">
 </head>
 <body>
 
@@ -30,10 +29,10 @@
   </div>
 
   <div class="invoice-section-header">
-    <h3 class="section-title" style="margin:0">Danh Sách Hóa Đơn</h3>
+    <h3 class="section-title">Danh Sách Hóa Đơn</h3>
     <div class="filter-tabs">
-      <button class="filter-btn active" onclick="filterInvoices('unpaid')">Chờ Thanh Toán</button>
-      <button class="filter-btn" onclick="filterInvoices('paid')">Lịch Sử (Đã Thu)</button>
+      <button class="filter-btn active" onclick="filterInvoices('UNPAID')">Chờ Thanh Toán</button>
+      <button class="filter-btn" onclick="filterInvoices('PAID')">Lịch Sử (Đã Thu)</button>
     </div>
   </div>
 
@@ -41,7 +40,7 @@
   </div>
 </main>
 
-<div id="invoice-modal" class="modal-overlay">
+<div id="invoice-modal" class="modal-overlay" style="display: none;">
   <div class="modal-content invoice-modal-size">
     <span class="close-btn" onclick="closeModal()">&times;</span>
 
@@ -82,13 +81,7 @@
   </div>
 </div>
 
-<script src="../../static/js/cashier/header.js"></script>
-<script src="../../static/js/cashier/invoices.js"></script>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    renderTopHeader();
-    renderCashierMenu('invoices');
-  });
-</script>
+<script th:src="@{/js/cashier/header.js}"></script>
+<script th:src="@{/js/cashier/invoices.js}"></script>
 </body>
 </html>
