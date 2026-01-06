@@ -19,4 +19,10 @@ public class CashierController {
     public String showInvoices() {
         return "cashier/invoices";
     }
+
+    // URL: http://localhost:8080/cashier/payment
+    @GetMapping("/payment")
+    public String showPayment() {
+        return "cashier/payment";
+    }
 }
