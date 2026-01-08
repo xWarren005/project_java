@@ -3,48 +3,129 @@ package com.s2o.app.service;
 import com.s2o.app.dto.ActivityLogDTO;
 import com.s2o.app.dto.RestaurantDTO;
 import com.s2o.app.dto.StatItem;
+import com.s2o.app.entity.Order;
+import com.s2o.app.entity.Restaurant;
+import com.s2o.app.repository.OrderRepository;
+import com.s2o.app.repository.RestaurantRepository;
+import com.s2o.app.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
+import java.text.NumberFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminDashboardService {
 
-    // 1. Thống kê 4 thẻ bài (Stats Cards)
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private OrderRepository orderRepository;
+
+    // 1. STATS CARDS (THẬT)
     public List<StatItem> getStats() {
+        // [SỬA LẠI]: Đếm theo PENDING vì DB của bạn đang dùng trạng thái này
+        // Khi nào bạn duyệt nhà hàng thành ACTIVE/APPROVED thì sửa lại dòng này sau.
+        long activeRestaurants = restaurantRepository.countByApprovalStatus("APPROVED");
+
+        // Đếm User
+        long totalUsers = userRepository.count();
+
+        // Tổng doanh thu
+        Double revenue = orderRepository.sumTotalRevenue();
+        if (revenue == null) { revenue = 0.0; } // Xử lý null
+
+        NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+        String revenueStr = nf.format(revenue);
+
         return Arrays.asList(
-                new StatItem("Nhà hàng Hoạt động", "248", "↗ +12.5%", true, "store", "icon-blue"),
-                new StatItem("Tổng Người dùng", "12,458", "↗ +8.2%", true, "users", "icon-purple"),
-                new StatItem("Doanh thu Tháng", "$48,392", "↗ +15.3%", true, "dollar-sign", "icon-green"),
-                new StatItem("Uptime Hệ thống", "99.8%", "↘ -0.1%", false, "activity", "icon-pink")
+                new StatItem("Nhà hàng (Chờ duyệt)", String.valueOf(activeRestaurants), "", true, "store", "icon-blue"),
+                new StatItem("Tổng Người dùng", String.valueOf(totalUsers), "", true, "users", "icon-purple"),
+                new StatItem("Tổng Doanh thu", revenueStr, "", true, "dollar-sign", "icon-green"),
+                new StatItem("Hệ thống", "Online", "", true, "activity", "icon-pink")
         );
     }
 
-    // 2. Dữ liệu biểu đồ (Chart Data)
-    public List<Integer> getRevenueChartData() {
-        return Arrays.asList(15000, 22000, 18000, 30000, 35000, 48392);
+    // 2. BIỂU ĐỒ DOANH THU (THẬT)
+    public Map<String, Object> getRevenueChartData() {
+        List<Object[]> rawData = orderRepository.getMonthlyRevenue();
+
+        List<String> labels = new ArrayList<>();
+        List<Double> data = new ArrayList<>();
+        Map<Integer, Double> revenueMap = new HashMap<>();
+
+        // [QUAN TRỌNG]: SỬA LỖI ÉP KIỂU GÂY TREO API
+        // Dùng ((Number) val).doubleValue() để chấp nhận cả BigDecimal và Integer
+        for (Object[] row : rawData) {
+            if (row[0] != null && row[1] != null) {
+                try {
+                    Integer month = ((Number) row[0]).intValue();
+                    Double total = ((Number) row[1]).doubleValue();
+                    revenueMap.put(month, total);
+                } catch (Exception e) {
+                    System.err.println("Lỗi convert data biểu đồ: " + e.getMessage());
+                }
+            }
+        }
+
+        // Tạo dữ liệu cho 6 tháng đầu năm
+        for (int i = 1; i <= 6; i++) {
+            labels.add("Tháng " + i);
+            data.add(revenueMap.getOrDefault(i, 0.0));
+        }
+
+        Map<String, Object> chartResult = new HashMap<>();
+        chartResult.put("labels", labels);
+        chartResult.put("data", data);
+        return chartResult;
     }
 
-    // 3. Danh sách nhà hàng mới (Widget bên trái)
+    // 3. NHÀ HÀNG MỚI (THẬT)
     public List<RestaurantDTO> getNewRestaurants() {
-        return Arrays.asList(
-                new RestaurantDTO("Phở 24", "Quận 1, TP.HCM", "2 giờ trước", "Hoạt động", "success"),
-                new RestaurantDTO("Sushi World", "Quận 3, TP.HCM", "5 giờ trước", "Hoạt động", "success"),
-                new RestaurantDTO("BBQ House", "Cầu Giấy, HN", "1 ngày trước", "Đóng cửa", "error"),
-                new RestaurantDTO("Kichi Kichi", "Bình Thạnh", "2 ngày trước", "Hoạt động", "success"),
-                new RestaurantDTO("Pizza 4P's", "Đà Nẵng", "3 ngày trước", "Đang xét duyệt", "warning")
-        );
+        List<Restaurant> list = restaurantRepository.findAll();
+        // Sort trong Java để tránh lỗi DB nếu chưa index
+        list.sort((r1, r2) -> r2.getId().compareTo(r1.getId()));
+
+        return list.stream().limit(5).map(r -> new RestaurantDTO(
+                r.getId(),
+                r.getName(),
+                r.getAddress(),
+                r.getApprovalStatus() != null ? r.getApprovalStatus() : "UNKNOWN",
+                r.getRating() != null ? r.getRating() : 0.0
+        )).collect(Collectors.toList());
     }
 
-    // 4. Hoạt động gần đây (Widget bên phải)
+    // 4. HOẠT ĐỘNG GẦN ĐÂY
     public List<ActivityLogDTO> getRecentActivities() {
-        return Arrays.asList(
-                new ActivityLogDTO("14:30", "admin@system.com", "Phê duyệt", "Duyệt nhà hàng Phở 24", "Thành công", "success"),
-                new ActivityLogDTO("13:20", "user123@gmail.com", "Đặt bàn", "Đặt bàn 4 người", "Thành công", "success"),
-                new ActivityLogDTO("12:50", "manager@bbq.com", "Menu", "Thêm món sườn nướng", "Thành công", "success"),
-                new ActivityLogDTO("11:15", "system@bot", "Backup", "Sao lưu dữ liệu", "Cảnh báo", "warning"),
-                new ActivityLogDTO("09:30", "guest@email.com", "Login", "Sai mật khẩu 3 lần", "Lỗi", "error")
-        );
+        List<Order> orders = orderRepository.findTop5ByOrderByCreatedAtDesc();
+
+        return orders.stream().map(o -> {
+            String time = o.getCreatedAt() != null ?
+                    o.getCreatedAt().format(DateTimeFormatter.ofPattern("HH:mm")) : "-";
+
+            String statusColor = "success";
+            if("PENDING".equals(o.getStatus())) statusColor = "warning";
+            if("CANCELLED".equals(o.getStatus())) statusColor = "error";
+
+            // Format tiền
+            String totalStr = "0 đ";
+            if(o.getTotalAmount() != null) {
+                NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
+                totalStr = nf.format(o.getTotalAmount());
+            }
+
+            return new ActivityLogDTO(
+                    time,
+                    "Đơn #" + o.getId(),
+                    "Đặt món",
+                    "Tổng: " + totalStr,
+                    o.getStatus(),
+                    statusColor
+            );
+        }).collect(Collectors.toList());
     }
 }

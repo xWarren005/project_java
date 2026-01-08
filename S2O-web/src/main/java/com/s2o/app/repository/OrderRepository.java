@@ -43,6 +43,17 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             "WHERE o.restaurantId = :restaurantId " +
             "ORDER BY o.createdAt DESC")
     List<Order> findOrdersByRestaurantId(@Param("restaurantId") Integer restaurantId);
-
     List<Order> findTop10ByOrderByCreatedAtDesc();
+    List<Order> findTop5ByOrderByCreatedAtDesc();
+
+    @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.status = 'PAID'")
+    Double sumTotalRevenue();
+
+    // 2. [QUAN TRỌNG] Dùng nativeQuery = true để chạy SQL thuần, tránh lỗi Hibernate
+    @Query(value = "SELECT MONTH(created_at) as month, SUM(total_amount) as total " +
+            "FROM orders " +
+            "WHERE status = 'PAID' AND YEAR(created_at) = YEAR(CURRENT_DATE()) " +
+            "GROUP BY MONTH(created_at) " +
+            "ORDER BY MONTH(created_at)", nativeQuery = true)
+    List<Object[]> getMonthlyRevenue();
 }
