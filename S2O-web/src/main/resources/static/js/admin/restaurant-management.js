@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputAddress = document.getElementById('resAddress');
     const modalTitle = document.getElementById('modalTitle');
     const btnSave = document.getElementById('btnSave');
-
+    const searchInput = document.querySelector('.search-input');
     // Biến lưu danh sách (để tìm dữ liệu khi sửa)
     let allRestaurants = [];
 
@@ -28,12 +28,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('res-total').innerText = data.total;
                 document.getElementById('res-pending').innerText = data.pending;
                 document.getElementById('res-rating').innerText = data.rating;
-
+                if(searchInput) searchInput.value = "";
                 renderTable(allRestaurants);
             }
         } catch (e) { console.error(e); }
     }
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const keyword = e.target.value.toLowerCase().trim();
 
+            // Lọc mảng allRestaurants
+            const filtered = allRestaurants.filter(r =>
+                (r.name && r.name.toLowerCase().includes(keyword)) ||
+                (r.address && r.address.toLowerCase().includes(keyword))
+            );
+
+            renderTable(filtered); // Vẽ lại bảng với dữ liệu đã lọc
+        });
+    }
     // A. Hàm thực thi THÊM MỚI (POST)
     async function executeCreate() {
         const name = inputName.value.trim();
@@ -129,6 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render Bảng
     function renderTable(data) {
         tableBody.innerHTML = '';
+        if (data.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px;">Không tìm thấy kết quả</td></tr>`;
+            return;
+        }
         data.forEach(item => {
             const row = document.createElement('tr');
 

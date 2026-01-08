@@ -1,8 +1,10 @@
 package com.s2o.app.controller;
 
 import com.s2o.app.dto.RestaurantDTO;
+import com.s2o.app.dto.UserDTO;
 import com.s2o.app.service.AdminDashboardService;
 import com.s2o.app.service.AdminRestaurantService;
+import com.s2o.app.service.AdminUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,8 @@ public class AdminRestController {
 
     @Autowired
     private AdminRestaurantService restaurantService;
+    @Autowired
+    private AdminUserService adminUserService;
 
     @GetMapping("/dashboard/stats")
     public ResponseEntity<?> getDashboardStats() {
@@ -79,5 +83,34 @@ public class AdminRestController {
     public ResponseEntity<?> updateRestaurant(@PathVariable Long id, @RequestBody RestaurantDTO dto) {
         restaurantService.updateRestaurant(id, dto);
         return ResponseEntity.ok("Cập nhật thành công");
+    }
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllUsers() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("list", adminUserService.getAllUsers());
+        data.put("total", adminUserService.getTotalUsers());
+        return ResponseEntity.ok(data);
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<?> createUser(@RequestBody UserDTO dto) {
+        try {
+            adminUserService.createUser(dto);
+            return ResponseEntity.ok("Thêm thành công");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody UserDTO dto) {
+        adminUserService.updateUser(id, dto);
+        return ResponseEntity.ok("Cập nhật thành công");
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Integer id) {
+        adminUserService.deleteUser(id);
+        return ResponseEntity.ok("Xóa thành công");
     }
 }

@@ -16,7 +16,9 @@
             <h1 class="auth-title">Đăng nhập hệ thống</h1>
             <p class="auth-subtitle">Dành cho nhân viên và quản lý nhà hàng</p>
         </header>
-
+        <div th:if="${error}" class="alert-error" style="background: #fee2e2; color: #b91c1c; padding: 12px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-size: 14px;">
+            <span th:text="${error}"></span>
+        </div>
         <form action="/system/login" method="POST" class="system-login-form">
             <div class="role-selection-group">
                 <p class="role-label">Chọn chức năng của bạn</p>
