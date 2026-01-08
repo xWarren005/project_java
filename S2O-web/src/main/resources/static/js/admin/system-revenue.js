@@ -1,167 +1,89 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // =========================================
-    // 1. MOCK DATA (Dữ liệu giả lập)
-    // =========================================
-    const transactions = [
-        {
-            id: 1,
-            date: '2024-01-15',
-            restaurant: 'Phở 24',
-            package: 'Premium',
-            amount: 299,
-            commission: 45
-        },
-        {
-            id: 2,
-            date: '2024-01-15',
-            restaurant: 'Sushi World',
-            package: 'Enterprise',
-            amount: 599,
-            commission: 90
-        },
-        {
-            id: 3,
-            date: '2024-01-14',
-            restaurant: 'BBQ House',
-            package: 'Basic',
-            amount: 99,
-            commission: 15
-        },
-        {
-            id: 4,
-            date: '2024-01-14',
-            restaurant: 'Vegan Garden',
-            package: 'Premium',
-            amount: 299,
-            commission: 45
-        },
-        {
-            id: 5,
-            date: '2024-01-13',
-            restaurant: 'Pizza Express',
-            package: 'Basic',
-            amount: 99,
-            commission: 15
-        },
-        {
-            id: 6,
-            date: '2024-01-12',
-            restaurant: 'Burger King',
-            package: 'Enterprise',
-            amount: 599,
-            commission: 90
-        },
-        {
-            id: 7,
-            date: '2024-01-11',
-            restaurant: 'Kichi Kichi',
-            package: 'Premium',
-            amount: 299,
-            commission: 45
-        },
-        {
-            id: 8,
-            date: '2024-01-10',
-            restaurant: 'The Coffee House',
-            package: 'Basic',
-            amount: 99,
-            commission: 15
-        }
-    ];
-
-    // =========================================
-    // 2. DOM ELEMENTS
-    // =========================================
-    const tableBody = document.querySelector('#revenueTable tbody');
+    // DOM ELEMENTS
+    const tableBody = document.getElementById('revenueTableBody');
     const searchInput = document.getElementById('searchInput');
 
-    // =========================================
-    // 3. HELPER FUNCTIONS
-    // =========================================
+    const elToday = document.getElementById('sys-today');
+    const elMonth = document.getElementById('sys-month');
+    const elYear = document.getElementById('sys-year');
 
-    // Format tiền tệ ($)
+    let restaurantList = [];
+
+    // Helper: Format tiền tệ
     const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-US', {
+        if (!amount && amount !== 0) return '0 đ';
+        return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 0
+            currency: 'VND'
         }).format(amount);
     };
 
-    // Lấy class badge dựa trên tên gói
-    const getBadgeClass = (pkg) => {
-        const lowerPkg = pkg.toLowerCase();
-        if (lowerPkg === 'enterprise') return 'badge-enterprise';
-        if (lowerPkg === 'premium') return 'badge-premium';
-        return 'badge-basic';
-    };
+    // 1. LOAD DATA TỪ API
+    async function loadRevenueData() {
+        try {
+            const res = await fetch('/api/admin/revenue');
+            if(res.ok) {
+                const data = await res.json();
 
-    // =========================================
-    // 4. RENDER FUNCTION
-    // =========================================
+                // Cập nhật 3 ô thống kê
+                if(elToday) elToday.innerText = formatCurrency(data.systemRevenueToday);
+                if(elMonth) elMonth.innerText = formatCurrency(data.systemRevenueMonth);
+                if(elYear) elYear.innerText = formatCurrency(data.systemRevenueYear);
+
+                // Lưu danh sách nhà hàng
+                restaurantList = data.restaurantStats;
+
+                // Xóa ô tìm kiếm
+                if(searchInput) searchInput.value = "";
+
+                renderTable(restaurantList);
+            } else {
+                console.error("Lỗi API Revenue");
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    // 2. RENDER TABLE (Đơn giản hóa)
     const renderTable = (data) => {
-        tableBody.innerHTML = ''; // Xóa dữ liệu cũ (hoặc dữ liệu tĩnh trong HTML)
+        tableBody.innerHTML = '';
 
-        if (data.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="5" style="text-align: center; padding: 24px; color: #6b7280;">
-                        Không tìm thấy giao dịch nào phù hợp.
-                    </td>
-                </tr>
-            `;
+        if (!data || data.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:24px; color:#888">Chưa có doanh thu tháng này.</td></tr>`;
             return;
         }
 
         data.forEach(item => {
             const row = document.createElement('tr');
 
+            // item bao gồm: restaurantName, monthlyRevenue, commission
+
             row.innerHTML = `
-                <td>${item.date}</td>
-                <td class="fw-bold">${item.restaurant}</td>
-                <td>
-                    <span class="badge ${getBadgeClass(item.package)}">
-                        ${item.package}
-                    </span>
+                <td class="fw-bold" style="font-size: 15px;">
+                    <i data-lucide="store" style="width: 16px; margin-right: 8px; vertical-align: middle;"></i>
+                    ${item.restaurantName}
                 </td>
-                <td class="fw-bold">${formatCurrency(item.amount)}/tháng</td>
+                <td class="fw-bold">${formatCurrency(item.monthlyRevenue)}</td>
                 <td class="text-green fw-bold">+${formatCurrency(item.commission)}</td>
             `;
-
             tableBody.appendChild(row);
         });
+
+        // Render icon
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     };
 
-    // =========================================
-    // 5. EVENT LISTENERS
-    // =========================================
-
-    // Xử lý tìm kiếm
-    searchInput.addEventListener('input', (e) => {
-        const searchTerm = e.target.value.toLowerCase().trim();
-
-        const filteredData = transactions.filter(item => {
-            return (
-                item.restaurant.toLowerCase().includes(searchTerm) ||
-                item.package.toLowerCase().includes(searchTerm) ||
-                item.date.includes(searchTerm)
-            );
+    // 3. TÌM KIẾM THEO TÊN NHÀ HÀNG
+    if(searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            const filtered = restaurantList.filter(item => {
+                return item.restaurantName.toLowerCase().includes(term);
+            });
+            renderTable(filtered);
         });
-
-        renderTable(filteredData);
-    });
-
-    // =========================================
-    // 6. INITIALIZATION
-    // =========================================
-
-    // Render dữ liệu lần đầu khi tải trang
-    renderTable(transactions);
-
-    // Re-init Icons (nếu dùng dynamic content đôi khi cần gọi lại,
-    // nhưng ở đây script lucide ở cuối body HTML chính sẽ lo việc này)
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
     }
+
+    // KHỞI CHẠY
+    loadRevenueData();
 });

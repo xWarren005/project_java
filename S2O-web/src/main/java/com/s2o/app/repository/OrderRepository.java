@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,4 +57,21 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             "GROUP BY MONTH(created_at) " +
             "ORDER BY MONTH(created_at)", nativeQuery = true)
     List<Object[]> getMonthlyRevenue();
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status = 'PAID' AND DATE(o.createdAt) = CURRENT_DATE")
+    BigDecimal sumGmvToday();
+
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status = 'PAID' AND MONTH(o.createdAt) = MONTH(CURRENT_DATE) AND YEAR(o.createdAt) = YEAR(CURRENT_DATE)")
+    BigDecimal sumGmvCurrentMonth();
+
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status = 'PAID' AND YEAR(o.createdAt) = YEAR(CURRENT_DATE)")
+    BigDecimal sumGmvCurrentYear();
+
+    @Query("SELECT o.restaurant.name, SUM(o.totalAmount) " +
+            "FROM Order o " +
+            "WHERE o.status = 'PAID' " +
+            "AND MONTH(o.createdAt) = MONTH(CURRENT_DATE) " +
+            "AND YEAR(o.createdAt) = YEAR(CURRENT_DATE) " +
+            "GROUP BY o.restaurant.id, o.restaurant.name " +
+            "ORDER BY SUM(o.totalAmount) DESC")
+    List<Object[]> getMonthlyRevenueByRestaurant();
 }
