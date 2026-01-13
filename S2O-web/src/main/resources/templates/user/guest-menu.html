@@ -8,6 +8,7 @@
   <link rel="stylesheet" th:href="@{/css/user/orders.css}">
   <link rel="stylesheet" th:href="@{/css/user/invoice.css}">
   <link rel="stylesheet" th:href="@{/css/user/payment.css}">
+  <link rel="stylesheet" th:href="@{/css/user/ai-chat.css}">
 </head>
 <body>
 <!-- Header -->
@@ -133,9 +134,23 @@
     </a>
   </div>
 </div>
+<!-- bong bóng chat -->
+<div id="ai-bubble" onclick="toggleAI()">AI</div>
+
+<div id="ai-chat-box" class="hidden">
+  <div class="ai-header">Trợ lý AI</div>
+  <div id="ai-messages"></div>
+  <div class="ai-input-row">
+    <input id="ai-input" placeholder="Hỏi gì đó..." />
+    <button id="ai-send-btn" onclick="sendAI()">Gửi</button>
+  </div>
+</div>
+
+
 <script th:src="@{/js/user/guest-menu.js}"></script>
 <script th:src="@{/js/user/guest-orders.js}"></script>
 <script th:src="@{/js/user/guest-invoice.js}"></script>
 <script th:src="@{/js/user/guest-payment.js}"></script>
+<script th:src="@{/js/user/ai-chat.js}"></script>
 </body>
 </html>
