@@ -46,14 +46,14 @@ public class ReviewViewModel extends ViewModel {
         return errorMessage;
     }
 
-    public void loadReviews(@NonNull String restaurantId) {
-        if (restaurantId.trim().isEmpty()) return;
+    public void loadReviews(int restaurantId) {
+        if (restaurantId <= 0) return;
 
         cancelRunningCall();
         loading.setValue(true);
         errorMessage.setValue(null);
 
-        runningCall = reviewRepository.getReviews(restaurantId);
+        runningCall = reviewRepository.getReviewsByRestaurant(restaurantId);
 
         runningCall.enqueue(new Callback<List<Review>>() {
             @Override
@@ -106,8 +106,32 @@ public class ReviewViewModel extends ViewModel {
         });
     }
 
-    public void deleteReview(@NonNull String reviewId) {
-        if (reviewId.trim().isEmpty()) return;
+    public void updateReview(int reviewId, @NonNull Review review) {
+        if (reviewId <= 0 || review == null) return;
+
+        loading.setValue(true);
+        errorMessage.setValue(null);
+
+        Call<Review> call = reviewRepository.updateReview(reviewId, review);
+
+        call.enqueue(new Callback<Review>() {
+            @Override
+            public void onResponse(@NonNull Call<Review> call,
+                                   @NonNull Response<Review> response) {
+                loading.setValue(false);
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Review> call,
+                                  @NonNull Throwable t) {
+                loading.setValue(false);
+                errorMessage.setValue("Không thể cập nhật đánh giá");
+            }
+        });
+    }
+
+    public void deleteReview(int reviewId) {
+        if (reviewId <= 0) return;
 
         loading.setValue(true);
         errorMessage.setValue(null);

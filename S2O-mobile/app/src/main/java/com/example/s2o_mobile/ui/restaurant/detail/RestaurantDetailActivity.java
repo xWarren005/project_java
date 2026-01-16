@@ -1,7 +1,5 @@
 package com.example.s2o_mobile.ui.restaurant.detail;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -27,11 +25,8 @@ public class RestaurantDetailActivity extends BaseActivity {
     private TextView tvAddress;
     private TextView tvRating;
     private TextView tvDescription;
-    private TextView tvPhone;
 
     private ImageButton btnBack;
-    private View btnCall;
-    private View btnMap;
 
     private RestaurantDetailViewModel viewModel;
 
@@ -44,8 +39,10 @@ public class RestaurantDetailActivity extends BaseActivity {
         setupViewModel();
         observeViewModel();
 
-        String restaurantId = getIntent() != null ? getIntent().getStringExtra(EXTRA_RESTAURANT_ID) : null;
-        if (restaurantId == null || restaurantId.trim().isEmpty()) {
+        int restaurantId = getIntent() == null
+                ? -1
+                : getIntent().getIntExtra(EXTRA_RESTAURANT_ID, -1);
+        if (restaurantId <= 0) {
             Toast.makeText(this, "Thiếu mã nhà hàng.", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -62,88 +59,53 @@ public class RestaurantDetailActivity extends BaseActivity {
         tvAddress = findViewById(R.id.tvAddress);
         tvRating = findViewById(R.id.tvRating);
         tvDescription = findViewById(R.id.tvDescription);
-        tvPhone = findViewById(R.id.tvPhone);
 
         btnBack = findViewById(R.id.btnBack);
-        btnCall = findViewById(R.id.btnCall);
-        btnMap = findViewById(R.id.btnMap);
+
+        if (btnBack != null) {
+            btnBack.setOnClickListener(v -> onBackPressed());
+        }
     }
 
-   if (btnBack != null) {
-        btnBack.setOnClickListener(v -> onBackPressed());
-    }
-}
     private void setupViewModel() {
         viewModel = new ViewModelProvider(this).get(RestaurantDetailViewModel.class);
     }
-}
 
-private void observeViewModel() {
-    viewModel.getLoading().observe(this, isLoading -> setVisible(progress, Boolean.TRUE.equals(isLoading)));
+    private void observeViewModel() {
+        viewModel.getLoading().observe(this,
+                isLoading -> setVisible(progress, Boolean.TRUE.equals(isLoading)));
 
-    viewModel.getRestaurant().observe(this, restaurant -> {
-        if (restaurant == null) return;
-        bindRestaurant(restaurant);
-    });
+        viewModel.getRestaurant().observe(this, restaurant -> {
+            if (restaurant == null) return;
+            bindRestaurant(restaurant);
+        });
 
-    viewModel.getErrorMessage().observe(this, msg -> {
-        if (msg == null || msg.trim().isEmpty()) return;
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    });
-}
+        viewModel.getErrorMessage().observe(this, msg -> {
+            if (msg == null || msg.trim().isEmpty()) return;
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        });
+    }
 
-private void bindRestaurant(@NonNull Restaurant r) {
+    private void bindRestaurant(@NonNull Restaurant restaurant) {
         if (tvName != null) tvName.setText(safe(restaurant.getName()));
-        if (tvAddress != null) tvAddress.setText(safe(restaurant.getPhone()));
-        if (tvPhone != null) tvPhone.setText(safe(restaurant.getPhone()));
+        if (tvAddress != null) tvAddress.setText(safe(restaurant.getAddress()));
         if (tvDescription != null) tvDescription.setText(safe(restaurant.getDescription()));
 
         if (tvRating != null) {
-            String ratingText = r.getRating() == null ? "" : String.valueOf(r.getRating());
-            tvRating.setText(ratingText);
-    });
+            tvRating.setText(String.valueOf(restaurant.getAvgRating()));
+        }
 
-    if (btnCall != null) {
-        btnCall.setOnClickListener(v -> openDialer(r.getPhone()));
+        if (imgCover != null) {
+            imgCover.setVisibility(View.VISIBLE);
+        }
     }
 
-    if (btnMap != null) {
-        btnMap.setOnClickListener(v -> openMap(r.getAddress(), r.getLatitude(), r.getLongitude()));
+    private void setVisible(View view, boolean visible) {
+        if (view == null) return;
+        view.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
-    if (imgCover != null) {
-        imgCover.setVisibility(View.VISIBLE);
+    private String safe(String s) {
+        return s == null ? "" : s;
     }
-}
-
-private void openDialer(String phone) {
-    if (phone == null || phone.trim().isEmpty()) {
-        Toast.makeText(this, "Không có số điện thoại.", Toast.LENGTH_SHORT).show();
-        return;
-    }
-    Intent intent = new Intent(Intent.ACTION_DIAL);
-    intent.setData(Uri.parse("tel:" + phone.trim()));
-    startActivity(intent);
-}
-
-private void openMap(String address, Double lat, Double lng) {
-    Uri uri;
-    if (lat != null && lng != null) {
-        uri = Uri.parse("geo:" + lat + "," + lng + "?q=" + lat + "," + lng);
-    } else {
-        String q = address == null ? "" : Uri.encode(address);
-        uri = Uri.parse("geo:0,0?q=" + q);
-    }
-    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-    startActivity(intent);
-}
-
-private void setVisible(View view, boolean visible) {
-    if (view == null) return;
-    view.setVisibility(visible ? View.VISIBLE : View.GONE);
-}
-
-private String safe(String s) {
-    return s == null ? "" : s;
-}
 }

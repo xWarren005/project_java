@@ -21,9 +21,9 @@ public interface RestaurantApi {
             @Query("page") Integer page,
             @Query("size") Integer size
     );
-    @GET("restaurants/{ID}")
+    @GET("restaurants/{id}")
     Call<Restaurant> getRestaurantDetail(
-            @Path("id") String restaurantId
+            @Path("id") int restaurantId
     );
     @GET("restaurants/featured")
     Call<List<Restaurant>> getFeaturedRestaurants(

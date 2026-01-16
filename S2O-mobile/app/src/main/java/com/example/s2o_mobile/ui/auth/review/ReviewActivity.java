@@ -31,29 +31,30 @@ public class ReviewActivity extends BaseActivity
     private RecyclerView rvReviews;
     private View progress;
     private View emptyView;
+    private View btnWrite;
 
     private ReviewAdapter adapter;
     private ReviewViewModel viewModel;
 
-    private String restaurantId;
+    private int restaurantId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_review);
-        btnWrite.setOnClickListener(v -> openWriteDialog(null));
 
-
-        restaurantId = getIntent() == null
+        String restaurantIdRaw = getIntent() == null
                 ? null
                 : getIntent().getStringExtra(EXTRA_RESTAURANT_ID);
 
         bindViews();
+        btnWrite.setOnClickListener(v -> openWriteDialog(null));
         setupRecyclerView();
         setupViewModel();
         observeViewModel();
 
-        if (restaurantId == null || restaurantId.trim().isEmpty()) {
+        restaurantId = safeParseId(restaurantIdRaw);
+        if (restaurantId <= 0) {
             Toast.makeText(this, "Thiếu mã nhà hàng", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -101,66 +102,78 @@ public class ReviewActivity extends BaseActivity
         if (v == null) return;
         v.setVisibility(visible ? View.VISIBLE : View.GONE);
     }
-}
-private void openWriteDialog(Review editing) {
-    View view = LayoutInflater.from(this)
-            .inflate(R.layout.dialog_review_editor, null, false);
+    
+    private void openWriteDialog(Review editing) {
+        View view = LayoutInflater.from(this)
+                .inflate(R.layout.dialog_review_editor, null, false);
 
-    TextView tvTitle = view.findViewById(R.id.tvTitle);
-    RatingBar ratingBar = view.findViewById(R.id.ratingBar);
-    EditText edtComment = view.findViewById(R.id.edtComment);
+        TextView tvTitle = view.findViewById(R.id.tvTitle);
+        RatingBar ratingBar = view.findViewById(R.id.ratingBar);
+        EditText edtComment = view.findViewById(R.id.edtComment);
 
-    boolean isEdit = editing != null;
-    tvTitle.setText(isEdit ? "Chỉnh sửa đánh giá" : "Viết đánh giá");
+        boolean isEdit = editing != null;
+        tvTitle.setText(isEdit ? "Chỉnh sửa đánh giá" : "Viết đánh giá");
 
-    AlertDialog dialog = new AlertDialog.Builder(this)
-            .setView(view)
-            .setNegativeButton("Hủy", (d, w) -> d.dismiss())
-            .setPositiveButton(isEdit ? "Lưu" : "Gửi", null)
-            .create();
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(view)
+                .setNegativeButton("Hủy", (d, w) -> d.dismiss())
+                .setPositiveButton(isEdit ? "Lưu" : "Gửi", null)
+                .create();
 
-    dialog.setOnShowListener(d -> {
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            float rating = ratingBar.getRating();
-            String comment = edtComment.getText().toString().trim();
+        dialog.setOnShowListener(d -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                float rating = ratingBar.getRating();
+                String comment = edtComment.getText().toString().trim();
 
-            if (rating <= 0 || TextUtils.isEmpty(comment)) {
-                Toast.makeText(this, "Vui lòng nhập đầy đủ", Toast.LENGTH_SHORT).show();
-                return;
-            }
+                if (rating <= 0 || TextUtils.isEmpty(comment)) {
+                    Toast.makeText(this, "Vui lòng nhập đầy đủ", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-            Review r = new Review();
-            r.setRestaurantId(restaurantId);
-            r.setRating((double) rating);
-            r.setComment(comment);
+                Review r = new Review();
+                r.setRestaurantId(restaurantId);
+                r.setRating((int) rating);
+                r.setContent(comment);
 
-            if (isEdit) {
-                viewModel.updateReview(editing.getId(), r);
-            } else {
-                viewModel.addReview(restaurantId, r);
-            }
+                if (isEdit) {
+                    viewModel.updateReview(editing.getId(), r);
+                } else {
+                    viewModel.addReview(r);
+                }
 
-            dialog.dismiss();
+                dialog.dismiss();
+            });
         });
-    });
 
-    dialog.show();
-}
-private void confirmDelete(Review review) {
-    new AlertDialog.Builder(this)
-            .setTitle("Xóa đánh giá")
-            .setMessage("Bạn chắc chắn muốn xóa đánh giá này?")
-            .setNegativeButton("Hủy", null)
-            .setPositiveButton("Xóa",
-                    (d, w) -> viewModel.deleteReview(review.getId()))
-            .show();
-}
-@Override
-public void onEdit(Review review) {
-    openWriteDialog(review);
-}
+        dialog.show();
+    }
 
-@Override
-public void onDelete(Review review) {
-    confirmDelete(review);
+    private void confirmDelete(Review review) {
+        new AlertDialog.Builder(this)
+                .setTitle("Xóa đánh giá")
+                .setMessage("Bạn chắc chắn muốn xóa đánh giá này?")
+                .setNegativeButton("Hủy", null)
+                .setPositiveButton("Xóa",
+                        (d, w) -> viewModel.deleteReview(review.getId()))
+                .show();
+    }
+
+    @Override
+    public void onEdit(Review review) {
+        openWriteDialog(review);
+    }
+
+    @Override
+    public void onDelete(Review review) {
+        confirmDelete(review);
+    }
+
+    private int safeParseId(String raw) {
+        if (raw == null) return -1;
+        try {
+            return Integer.parseInt(raw.trim());
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
 }

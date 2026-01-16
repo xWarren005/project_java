@@ -20,6 +20,7 @@ public class BookingViewModel extends ViewModel {
 
     private final MutableLiveData<Booking> booking = new MutableLiveData<>(null);
     private final MutableLiveData<String> bookingStatus = new MutableLiveData<>("");
+    private final MutableLiveData<Boolean> createBookingOk = new MutableLiveData<>(false);
 
     private String lastBookingId;
 
@@ -49,8 +50,19 @@ public class BookingViewModel extends ViewModel {
         return bookingStatus;
     }
 
+    public LiveData<Boolean> getCreateBookingOk() {
+        return createBookingOk;
+    }
+
     public String getLastBookingId() {
         return lastBookingId;
+    }
+
+    public void createBooking(int restaurantId,
+                              @NonNull String bookingTime,
+                              int peopleCount,
+                              String note) {
+        submitBooking(String.valueOf(restaurantId), bookingTime, peopleCount, note);
     }
     public void submitBooking(@NonNull String restaurantId,
                               @NonNull String bookingTime,
@@ -86,13 +98,13 @@ public class BookingViewModel extends ViewModel {
             return;
         }
 
-        runningCall.enqueue(new Callback<Booking>() {;
+        runningCall.enqueue(new Callback<Booking>() {
             @Override
             public void onResponse(@NonNull Call<Booking> call, @NonNull Response<Booking> response) {
                 loading.setValue(false);
 
                 if (!response.isSuccessful()) {
-                    errorMessage.setValue("Đặt bàn thất bại" (" + response.code() + ").");
+                    errorMessage.setValue("Đặt bàn thất bại (" + response.code() + ").");
                     return;
                 }
 
@@ -100,14 +112,15 @@ public class BookingViewModel extends ViewModel {
                 booking.setValue(body);
 
                 if (body != null) {
-                    lastBookingId = safe(body.getId());
+                    lastBookingId = safeId(body.getId());
                     bookingStatus.setValue(safe(body.getStatus()));
+                    createBookingOk.setValue(true);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<Booking> call, @NonNull Throwable t) {
-                loading.setValue(true);
+                loading.setValue(false);
                 if (call.isCanceled()) return;
                 errorMessage.setValue(t.getMessage() == null ? "Lỗi kết nối. Vui lòng thử lại." : t.getMessage());
             }
@@ -121,6 +134,7 @@ public class BookingViewModel extends ViewModel {
             return;
         }
 
+        loading.setValue(true);
         runningCall = bookingRepository.getBookingStatus(bookingId);
 
         if (runningCall == null) {
@@ -132,7 +146,7 @@ public class BookingViewModel extends ViewModel {
         runningCall.enqueue(new Callback<Booking>() {
             @Override
             public void onResponse(@NonNull Call<Booking> call, @NonNull Response<Booking> response) {
-                loading.setValue(true);
+                loading.setValue(false);
 
                 if (!response.isSuccessful()) {
                     errorMessage.setValue("Tải trạng thái thất bại (" + response.code() + ").");
@@ -141,15 +155,14 @@ public class BookingViewModel extends ViewModel {
 
                 Booking body = response.body();
                 if (body != null) {
-                    bookingStatus.setValue(body);
                     bookingStatus.setValue(safe(body.getStatus()));
-                    lastBookingId = safe(body.getId());
+                    lastBookingId = safeId(body.getId());
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<Booking> call, @NonNull Throwable t) {
-                loading.setValue(true);
+                loading.setValue(false);
                 if (call.isCanceled()) return;
                 errorMessage.setValue(t.getMessage() == null ? "Lỗi kết nối. Vui lòng thử lại." : t.getMessage());
             }
@@ -171,6 +184,10 @@ public class BookingViewModel extends ViewModel {
 
     private String safe(String s) {
         return s == null ? "" : s;
+    }
+
+    private String safeId(int id) {
+        return String.valueOf(id);
     }
 
 }

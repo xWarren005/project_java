@@ -10,6 +10,10 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.s2o_mobile.data.model.Restaurant;
 import com.example.s2o_mobile.data.repository.RestaurantRepository;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class RestaurantDetailViewModel extends AndroidViewModel {
 
     private final RestaurantRepository restaurantRepository;
@@ -45,11 +49,29 @@ public class RestaurantDetailViewModel extends AndroidViewModel {
         loading.setValue(true);
         errorMessage.setValue(null);
 
-        restaurantRepository.getRestaurantDetail(
-                restaurantId,
-                restaurant,
-                errorMessage,
-                loading
-        );
+        Call<Restaurant> call = restaurantRepository.getRestaurantDetail(restaurantId);
+        if (call == null) {
+            loading.setValue(false);
+            errorMessage.setValue("Không thể tải dữ liệu nhà hàng");
+            return;
+        }
+
+        call.enqueue(new Callback<Restaurant>() {
+            @Override
+            public void onResponse(Call<Restaurant> call, Response<Restaurant> response) {
+                loading.setValue(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    restaurant.setValue(response.body());
+                } else {
+                    errorMessage.setValue("Không tìm thấy nhà hàng");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Restaurant> call, Throwable t) {
+                loading.setValue(false);
+                errorMessage.setValue(t.getMessage() == null ? "Lỗi kết nối" : t.getMessage());
+            }
+        });
     }
 }

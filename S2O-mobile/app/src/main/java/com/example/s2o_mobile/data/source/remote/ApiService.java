@@ -7,7 +7,7 @@ import com.example.s2o_mobile.data.source.remote.RestaurantApi;
 
 public class ApiService {
 
-    private static final String BASE_URL = "http://3306:3306/";
+    private static final String BASE_URL = "http://10.0.2.2:3001/";
     private static ApiService instance;
     private final Retrofit retrofit;
 

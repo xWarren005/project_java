@@ -10,8 +10,12 @@ import androidx.lifecycle.MutableLiveData;
 import com.example.s2o_mobile.data.model.Restaurant;
 import com.example.s2o_mobile.data.repository.RestaurantRepository;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class HomeViewModel extends AndroidViewModel {
 
@@ -20,8 +24,10 @@ public class HomeViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>(null);
 
-    // Danh sách nhà hàng cho Home
-    private final MutableLiveData<List<Restaurant>> restaurants = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<Restaurant>> featuredRestaurants =
+            new MutableLiveData<>(Collections.emptyList());
+    private final MutableLiveData<List<Restaurant>> recommendedRestaurants =
+            new MutableLiveData<>(Collections.emptyList());
 
     public HomeViewModel(@NonNull Application application) {
         super(application);
@@ -36,29 +42,73 @@ public class HomeViewModel extends AndroidViewModel {
         return errorMessage;
     }
 
-    public LiveData<List<Restaurant>> getRestaurants() {
-        return restaurants;
+    public LiveData<List<Restaurant>> getFeaturedRestaurants() {
+        return featuredRestaurants;
     }
 
-    public void loadHomeRestaurants() {
+    public LiveData<List<Restaurant>> getRecommendedRestaurants() {
+        return recommendedRestaurants;
+    }
+
+    public void loadHomeData() {
         loading.setValue(true);
         errorMessage.setValue(null);
 
-        restaurantRepository.getRestaurants(
-                restaurants,
-                errorMessage,
-                loading
-        );
+        loadFeatured();
+        loadRecommended();
     }
 
-    public void loadRecommendedRestaurants() {
-        loading.setValue(true);
-        errorMessage.setValue(null);
+    private void loadFeatured() {
+        Call<List<Restaurant>> call = restaurantRepository.getFeaturedRestaurants(10);
+        if (call == null) {
+            loading.setValue(false);
+            errorMessage.setValue("Không thể tải danh sách nổi bật");
+            return;
+        }
 
-        restaurantRepository.getRecommendedRestaurants(
-                restaurants,
-                errorMessage,
-                loading
-        );
+        call.enqueue(new Callback<List<Restaurant>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<Restaurant>> call,
+                                   @NonNull Response<List<Restaurant>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    featuredRestaurants.setValue(response.body());
+                }
+                loading.setValue(false);
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<Restaurant>> call,
+                                  @NonNull Throwable t) {
+                loading.setValue(false);
+                errorMessage.setValue(t.getMessage() == null ? "Lỗi kết nối" : t.getMessage());
+            }
+        });
+    }
+
+    private void loadRecommended() {
+        Call<List<Restaurant>> call = restaurantRepository.getRecommendedRestaurants(10);
+        if (call == null) {
+            loading.setValue(false);
+            errorMessage.setValue("Không thể tải danh sách gợi ý");
+            return;
+        }
+
+        call.enqueue(new Callback<List<Restaurant>>() {
+            @Override
+            public void onResponse(@NonNull Call<List<Restaurant>> call,
+                                   @NonNull Response<List<Restaurant>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    recommendedRestaurants.setValue(response.body());
+                }
+                loading.setValue(false);
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<List<Restaurant>> call,
+                                  @NonNull Throwable t) {
+                loading.setValue(false);
+                errorMessage.setValue(t.getMessage() == null ? "Lỗi kết nối" : t.getMessage());
+            }
+        });
     }
 }

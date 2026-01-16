@@ -9,13 +9,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.s2o_mobile.R;
-import com.example.s2o_mobile.data.repository.AuthRepository;
-import com.example.s2o_mobile.data.repository.AuthRepositoryImpl;
-import com.example.s2o_mobile.utils.Validator;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -54,37 +50,28 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setupViewModel() {
-        AuthRepository repo = new AuthRepositoryImpl();
-        Validator validator = new Validator();
-        LoginUseCase useCase = new LoginUseCase(repo, validator);
-
-        viewModel = new ViewModelProvider(this, new ViewModelProvider.Factory() {
-            @Override
-            public <T extends ViewModel> T create(Class<T> modelClass) {
-                if (modelClass.isAssignableFrom(LoginViewModel.class)) {
-                    return (T) new LoginViewModel(useCase);
-                }
-                throw new IllegalArgumentException("Unknown ViewModel class");
-            }
-        }).get(LoginViewModel.class);
+        viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
     }
 
     private void observeState() {
-        viewModel.getState().observe(this, state -> {
-            if (state == null) return;
+        viewModel.getLoading().observe(this, isLoading -> {
+            boolean loading = Boolean.TRUE.equals(isLoading);
+            progress.setVisibility(loading ? View.VISIBLE : View.GONE);
+            btnLogin.setEnabled(!loading);
+        });
 
-            progress.setVisibility(state.loading ? View.VISIBLE : View.GONE);
-            btnLogin.setEnabled(!state.loading);
-
-            if (state.error != null && !state.error.trim().isEmpty()) {
-                txtError.setText(state.error);
+        viewModel.getMessage().observe(this, msg -> {
+            if (msg != null && !msg.trim().isEmpty()) {
+                txtError.setText(msg);
                 txtError.setVisibility(View.VISIBLE);
             } else {
                 txtError.setText("");
                 txtError.setVisibility(View.GONE);
             }
+        });
 
-            if (state.success) {
+        viewModel.getLoginOk().observe(this, ok -> {
+            if (Boolean.TRUE.equals(ok)) {
                 goHome();
             }
         });

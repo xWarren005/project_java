@@ -29,8 +29,8 @@ public class LoginViewModel extends AndroidViewModel {
 
     public LoginViewModel(@NonNull Application application) {
         super(application);
-        this.authRepository = new AuthRepository();
         this.sessionManager = new SessionManager(application);
+        this.authRepository = AuthRepository.getInstance(sessionManager);
     }
 
     public LiveData<Boolean> getLoading() {
@@ -72,7 +72,7 @@ public class LoginViewModel extends AndroidViewModel {
                         loading.postValue(false);
 
                         if (!TextUtils.isEmpty(token)) {
-                            sessionManager.saveToken(token);
+                            sessionManager.saveAuthToken(token);
                         }
                         if (user != null) {
                             sessionManager.saveUser(user);

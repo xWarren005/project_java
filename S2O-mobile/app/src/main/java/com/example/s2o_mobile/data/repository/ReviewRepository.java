@@ -24,29 +24,19 @@ public class ReviewRepository {
         this.reviewApi = reviewApi;
     }
 
-    public Call<List<Review>> getReviewsByRestaurant(
-            @NonNull String restaurantId,
-            Integer page,
-            Integer size
-    ) {
-        return reviewApi.getReviewsByRestaurant(restaurantId, page, size);
+    public Call<List<Review>> getReviewsByRestaurant(int restaurantId) {
+        return reviewApi.getReviewsByRestaurant(restaurantId);
     }
 
-    public Call<Review> addReview(
-            @NonNull String restaurantId,
-            @NonNull Review review
-    ) {
-        return reviewApi.addReview(restaurantId, review);
+    public Call<Review> addReview(@NonNull Review review) {
+        return reviewApi.createReview(review);
     }
 
-    public Call<Review> updateReview(
-            @NonNull String reviewId,
-            @NonNull Review review
-    ) {
+    public Call<Review> updateReview(int reviewId, @NonNull Review review) {
         return reviewApi.updateReview(reviewId, review);
     }
 
-    public Call<Void> deleteReview(@NonNull String reviewId) {
+    public Call<Void> deleteReview(int reviewId) {
         return reviewApi.deleteReview(reviewId);
     }
 }

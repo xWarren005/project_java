@@ -1,4 +1,4 @@
-package com.example.s2o_mobile.ui.booking.history;
+package com.example.s2o_mobile.ui.history;
 
 import android.os.Bundle;
 import android.view.View;
@@ -23,6 +23,7 @@ public class BookingHistoryActivity extends BaseActivity {
 
     private BookingHistoryAdapter adapter;
     private BookingHistoryViewModel viewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,40 +36,42 @@ public class BookingHistoryActivity extends BaseActivity {
 
         viewModel.loadBookingHistory();
     }
+
     private void bindViews() {
         rvBookingHistory = findViewById(R.id.rvBookingHistory);
         progress = findViewById(R.id.progress);
-        emptyView = findViewById(R.id.progress);
+        emptyView = findViewById(R.id.emptyView);
+    }
 
     private void setupRecyclerView() {
         adapter = new BookingHistoryAdapter();
         rvBookingHistory.setLayoutManager(new LinearLayoutManager(this));
         rvBookingHistory.setAdapter(adapter);
-
     }
 
-        private void setupViewModel() {
-            viewModel = new ViewModelProvider(this).get(BookingHistoryViewModel.class);
-        }
-
-        private void observeViewModel() {
-            viewModel.getLoading().observe(this, isLoading -> setVisible(progress, Boolean.TRUE.equals(isLoading)));
-
-            viewModel.getBookings().observe(this, list -> {
-                List<Booking> safe = list == null ? Collections.emptyList() : list;
-                adapter.submitList(safe);
-                setVisible(emptyView, safe.isEmpty());
-            });
-
-            viewModel.getErrorMessage().observe(this, msg -> {
-                if (msg != null && !msg.trim().isEmpty()) {
-                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-        private void setVisible(View view, boolean visible) {
-            if (view == null) return;
-            view.setVisibility(visible ? View.VISIBLE : View.GONE);
-        }
+    private void setupViewModel() {
+        viewModel = new ViewModelProvider(this).get(BookingHistoryViewModel.class);
     }
+
+    private void observeViewModel() {
+        viewModel.getLoading().observe(this,
+                isLoading -> setVisible(progress, Boolean.TRUE.equals(isLoading)));
+
+        viewModel.getBookings().observe(this, list -> {
+            List<Booking> safe = list == null ? Collections.emptyList() : list;
+            adapter.submitList(safe);
+            setVisible(emptyView, safe.isEmpty());
+        });
+
+        viewModel.getErrorMessage().observe(this, msg -> {
+            if (msg != null && !msg.trim().isEmpty()) {
+                Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void setVisible(View view, boolean visible) {
+        if (view == null) return;
+        view.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+}

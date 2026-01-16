@@ -1,329 +1,139 @@
 package com.example.s2o_mobile.ui.order.cart;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.s2o_mobile.data.model.Order;
-import com.example.s2o_mobile.data.repository.OrderRepository;
+import com.example.s2o_mobile.data.model.CartItem;
+import com.example.s2o_mobile.data.repository.CartRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import retrofit2.Callback;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class CartViewModel extends ViewModel {
-    private final OrderRepository orderRepository;
+
+    private final CartRepository cartRepository;
 
     private final MutableLiveData<List<CartItem>> cartItems =
             new MutableLiveData<>(Collections.emptyList());
-
-    private final MutableLiveData<Integer> totalQuantity = new MutableLiveData<>(0);
-    private final MutableLiveData<Double> totalPrice = new MutableLiveData<>(0.0);
-    private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
-    private final MutableLiveData<String> errorMessage = new MutableLiveData<>(null);
-
-    private Call<Order> runningCall;
-    private final OrderRepository orderRepository;
+    private final MutableLiveData<Double> totalPrice =
+            new MutableLiveData<>(0.0);
+    private final MutableLiveData<Boolean> loading =
+            new MutableLiveData<>(false);
+    private final MutableLiveData<String> error =
+            new MutableLiveData<>(null);
+    private final MutableLiveData<Boolean> checkoutSuccess =
+            new MutableLiveData<>(false);
 
     public CartViewModel() {
-        this.orderRepository = new OrderRepository();
+        this.cartRepository = new CartRepository();
     }
 
-    public CartViewModel(@NonNull OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
+    public CartViewModel(@NonNull CartRepository cartRepository) {
+        this.cartRepository = cartRepository;
     }
+
     public LiveData<List<CartItem>> getCartItems() {
         return cartItems;
-    }
-
-    private final MutableLiveData<List<CartItem>> cartItems =
-            new MutableLiveData<>(Collections.emptyList());
-
-    public LiveData<Integer> getTotalQuantity() {
-        return totalQuantity;
     }
 
     public LiveData<Double> getTotalPrice() {
         return totalPrice;
     }
+
     public LiveData<Boolean> getLoading() {
         return loading;
     }
 
-    public LiveData<String> getErrorMessage() {
-        return errorMessage;
+    public LiveData<String> getError() {
+        return error;
     }
 
-    public void addItem(@NonNull String foodId,
-                        @NonNull String name,
-                        double unitPrice,
-                        int quantity) {
-        if (foodId.trim().isEmpty()) return;
-        if (quantity <= 0) return;
-
-        List<CartItem> current = snapshot();
-        int idx = indexOf(current, foodId);
-
-        if (idx >= 0) {
-            CartItem old = current.get(idx);
-            current.set(idx, old.withQuantity(old.quantity + quantity));
-        } else {
-            current.add(new CartItem(foodId.trim(), name, unitPrice, quantity, ""));
-        }
-
-        updateCart(current);
+    public LiveData<Boolean> getCheckoutSuccess() {
+        return checkoutSuccess;
     }
 
-    public void updateQuantity(@NonNull String foodId, int quantity) {
-        if (foodId.trim().isEmpty()) return;
-
-        List<CartItem> current = snapshot();
-        int idx = indexOf(current, foodId);
-
-        if (idx < 0) return;
-
-        if (quantity <= 0) {
-            current.remove(idx);
-        } else {
-            CartItem old = current.get(idx);
-            current.set(idx, old.withQuantity(quantity));
-        }
-
-        updateCart(current);
+    public void loadCart() {
+        List<CartItem> items = cartRepository.getItems();
+        cartItems.setValue(items);
+        recalcTotal(items);
     }
 
-    public void updateNote(@NonNull String foodId, @Nullable String note) {
-        if (foodId.trim().isEmpty()) return;
-
-        List<CartItem> current = snapshot();
-        int idx = indexOf(current, foodId);
-
-        if (idx < 0) return;
-
-        CartItem old = current.get(idx);
-        current.set(idx, old.withNote(note == null ? "" : note.trim()));
-
-        updateCart(current);
+    public void increaseQty(@NonNull CartItem item) {
+        updateQty(item, item.getQuantity() + 1);
     }
 
-    public void removeItem(@NonNull String foodId) {
-        if (foodId.trim().isEmpty()) return;
-
-        List<CartItem> current = snapshot();
-        int idx = indexOf(current, foodId);
-
-        if (idx >= 0) {
-            current.remove(idx);
-            updateCart(current);
-        }
+    public void decreaseQty(@NonNull CartItem item) {
+        updateQty(item, item.getQuantity() - 1);
     }
 
-    public void clearCart() {
-        updateCart(new ArrayList<>());
+    public void removeItem(@NonNull CartItem item) {
+        List<CartItem> list = snapshot();
+        list.remove(item);
+        updateCart(list);
     }
 
-    public boolean isEmpty() {
-        List<CartItem> list = cartItems.getValue();
-        return list == null || list.isEmpty();
-    }
-
-    public void placeOrder(@NonNull String tableId,
-                           @NonNull String restaurantId,
-                           @Nullable String note) {
-
-        List<CartItem> items = snapshot();
-        if (items.isEmpty()) {
-            errorMessage.setValue("Giỏ hàng đang trống.");
-            return;
-        }
-        if (tableId.trim().isEmpty() || restaurantId.trim().isEmpty()) {
-            errorMessage.setValue("Thiếu thông tin bàn/nhà hàng.");
-            return;
-        }
-
-        cancelRunningCall();
+    public void checkout() {
         loading.setValue(true);
-        errorMessage.setValue(null);
+        error.setValue(null);
 
-        Call<Order> call = orderRepository.createOrder(
-                tableId.trim(),
-                restaurantId.trim(),
-                note
-        );
-
-        if (call == null) {
+        List<CartItem> list = snapshot();
+        if (list.isEmpty()) {
             loading.setValue(false);
-            errorMessage.setValue("Không thể tạo đơn hàng.");
+            error.setValue("Gio hang dang trong.");
             return;
         }
 
-        runningCall = call;
-
-        runningCall.enqueue(new Callback<Order>() {
-            @Override
-            public void onResponse(@NonNull Call<Order> call,
-                                   @NonNull Response<Order> response) {
-
-                if (!response.isSuccessful()) {
-                    loading.setValue(false);
-                    errorMessage.setValue("Tạo đơn thất bại (" + response.code() + ").");
-                    return;
-                }
-
-                Order order = response.body();
-                String orderId = order == null ? "" : safe(order.getId());
-
-                if (orderId.isEmpty()) {
-                    loading.setValue(false);
-                    errorMessage.setValue("Không nhận được mã đơn hàng.");
-                    return;
-                }
-
-                submitItemsSequential(orderId, items, 0);
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<Order> call, @NonNull Throwable t) {
-                loading.setValue(false);
-                if (call.isCanceled()) return;
-                errorMessage.setValue(msgOf(t));
-            }
-        });
+        cartRepository.setItems(new ArrayList<>());
+        cartItems.setValue(Collections.emptyList());
+        totalPrice.setValue(0.0);
+        loading.setValue(false);
+        checkoutSuccess.setValue(true);
     }
 
-    private void submitItemsSequential(@NonNull String orderId,
-                                       @NonNull List<CartItem> items,
-                                       int index) {
-
-        if (index >= items.size()) {
-            loading.setValue(false);
-            clearCart();
-            return;
-        }
-
-        CartItem it = items.get(index);
-
-        Call<Order> addCall = orderRepository.addItemToOrder(
-                orderId,
-                it.foodId,
-                it.quantity,
-                it.note
-        );
-
-        if (addCall == null) {
-            loading.setValue(false);
-            errorMessage.setValue("Không thể thêm món vào đơn.");
-            return;
-        }
-
-        runningCall = addCall;
-
-        addCall.enqueue(new Callback<Order>() {
-            @Override
-            public void onResponse(@NonNull Call<Order> call,
-                                   @NonNull Response<Order> response) {
-
-                if (!response.isSuccessful()) {
-                    loading.setValue(false);
-                    errorMessage.setValue("Thêm món thất bại (" + response.code() + ").");
-                    return;
+    private void updateQty(@NonNull CartItem item, int newQty) {
+        List<CartItem> list = snapshot();
+        for (CartItem it : list) {
+            if (it == item || sameId(it, item)) {
+                if (newQty <= 0) {
+                    list.remove(it);
+                } else {
+                    it.setQuantity(newQty);
                 }
-
-                submitItemsSequential(orderId, items, index + 1);
+                break;
             }
+        }
+        updateCart(list);
+    }
 
-            @Override
-            public void onFailure(@NonNull Call<Order> call, @NonNull Throwable t) {
-                loading.setValue(false);
-                if (call.isCanceled()) return;
-                errorMessage.setValue(msgOf(t));
-            }
-        });
+    private boolean sameId(CartItem a, CartItem b) {
+        if (a == null || b == null) return false;
+        String ida = a.getId();
+        String idb = b.getId();
+        return ida != null && ida.equals(idb);
     }
 
     private List<CartItem> snapshot() {
         List<CartItem> list = cartItems.getValue();
-        if (list == null) return new ArrayList<>();
-        return new ArrayList<>(list);
+        return list == null ? new ArrayList<>() : new ArrayList<>(list);
     }
 
-    private int indexOf(List<CartItem> list, String foodId) {
-        for (int i = 0; i < list.size(); i++) {
-            CartItem it = list.get(i);
-            if (it != null && foodId.equals(it.foodId)) return i;
-        }
-        return -1;
+    private void updateCart(List<CartItem> list) {
+        cartRepository.setItems(list);
+        cartItems.setValue(list == null ? Collections.emptyList() : list);
+        recalcTotal(list);
     }
 
-    private void updateCart(List<CartItem> newList) {
-        cartItems.setValue(newList == null ? Collections.emptyList() : newList);
-        recalcTotals(newList);
-    }
-
-    private void recalcTotals(List<CartItem> list) {
-        int qty = 0;
+    private void recalcTotal(List<CartItem> list) {
         double sum = 0.0;
-
         if (list != null) {
             for (CartItem it : list) {
                 if (it == null) continue;
-                qty += Math.max(it.quantity, 0);
-                sum += (it.unitPrice * Math.max(it.quantity, 0));
+                sum += it.getUnitPrice() * Math.max(0, it.getQuantity());
             }
         }
-
-        totalQuantity.setValue(qty);
         totalPrice.setValue(sum);
-    }
-    private void cancelRunningCall() {
-        if (runningCall != null) {
-            runningCall.cancel();
-            runningCall = null;
-        }
-    }
-
-    @Override
-    protected void onCleared() {
-        cancelRunningCall();
-        super.onCleared();
-    }
-
-    private String msgOf(Throwable t) {
-        String m = t == null ? null : t.getMessage();
-        return (m == null || m.trim().isEmpty()) ? "Lỗi kết nối. Vui lòng thử lại." : m;
-    }
-
-    private String safe(String s) {
-        return s == null ? "" : s;
-    }
-
-    public static class CartItem {
-        public final String foodId;
-        public final String name;
-        public final double unitPrice;
-        public final int quantity;
-        public final String note;
-
-        public CartItem(String foodId, String name, double unitPrice, int quantity, String note) {
-            this.foodId = foodId;
-            this.name = name == null ? "" : name;
-            this.unitPrice = unitPrice;
-            this.quantity = quantity;
-            this.note = note == null ? "" : note;
-        }
-
-        public CartItem withQuantity(int q) {
-            return new CartItem(foodId, name, unitPrice, q, note);
-        }
-
-        public CartItem withNote(String n) {
-            return new CartItem(foodId, name, unitPrice, quantity, n);
-        }
     }
 }

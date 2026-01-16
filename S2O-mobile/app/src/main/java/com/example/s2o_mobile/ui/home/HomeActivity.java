@@ -14,6 +14,8 @@ import com.example.s2o_mobile.R;
 import com.example.s2o_mobile.base.BaseActivity;
 import com.example.s2o_mobile.data.model.Restaurant;
 import com.example.s2o_mobile.ui.restaurant.detail.RestaurantDetailActivity;
+import com.example.s2o_mobile.ui.restaurant.list.RestaurantAdapter;
+import com.example.s2o_mobile.ui.restaurant.list.RestaurantClickListener;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +28,7 @@ public class HomeActivity extends BaseActivity implements RestaurantClickListene
     private HomeViewModel viewModel;
     private RestaurantAdapter featuredAdapter;
     private RestaurantAdapter recommendedAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +47,7 @@ public class HomeActivity extends BaseActivity implements RestaurantClickListene
 
         progress = findViewById(R.id.progress);
         emptyFeatured = findViewById(R.id.emptyFeatured);
-        emptyRecommended = findViewById(R.id.emptyFeatured);
+        emptyRecommended = findViewById(R.id.emptyRecommended);
     }
     private void setupRecyclerViews() {
         featuredAdapter = new RestaurantAdapter(true, this);
@@ -59,7 +62,8 @@ public class HomeActivity extends BaseActivity implements RestaurantClickListene
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
     }
     private void observeViewModel() {
-        viewModel.getLoading().observe(this, isLoading -> setVisible(progress, Boolean.TRUE.equals(isLoading));
+        viewModel.getLoading().observe(this,
+                isLoading -> setVisible(progress, Boolean.TRUE.equals(isLoading)));
 
         viewModel.getFeaturedRestaurants().observe(this, list -> {
             List<Restaurant> safe = list == null ? Collections.emptyList() : list;

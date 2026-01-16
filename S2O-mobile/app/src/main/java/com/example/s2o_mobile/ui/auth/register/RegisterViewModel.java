@@ -11,6 +11,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.s2o_mobile.data.model.User;
 import com.example.s2o_mobile.data.repository.AuthRepository;
+import com.example.s2o_mobile.utils.SessionManager;
 
 public class RegisterViewModel extends AndroidViewModel {
 
@@ -33,7 +34,7 @@ public class RegisterViewModel extends AndroidViewModel {
 
     public RegisterViewModel(@NonNull Application application) {
         super(application);
-        this.authRepository = new AuthRepository();
+        this.authRepository = AuthRepository.getInstance(new SessionManager(application));
     }
 
     // ===== Getters =====
