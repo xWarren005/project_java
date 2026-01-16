@@ -11,6 +11,9 @@ const banksList = [
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
+    if (typeof renderMenu === "function") {
+        renderMenu('qr');
+    }
     populateBanks();
     fetchCurrentConfig(); // Tải cấu hình từ Server khi vào trang
 });
