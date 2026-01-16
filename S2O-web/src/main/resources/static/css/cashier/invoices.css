@@ -1,6 +1,34 @@
-/* --- INVOICE SPECIFIC STYLES --- */
+/* --- LAYOUT CHUNG & RESET --- */
+body {
+    background-color: #F9FAFB;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+}
 
-/* Stats Header */
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Màu chủ đạo mới */
+:root {
+    --primary-color: #2E25D1;       /* Xanh tím đậm */
+    --primary-light: #EEEDFA;       /* Xanh tím nhạt (Background) */
+    --text-dark: #2d3436;
+    --text-grey: #636e72;
+    --success: #00b894;
+    --warning: #ff9f43;
+}
+
+.section-title {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin: 0;
+    font-weight: 700;
+}
+
+/* --- STATS HEADER --- */
 .invoice-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -11,15 +39,16 @@
 .i-stat-card {
     background: white;
     border: 1px solid #dfe6e9;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
 }
 
 .is-label {
-    color: #636e72;
+    color: var(--text-grey);
     font-size: 0.9rem;
     font-weight: 600;
 }
@@ -27,18 +56,13 @@
 .is-number {
     font-size: 1.8rem;
     font-weight: 700;
-    color: #2d3436;
+    color: var(--text-dark);
 }
 
-.is-number.success {
-    color: #00b894;
-}
+.is-number.success { color: var(--success); }
+.is-number.primary { color: var(--primary-color); }
 
-.is-number.primary {
-    color: #2E25D1;
-}
-
-/* Filter Tabs */
+/* --- FILTER TABS --- */
 .invoice-section-header {
     display: flex;
     justify-content: space-between;
@@ -60,18 +84,18 @@
     padding: 8px 16px;
     border-radius: 6px;
     font-weight: 600;
-    color: #636e72;
+    color: var(--text-grey);
     cursor: pointer;
     transition: 0.2s;
 }
 
 .filter-btn.active {
     background: white;
-    color: #d35400;
+    color: var(--primary-color);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Invoice List Items */
+/* --- INVOICE LIST --- */
 .invoice-list-container {
     display: flex;
     flex-direction: column;
@@ -81,7 +105,7 @@
 .invoice-card {
     background: white;
     border: 1px solid #eee;
-    border-radius: 10px;
+    border-radius: 12px;
     padding: 1.2rem;
     display: flex;
     align-items: center;
@@ -90,8 +114,9 @@
 }
 
 .invoice-card:hover {
-    border-color: #fab1a0;
+    border-color: #a29bfe; /* Viền tím nhạt khi hover */
     transform: translateX(5px);
+    box-shadow: 0 4px 10px rgba(46, 37, 209, 0.05);
 }
 
 .inv-left {
@@ -100,11 +125,12 @@
     align-items: center;
 }
 
+/* Icon hóa đơn */
 .inv-icon {
-    width: 45px;
-    height: 45px;
-    background: #fff0d6;
-    color: #d35400;
+    width: 50px;
+    height: 50px;
+    background: var(--primary-light); /* Nền xanh nhạt */
+    color: var(--primary-color);      /* Icon xanh đậm */
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -115,209 +141,172 @@
 .inv-details h4 {
     margin: 0 0 5px 0;
     font-size: 1rem;
-    color: #2d3436;
+    color: var(--text-dark);
 }
 
 .inv-details p {
     margin: 0;
     font-size: 0.85rem;
-    color: #636e72;
+    color: var(--text-grey);
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
 .inv-badge {
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 700;
 }
 
 .inv-badge.unpaid {
-    background: #ffeaa7;
-    color: #d35400;
+    background: #fff3cd;
+    color: #856404;
 }
 
 .inv-badge.paid {
-    background: #dff9fb;
-    color: #00b894;
+    background: #d4edda;
+    color: #155724;
 }
 
-.inv-right {
-    text-align: right;
-}
+.inv-right { text-align: right; }
 
 .inv-total {
     display: block;
     font-size: 1.2rem;
     font-weight: 800;
-    color: #d35400;
+    color: var(--primary-color); /* Tổng tiền màu chủ đạo */
     margin-bottom: 5px;
 }
 
 .btn-view {
-    background: #2E25D1;
-    color: white;
-    border: none;
+    background: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
     padding: 6px 15px;
     border-radius: 20px;
     cursor: pointer;
     font-size: 0.85rem;
     font-weight: 600;
+    transition: all 0.2s;
 }
 
 .btn-view:hover {
-    background: #1e16a3;
-}
-
-/* --- MODAL STYLES --- */
-.invoice-modal-size {
-    width: 500px;
-    max-width: 95%;
-}
-
-.inv-modal-header {
-    margin-bottom: 1.5rem;
-}
-
-.inv-modal-header h3 {
-    margin: 0;
-    font-size: 1.5rem;
-}
-
-.inv-id {
-    display: block;
-    color: #636e72;
-    margin-top: 5px;
-    font-size: 0.9rem;
-}
-
-.inv-info-box {
-    background: #FFF5EB;
-    border-radius: 8px;
-    padding: 1rem;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-}
-
-.info-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.info-item.right {
-    text-align: right;
-}
-
-.info-item .label {
-    font-size: 0.8rem;
-    color: #d35400;
-    opacity: 0.8;
-    margin-bottom: 4px;
-}
-
-.info-item .value {
-    font-weight: 700;
-    color: #2d3436;
-    font-size: 1rem;
-}
-
-.info-item .value.big {
-    font-size: 1.5rem;
-    color: #d35400;
-}
-
-.inv-items-header {
-    font-weight: 600;
-    color: #d35400;
-    margin-bottom: 10px;
-}
-
-.inv-items-list {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 1.5rem 0;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.inv-items-list li {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px dashed #eee;
-}
-
-.inv-items-list li:last-child {
-    border-bottom: none;
-}
-
-.item-qty {
-    color: #636e72;
-    font-size: 0.9rem;
-    margin-right: 5px;
-}
-
-.inv-divider {
-    height: 2px;
-    background: #eee;
-    margin: 1rem 0;
-}
-
-.inv-total-row {
-    display: flex;
-    justify-content: space-between;
-    font-weight: 800;
-    font-size: 1.4rem;
-    color: #d35400;
-    margin-bottom: 1.5rem;
-}
-
-/* Payment Info Box (cho hóa đơn đã trả) */
-.payment-method-box {
-    background: #f1f2f6;
-    padding: 10px;
-    border-radius: 6px;
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: #2d3436;
-    font-weight: 600;
-}
-
-/* Action Buttons Wrapper */
-.inv-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.inv-actions button {
-    flex: 1;
-    padding: 12px;
-    border-radius: 8px;
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-/* Styles cho từng nút */
-.btn-print {
-    background: white;
-    border: 1px solid #dfe6e9 !important;
-    color: #2d3436;
-}
-
-.btn-print:hover {
-    background: #f1f2f6;
-}
-
-.btn-pay {
-    background: #2E25D1;
+    background: var(--primary-color);
     color: white;
 }
 
+/* --- MODAL STYLES (SỬA LỖI LAYOUT Ở ĐÂY) --- */
+
+/* 1. Overlay che toàn màn hình */
+.modal-overlay {
+    position: fixed; /* Bắt buộc fixed để nổi lên trên */
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); /* Nền tối mờ */
+    z-index: 9999; /* Luôn nằm trên cùng */
+    display: flex; /* Dùng flex để căn giữa modal */
+    justify-content: center;
+    align-items: center;
+    /* Mặc định JS sẽ set display: none/flex */
+}
+
+/* 2. Nội dung Modal */
+.modal-content.invoice-modal-size {
+    background: white;
+    width: 500px;
+    max-width: 90%;
+    border-radius: 16px;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: #b2bec3;
+}
+.close-btn:hover { color: var(--text-dark); }
+
+.inv-modal-header { margin-bottom: 1.5rem; text-align: center; }
+.inv-modal-header h3 { margin: 0; font-size: 1.6rem; color: var(--text-dark); }
+.inv-id { display: block; color: var(--text-grey); margin-top: 5px; font-size: 0.9rem; }
+
+/* Box thông tin trong modal */
+.inv-info-box {
+    background: var(--primary-light); /* Nền xanh nhạt */
+    border-radius: 12px;
+    padding: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.info-item { display: flex; flex-direction: column; }
+.info-item.right { text-align: right; }
+
+.info-item .label { font-size: 0.8rem; color: var(--primary-color); opacity: 0.8; margin-bottom: 4px; }
+.info-item .value { font-weight: 700; color: var(--text-dark); font-size: 1rem; }
+.info-item .value.big { font-size: 1.5rem; color: var(--primary-color); }
+
+.inv-items-header { font-weight: 600; color: var(--text-dark); margin-bottom: 10px; }
+
+.inv-items-list {
+    list-style: none; padding: 0; margin: 0 0 1.5rem 0;
+    max-height: 250px; overflow-y: auto;
+}
+.inv-items-list li {
+    display: flex; justify-content: space-between; padding: 10px 0;
+    border-bottom: 1px dashed #eee; font-size: 0.95rem;
+}
+
+.inv-divider { height: 1px; background: #eee; margin: 1rem 0; }
+
+.inv-total-row {
+    display: flex; justify-content: space-between;
+    font-weight: 800; font-size: 1.4rem;
+    color: var(--primary-color); /* Màu tổng tiền */
+    margin-bottom: 1.5rem;
+}
+
+.payment-method-box {
+    background: #f1f2f6; padding: 10px; border-radius: 6px;
+    text-align: center; margin-bottom: 1.5rem;
+    color: var(--text-dark); font-weight: 600;
+}
+
+/* Nút bấm hành động */
+.inv-actions { display: flex; gap: 10px; }
+.inv-actions button {
+    flex: 1; padding: 14px; border-radius: 10px; border: none;
+    font-weight: 600; cursor: pointer; font-size: 1rem;
+    display: flex; justify-content: center; align-items: center; gap: 8px;
+    transition: 0.2s;
+}
+
+.btn-print {
+    background: white;
+    border: 1px solid #dfe6e9 !important;
+    color: var(--text-dark);
+}
+.btn-print:hover { background: #f1f2f6; }
+
+.btn-pay {
+    background: var(--primary-color); /* Màu xanh tím */
+    color: white;
+    box-shadow: 0 4px 10px rgba(46, 37, 209, 0.3);
+}
 .btn-pay:hover {
-    background: #1e16a3;
+    background: #1e16a3; /* Xanh đậm hơn khi hover */
+    transform: translateY(-2px);
 }

@@ -34,4 +34,7 @@ public class Restaurant {
     // Các trường khác map tạm thời để tránh lỗi nếu hibernate validate
     @Column(name = "owner_id")
     private Long ownerId;
+
+    @Column(name = "approval_status")
+    private String approvalStatus; // Map với ENUM('PENDING','APPROVED'...) trong SQL
 }

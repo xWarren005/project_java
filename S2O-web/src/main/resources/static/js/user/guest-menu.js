@@ -201,10 +201,6 @@ function addToCart(id) {
   Storage.saveCart(cart);
   updateCartBadge();
   renderCart();
-
-  // Mở sidebar cart ngay khi thêm (UX)
-  const overlay = document.getElementById("cart-overlay");
-  if(overlay && !overlay.classList.contains("active")) toggleCart();
 }
 
 function increaseQty(id) {
@@ -278,10 +274,33 @@ function updateCartBadge() {
 }
 
 function toggleCart() {
+  const profileSidebar = document.getElementById("profile-sidebar");
+  const profileOverlay = document.getElementById("profile-overlay");
+  if (profileSidebar && profileSidebar.classList.contains("active")) {
+    profileSidebar.classList.remove("active");
+    profileOverlay.classList.remove("active");
+  }
   document.getElementById("cart-overlay").classList.toggle("active");
   document.getElementById("cart-sidebar").classList.toggle("active");
 }
+function toggleProfile() {
+  const profileSidebar = document.getElementById("profile-sidebar");
+  const profileOverlay = document.getElementById("profile-overlay");
 
+  if (!profileSidebar || !profileOverlay) return;
+
+  // Nếu Cart đang mở thì đóng nó lại trước
+  const cartSidebar = document.getElementById("cart-sidebar");
+  const cartOverlay = document.getElementById("cart-overlay");
+  if (cartSidebar && cartSidebar.classList.contains("active")) {
+    cartSidebar.classList.remove("active");
+    cartOverlay.classList.remove("active");
+  }
+
+  // Toggle Profile
+  profileOverlay.classList.toggle("active");
+  profileSidebar.classList.toggle("active");
+}
 /* ========= 6. PLACE ORDER (GỬI BẾP) ========= */
 async function placeOrder() {
   if (!cart.length) {
@@ -292,8 +311,6 @@ async function placeOrder() {
     alert("Lỗi: Mất thông tin bàn. Vui lòng quét lại QR.");
     return;
   }
-
-  if (!confirm("Xác nhận gửi gọi món xuống bếp?")) return;
 
   // Chuẩn bị Payload khớp với GuestOrderRequest DTO
   const payload = {
@@ -322,7 +339,6 @@ async function placeOrder() {
 
     if (res.ok) {
       alert("Đã gửi đơn thành công! Vui lòng chờ xác nhận.");
-
       // Reset Cart
       cart = [];
       Storage.clearCart();

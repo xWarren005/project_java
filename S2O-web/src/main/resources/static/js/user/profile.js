@@ -1,6 +1,6 @@
 const staticUI = {
     menu: [
-        { id: "menu_cal", icon: "far fa-calendar-alt", label: "Lịch của tôi", action: "history" },
+        { id: "menu_cal", icon: "far fa-calendar-alt", label: "Lịch sử", action: "history" },
         { id: "menu_vou", icon: "fas fa-gift", label: "Voucher của tôi", action: "voucher" }
     ],
     actions: [
@@ -88,7 +88,8 @@ const App = {
             frame.innerHTML = '<p style="text-align:center; color:#999; padding:20px">Chưa có lịch sử đơn hàng</p>';
             return;
         }
-        frame.innerHTML = calendarList.map(item => `
+        const recentOrders = calendarList.slice(0, 5);
+        frame.innerHTML = recentOrders.map(item => `
             <div class="list-card">
                 <div class="card-top">
                     <h4 class="card-name">${item.place}</h4>

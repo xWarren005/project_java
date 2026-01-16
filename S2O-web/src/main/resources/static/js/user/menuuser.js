@@ -115,7 +115,7 @@ let cart = []
 /* INIT */
 document.addEventListener("DOMContentLoaded",async () => {
     cart = Storage.getCart();
-    // 2. GỌI API LẤY MENU THẬT
+    mergeGuestCartToUserCart();
 // 2. GỌI API LẤY MENU TỪ DB
     if(restaurantId) {
         await fetchMenuData();
@@ -125,9 +125,49 @@ document.addEventListener("DOMContentLoaded",async () => {
 
     // 3. Update UI
     updateCartBadge();
-    const totalEl = document.getElementById("cart-total");
-    if(totalEl) totalEl.textContent = "0đ";
+    renderCart();
 });
+/* --- HÀM GỘP GIỎ HÀNG (THÊM MỚI) --- */
+function mergeGuestCartToUserCart() {
+    const guestTableId = localStorage.getItem("currentTableId") || tableId;
+    if (!guestTableId) return;
+
+    // Key giỏ hàng của Guest (format bên file guest-menu.js)
+    const guestCartKey = `guest_cart_${guestTableId}`;
+    const guestCartJson = localStorage.getItem(guestCartKey);
+
+    if (guestCartJson) {
+        const guestCart = JSON.parse(guestCartJson);
+
+        if (guestCart.length > 0) {
+                guestCart.forEach(gItem => {
+                    const existItem = cart.find(cItem => cItem.id == gItem.id);
+                    const qty = parseInt(gItem.quantity) || 1;
+                    if (existItem) {
+                        existItem.quantity += qty;
+                    } else {
+                        // Thêm mới
+                        cart.push({
+                            ...gItem,
+                            quantity: qty,
+                            price: parseFloat(gItem.price) // Đảm bảo giá là số
+                        });
+                    }
+                });
+
+                // Lưu lại vào Storage của User
+                Storage.saveCart(null, cart);
+
+                // Cập nhật UI ngay lập tức
+                updateCartBadge();
+                renderCart();
+            }
+
+            // Dù gộp hay không, ta nên xóa giỏ hàng Guest đi để tránh hỏi lại lần sau
+            // Hoặc nếu muốn giữ lại khi họ chọn "Cancel", bạn có thể bỏ dòng dưới
+            localStorage.removeItem(guestCartKey);
+        }
+}
 /* --- HÀM GỌI API (Tách ra cho gọn) --- */
 async function fetchMenuData() {
     try {
@@ -248,8 +288,6 @@ function addToCart(id) {
     updateCartBadge()
     renderCart()
 // Mở cart ngay (UX)
-const overlay = document.getElementById("cart-overlay");
-if(overlay && !overlay.classList.contains("active")) toggleCart();
 }
 
 function updateCartBadge() {
@@ -275,7 +313,6 @@ async function placeOrder() {
     if (!tableId) {
         alert("Vui lòng quét lại mã QR tại bàn."); return;
     }
-    if (!confirm("Xác nhận gửi món xuống bếp?")) return;
     // Chuẩn bị dữ liệu gửi (UserOrderRequest)
     const payload = {
         restaurantId: parseInt(restaurantId),

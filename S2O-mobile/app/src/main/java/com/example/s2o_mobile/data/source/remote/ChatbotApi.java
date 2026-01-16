@@ -7,6 +7,4 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 
 public interface ChatbotApi {
-    @POST("api/chatbot")
-    Call<ChatMessage> ask(@Body ChatMessage request);
 }

@@ -46,7 +46,7 @@
     <main class="main-content">
         <div class="page-header">
             <h2 class="page-title">Quản lý nhà hàng</h2>
-            <button class="btn-primary" onclick="openAddModal()">
+            <button class="btn-primary" onclick="openCreateModal()">
                 <i data-lucide="plus"></i> Thêm nhà hàng
             </button>
         </div>
@@ -55,25 +55,25 @@
             <div class="search-section">
                 <div class="search-wrapper">
                     <i data-lucide="search" class="search-icon"></i>
-                    <input type="text" placeholder="Tìm kiếm nhà hàng..." class="search-input">
+                    <input type="text" class="search-input" placeholder="Tìm kiếm nhà hàng..." autocomplete="off">
                 </div>
             </div>
 
             <section class="stats-grid">
                 <div class="card stat-card">
                     <span class="stat-label">Tổng Nhà hàng</span>
-                    <h3 class="stat-value">248</h3>
-                    <p class="stat-desc text-green">+12 trong tuần này</p>
+                    <h3 class="stat-value" id="res-total">248</h3>
+                    <p class="stat-desc text-green">Cập nhật realtime</p>
                 </div>
                 <div class="card stat-card">
                     <span class="stat-label">Chờ duyệt</span>
-                    <h3 class="stat-value">8</h3>
+                    <h3 class="stat-value" id="res-pending">...</h3>
                     <p class="stat-desc">Cần xử lý</p>
                 </div>
                 <div class="card stat-card">
                     <span class="stat-label">Trung bình Đánh giá</span>
-                    <h3 class="stat-value">4.6</h3>
-                    <p class="stat-desc">Từ 3,245 đánh giá</p>
+                    <h3 class="stat-value" id="res-rating">...</h3>
+                    <p class="stat-desc">Trên toàn hệ thống</p>
                 </div>
             </section>
 
@@ -95,6 +95,7 @@
                         </tr>
                         </thead>
                         <tbody id="restaurantTableBody">
+                        <tr><td colspan="5" style="text-align:center">Đang tải dữ liệu...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -106,7 +107,7 @@
 <div id="addModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
-            <h3>Thêm nhà hàng mới</h3>
+            <h3 id="modalTitle">Thêm nhà hàng mới</h3>
             <button class="btn-close" onclick="closeAddModal()">
                 <i data-lucide="x"></i>
             </button>
@@ -114,16 +115,16 @@
         <div class="modal-body">
             <div class="form-group">
                 <label>Tên nhà hàng</label>
-                <input type="text" id="newName" placeholder="Nhập tên nhà hàng...">
+                <input type="text" id="resName" placeholder="Nhập tên nhà hàng...">
             </div>
             <div class="form-group">
                 <label>Địa chỉ</label>
-                <input type="text" id="newAddress" placeholder="Nhập địa chỉ, quận...">
+                <input type="text" id="resAddress" placeholder="Nhập địa chỉ, quận...">
             </div>
         </div>
         <div class="modal-footer">
             <button class="btn-secondary" onclick="closeAddModal()">Hủy</button>
-            <button class="btn-primary" onclick="handleSaveNew()">Lưu lại</button>
+            <button class="btn-primary" id="btnSave">Lưu lại</button>
         </div>
     </div>
 </div>

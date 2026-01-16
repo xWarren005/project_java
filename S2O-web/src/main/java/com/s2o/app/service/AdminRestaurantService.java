@@ -1,61 +1,108 @@
 package com.s2o.app.service;
 
 import com.s2o.app.dto.RestaurantDTO;
+import com.s2o.app.entity.Restaurant;
+import com.s2o.app.repository.RestaurantRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class AdminRestaurantService {
 
-    // List giả lập database
-    private List<RestaurantDTO> restaurantList = new ArrayList<>();
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
-    public AdminRestaurantService() {
-        // Sử dụng Constructor 1 (ID, Name, Address, Status, Rating)
-        restaurantList.add(new RestaurantDTO(1L, "Phở 24", "123 Lê Lợi, Q1, TP.HCM", "active", 4.5));
-        restaurantList.add(new RestaurantDTO(2L, "Sushi World", "456 Nguyễn Huệ, Q3, TP.HCM", "active", 4.8));
-        restaurantList.add(new RestaurantDTO(3L, "BBQ House", "789 Võ Văn Tần, Q3, TP.HCM", "pending", null));
-        restaurantList.add(new RestaurantDTO(4L, "Vegan Garden", "321 Pasteur, Q7, TP.HCM", "active", 4.3));
-        restaurantList.add(new RestaurantDTO(5L, "Pizza Express", "654 Hai Bà Trưng, Q1, TP.HCM", "inactive", 4.1));
-
-        // Thêm dữ liệu để test
-        restaurantList.add(new RestaurantDTO(6L, "Kichi Kichi", "Vincom Đồng Khởi", "active", 4.7));
-        restaurantList.add(new RestaurantDTO(7L, "Gogi House", "Saigon Centre", "pending", null));
-    }
-
-    // 1. Lấy danh sách nhà hàng
+    // 1. Lấy danh sách nhà hàng (Convert Entity -> DTO)
     public List<RestaurantDTO> getAllRestaurants() {
-        return restaurantList;
+        List<Restaurant> restaurants = restaurantRepository.findAll();
+
+        // Sắp xếp: ID giảm dần (Mới nhất lên đầu)
+        restaurants.sort((r1, r2) -> r2.getId().compareTo(r1.getId()));
+
+        return restaurants.stream().map(r -> new RestaurantDTO(
+                r.getId(),
+                r.getName(),
+                r.getAddress(),
+                // Trả về trạng thái duyệt (PENDING/APPROVED/REJECTED)
+                r.getApprovalStatus() != null ? r.getApprovalStatus() : "UNKNOWN",
+                r.getRating() != null ? r.getRating() : 0.0
+        )).collect(Collectors.toList());
     }
 
-    // 2. Tính tổng số quán
-    public int getTotalCount() {
-        return restaurantList.size();
+    // 2. Thống kê: Tổng số nhà hàng
+    public long getTotalCount() {
+        return restaurantRepository.count();
     }
 
-    // 3. Tính số quán đang chờ duyệt (pending)
+    // 3. Thống kê: Số lượng chờ duyệt
     public long getPendingCount() {
-        return restaurantList.stream()
-                .filter(r -> "pending".equalsIgnoreCase(r.getStatus()))
-                .count();
+        return restaurantRepository.countByApprovalStatus("PENDING");
     }
 
-    // 4. Tính điểm đánh giá trung bình
+    // 4. Thống kê: Điểm đánh giá trung bình
     public double getAvgRating() {
-        List<Double> ratings = restaurantList.stream()
-                .map(RestaurantDTO::getRating)
-                .filter(r -> r != null) // Lọc bỏ null
-                .collect(Collectors.toList());
+        List<Restaurant> list = restaurantRepository.findAll();
+        if (list.isEmpty()) return 0.0;
 
-        if (ratings.isEmpty()) return 0.0;
+        double sum = list.stream()
+                .mapToDouble(r -> r.getRating() != null ? r.getRating() : 0.0)
+                .sum();
 
-        double sum = ratings.stream().mapToDouble(Double::doubleValue).sum();
-        double avg = sum / ratings.size();
+        // Làm tròn 1 chữ số thập phân
+        return Math.round((sum / list.size()) * 10.0) / 10.0;
+    }
 
-        // Làm tròn 1 chữ số thập phân (VD: 4.56 -> 4.6)
-        return Math.round(avg * 10.0) / 10.0;
+    // ========================================================
+    // CÁC HÀM XỬ LÝ NGHIỆP VỤ (CRUD) - MỚI BỔ SUNG
+    // ========================================================
+
+    // 5. Thêm nhà hàng mới
+    public void createRestaurant(RestaurantDTO dto) {
+        Restaurant restaurant = new Restaurant();
+        restaurant.setName(dto.getName());
+        restaurant.setAddress(dto.getAddress());
+
+        // Thiết lập mặc định
+        restaurant.setApprovalStatus("PENDING"); // Mới tạo thì chờ duyệt
+        restaurant.setIsActive(false);           // Chưa kích hoạt
+        restaurant.setRating(0.0);               // Chưa có đánh giá
+
+        // Lưu vào DB
+        restaurantRepository.save(restaurant);
+    }
+
+    // 6. Duyệt nhà hàng
+    public void approveRestaurant(long id) {
+        Optional<Restaurant> optional = restaurantRepository.findById(id);
+        if (optional.isPresent()) {
+            Restaurant r = optional.get();
+            r.setApprovalStatus("APPROVED"); // Đổi sang Đã duyệt
+            r.setIsActive(true);             // Kích hoạt hoạt động
+            restaurantRepository.save(r);
+        }
+    }
+
+    // 7. Xóa nhà hàng
+    public void deleteRestaurant(long id) {
+        if (restaurantRepository.existsById(id)) {
+            restaurantRepository.deleteById(id);
+        }
+    }
+    // 8. Cập nhật thông tin nhà hàng
+    public void updateRestaurant(long id, RestaurantDTO dto) {
+        Optional<Restaurant> optional = restaurantRepository.findById(id);
+        if (optional.isPresent()) {
+            Restaurant r = optional.get();
+            // Chỉ cập nhật các trường cho phép sửa
+            r.setName(dto.getName());
+            r.setAddress(dto.getAddress());
+            // Có thể thêm logic sửa số điện thoại, mô tả... tại đây
+
+            restaurantRepository.save(r);
+        }
     }
 }

@@ -23,4 +23,8 @@ public class User {
 
     @Column(name= "role")
     private String role; // USER / ADMIN / MANAGER
+
+    @Column(name = "email")
+    private String email;
+
 }

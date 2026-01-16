@@ -63,8 +63,7 @@
             <div class="card stat-card">
                 <div class="stat-info">
                     <span class="stat-label">Nhà hàng Hoạt động</span>
-                    <h3 class="stat-value">248</h3>
-                    <span class="stat-trend trend-up">↗ +12.5%</span>
+                    <h3 class="stat-value" id="stat-active-res">...</h3>
                 </div>
                 <div class="stat-icon icon-blue">
                     <i data-lucide="file-text"></i>
@@ -73,8 +72,7 @@
             <div class="card stat-card">
                 <div class="stat-info">
                     <span class="stat-label">Tổng Người dùng</span>
-                    <h3 class="stat-value">12,458</h3>
-                    <span class="stat-trend trend-up">↗ +8.2%</span>
+                    <h3 class="stat-value" id="stat-total-users">...</h3>
                 </div>
                 <div class="stat-icon icon-purple">
                     <i data-lucide="users"></i>
@@ -82,9 +80,8 @@
             </div>
             <div class="card stat-card">
                 <div class="stat-info">
-                    <span class="stat-label">Doanh thu Tháng</span>
-                    <h3 class="stat-value">$48,392</h3>
-                    <span class="stat-trend trend-up">↗ +15.3%</span>
+                    <span class="stat-label">Doanh thu </span>
+                    <h3 class="stat-value" id="stat-revenue">...</h3>
                 </div>
                 <div class="stat-icon icon-green">
                     <i data-lucide="dollar-sign"></i>
@@ -92,9 +89,8 @@
             </div>
             <div class="card stat-card">
                 <div class="stat-info">
-                    <span class="stat-label">Uptime Hệ thống</span>
-                    <h3 class="stat-value">99.8%</h3>
-                    <span class="stat-trend trend-down">↘ -0.1%</span>
+                    <span class="stat-label"> Hệ thống</span>
+                    <h3 class="stat-value" id="stat-system">OK</h3>
                 </div>
                 <div class="stat-icon icon-pink">
                     <i data-lucide="activity"></i>
@@ -105,8 +101,7 @@
         <section class="dashboard-middle">
             <div class="card chart-section">
                 <div class="card-header">
-                    <h3>Xu hướng Doanh thu</h3>
-                    <p>Doanh thu 6 tháng gần nhất</p>
+                    <h3>Biểu đồ doanh thu (Năm nay)</h3>
                 </div>
                 <div class="chart-container">
                     <canvas id="revenueChart"></canvas>
@@ -119,60 +114,11 @@
                         <h3>Danh sách Nhà hàng</h3>
                         <p>Cập nhật mới nhất</p>
                     </div>
-                    <div>
-                        <select id="sortFilter" onchange="sortList()" class="filter-select">
-                            <option value="newest">Mới nhất</option>
-                            <option value="oldest">Cũ nhất</option>
-                        </select>
-                    </div>
                 </div>
-
-                <div class="registration-list" id="restaurantList">
-                    <div class="reg-item" data-timestamp="1700000004">
-                        <div class="reg-info">
-                            <strong>Phở 24</strong>
-                            <span>Quận 1, TP.HCM</span>
-                        </div>
-                        <div class="reg-action">
-                            <span class="time">Vừa truy cập</span>
-                            <span class="status-badge success">Hoạt động</span>
-                        </div>
+                    <div class="registration-list" id="restaurantListContainer">
+                        Loading...
                     </div>
-
-                    <div class="reg-item" data-timestamp="1700000003">
-                        <div class="reg-info">
-                            <strong>Sushi World</strong>
-                            <span>Quận 3, TP.HCM</span>
-                        </div>
-                        <div class="reg-action">
-                            <span class="time">5 phút trước</span>
-                            <span class="status-badge success">Hoạt động</span>
-                        </div>
                     </div>
-
-                    <div class="reg-item" data-timestamp="1700000002">
-                        <div class="reg-info">
-                            <strong>BBQ House</strong>
-                            <span>Cầu Giấy, Hà Nội</span>
-                        </div>
-                        <div class="reg-action">
-                            <span class="time">1 giờ trước</span>
-                            <span class="status-badge error" style="background:#fee2e2; color:#991b1b">Đóng cửa</span>
-                        </div>
-                    </div>
-
-                    <div class="reg-item" data-timestamp="1700000001">
-                        <div class="reg-info">
-                            <strong>Kichi Kichi</strong>
-                            <span>Đà Nẵng</span>
-                        </div>
-                        <div class="reg-action">
-                            <span class="time">2 giờ trước</span>
-                            <span class="status-badge success">Hoạt động</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </section>
 
         <section class="card recent-activity">
@@ -191,28 +137,7 @@
                         <th>Trạng thái</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    <tr>
-                        <td>14:30</td>
-                        <td>admin@system.com</td>
-                        <td>Phê duyệt nhà hàng</td>
-                        <td>Phở 24 - Quận 1</td>
-                        <td><span class="status-badge success">Thành công</span></td>
-                    </tr>
-                    <tr>
-                        <td>14:15</td>
-                        <td>manager@pho24.com</td>
-                        <td>Cập nhật menu</td>
-                        <td>Thêm 5 món mới</td>
-                        <td><span class="status-badge success">Thành công</span></td>
-                    </tr>
-                    <tr>
-                        <td>13:20</td>
-                        <td>admin@system.com</td>
-                        <td>Từ chối đăng ký</td>
-                        <td>Nhà hàng X - Vi phạm</td>
-                        <td><span class="status-badge error">Lỗi</span></td>
-                    </tr>
+                    <tbody id="activityTableBody">
                     </tbody>
                 </table>
             </div>

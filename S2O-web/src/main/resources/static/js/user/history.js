@@ -72,7 +72,7 @@ function renderHistoryList(orders) {
             </div>`;
     return;
   }
-  ListContainer.innerHTML = orders.map(order => `
+  listContainer.innerHTML = orders.map(order => `
         <div class="history-item">
             <div class="history-header">
                 <div class="history-info">

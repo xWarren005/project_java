@@ -133,7 +133,7 @@ body {
     border-bottom: 1px solid var(--color-border);
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -155,6 +155,7 @@ body {
     max-width: 1200px;
     margin: 0 auto;
     padding: 16px;
+    overflow: visible;
 }
 
 .section-title {
@@ -319,6 +320,10 @@ body {
     background: white;
     padding: 4px;
     gap: 4px;
+    position: sticky;
+    top: 73px; /* Chiều cao header ~73px */
+    z-index: 990;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .tab {
@@ -347,7 +352,13 @@ body {
 }
 
 .search-box {
-    margin-bottom: 16px;
+    margin-bottom: 0;
+    position: sticky;
+    top: 122px;
+    z-index: 980;
+    background-color: var(--color-bg);
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .search-input {
@@ -358,8 +369,12 @@ body {
     display: flex;
     gap: 8px;
     overflow-x: auto;
-    padding-bottom: 8px;
-    margin-bottom: 16px;
+    padding-bottom: 15px;
+    margin-bottom: 0;
+    position: sticky;
+    top: 180px; /* Top Search(125px) + Height Search(~55px) */
+    z-index: 980;
+    background-color: var(--color-bg); /* Màu nền */
 }
 
 .categories::-webkit-scrollbar {
@@ -469,7 +484,7 @@ body {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 99;
+    z-index: 1990;
     display: none;
 }
 
@@ -485,7 +500,7 @@ body {
     max-width: 400px;
     height: 100%;
     background: white;
-    z-index: 100;
+    z-index: 2000;
     transition: right 0.3s;
     display: flex;
     flex-direction: column;
@@ -602,4 +617,95 @@ body {
 
 .total-price {
     color: var(--color-secondary);
+}
+/* =========================================
+   PROFILE SIDEBAR ADDITIONS
+   ========================================= */
+
+/* Đảm bảo Profile luôn nằm đè lên Cart nếu lỡ mở cả hai */
+#profile-sidebar {
+    z-index: 2100;
+}
+#profile-overlay {
+    z-index: 2050;
+}
+
+/* Nút mũi tên quay lại (Back Button) */
+.btn-back-sidebar {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text);
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px; /* Khoảng cách với tiêu đề */
+    transition: background 0.2s;
+}
+
+.btn-back-sidebar:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Icon mũi tên */
+.icon-back-arrow {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.5;
+}
+
+/* Nội dung bên trong Profile */
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 70%;
+    padding: 24px;
+    text-align: center;
+}
+
+.profile-icon-circle {
+    width: 80px;
+    height: 80px;
+    background: #f3f4f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    color: #9ca3af;
+}
+
+.profile-title-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 8px;
+}
+
+.profile-desc-text {
+    font-size: 14px;
+    color: var(--color-text-light);
+    margin-bottom: 32px;
+    line-height: 1.5;
+}
+
+.btn-login-sidebar {
+    width: 100%;
+    padding: 14px;
+    background: var(--color-primary);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 16px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: block; /* Để thẻ a hoạt động như nút block */
+}
+
+.btn-login-sidebar:hover {
+    opacity: 0.9;
 }

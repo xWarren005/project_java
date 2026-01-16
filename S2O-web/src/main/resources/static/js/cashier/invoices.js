@@ -1,35 +1,33 @@
 /* invoices.js */
 
-// Dữ liệu giả lập
-const invoicesData = [
-    {
-        id: 'INV-001', table: 2, status: 'unpaid', time: '12:30 20/12/2025',
-        items: [{name: 'Phở Bò', price: 65000, qty: 2}, {name: 'Quẩy', price: 5000, qty: 4}],
-        total: 150000
-    },
-    {
-        id: 'INV-002', table: 5, status: 'paid', method: 'Tiền mặt', time: '11:15 20/12/2025',
-        items: [{name: 'Bún Chả', price: 55000, qty: 2}, {name: 'Nem Cua', price: 20000, qty: 2}],
-        total: 150000
-    },
-    {
-        id: 'INV-003', table: 8, status: 'unpaid', time: '12:45 20/12/2025',
-        items: [{name: 'Lẩu Thái', price: 350000, qty: 1}, {name: 'Pepsi', price: 15000, qty: 4}],
-        total: 410000
-    },
-    {
-        id: 'INV-004', table: 1, status: 'paid', method: 'Chuyển khoản', time: '10:30 20/12/2025',
-        items: [{name: 'Cafe Sữa', price: 25000, qty: 2}],
-        total: 50000
-    },
-];
-
-let currentFilter = 'unpaid'; // Mặc định hiển thị tab Chờ thanh toán
+// Biến lưu trữ dữ liệu toàn cục
+let invoicesData = [];
+let currentFilter = 'UNPAID';
 
 document.addEventListener("DOMContentLoaded", () => {
-    updateStats();
-    filterInvoices('unpaid'); // Mặc định load tab chưa thanh toán
+    // Menu cashier
+    if(typeof renderTopHeader === 'function') renderTopHeader();
+    if(typeof renderCashierMenu === 'function') renderCashierMenu('invoices');
+
+    fetchInvoices();
+    // Tự động refresh sau mỗi 30s
+    setInterval(fetchInvoices, 30000);
 });
+
+/* --- 0. FETCH DATA FROM API --- */
+async function fetchInvoices() {
+    try {
+        const response = await fetch('/api/cashier/invoices');
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        invoicesData = await response.json();
+        updateStats();
+        // Giữ nguyên tab đang chọn khi reload
+        filterInvoices(currentFilter);
+    } catch (error) {
+        console.error('Error fetching invoices:', error);
+    }
+}
 
 /* --- 1. RENDER LIST --- */
 function filterInvoices(status) {
@@ -37,43 +35,54 @@ function filterInvoices(status) {
 
     // Update UI Tabs
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-    // Tìm nút tương ứng để active (cách đơn giản dựa trên text hoặc onclick)
     const btns = document.querySelectorAll('.filter-btn');
-    if(status === 'unpaid') btns[0].classList.add('active');
-    else btns[1].classList.add('active');
+
+    if(status === 'UNPAID') {
+        if(btns[0]) btns[0].classList.add('active');
+    } else {
+        if(btns[1]) btns[1].classList.add('active');
+    }
 
     // Filter Data
     const filtered = invoicesData.filter(inv => inv.status === status);
     const container = document.getElementById("invoice-list");
 
     if (filtered.length === 0) {
-        container.innerHTML = `<div style="text-align:center; color:#999; padding:2rem;">Không có hóa đơn nào</div>`;
+        container.innerHTML = `<div style="text-align:center; color:#999; padding:3rem;">
+            <i class="fa-solid fa-clipboard-list" style="font-size:2rem; margin-bottom:10px; display:block"></i>
+            Không có hóa đơn nào
+        </div>`;
         return;
     }
 
     container.innerHTML = filtered.map(inv => {
-        const badgeClass = inv.status === 'unpaid' ? 'unpaid' : 'paid';
-        const badgeText = inv.status === 'unpaid' ? 'Chờ thanh toán' : 'Đã thanh toán';
-        const methodText = inv.status === 'paid' ? `<span style="font-size:0.8rem; color:#00b894; margin-left:10px;">(${inv.method})</span>` : '';
+        const badgeClass = inv.status === 'UNPAID' ? 'unpaid' : 'paid';
+        const badgeText = inv.status === 'UNPAID' ? 'Chờ thanh toán' : 'Đã thanh toán';
+
+        const methodText = inv.status === 'PAID' && inv.method
+            ? `<span style="font-size:0.8rem; color:#00b894; margin-left:10px;">(${inv.method})</span>`
+            : '';
+        const tableName = inv.table ? inv.table : 'Mang về';
+
+        // Format tiền tệ
+        const totalFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(inv.total);
 
         return `
-            <div class="invoice-card">
+            <div class="invoice-card" onclick="openInvoiceDetail('${inv.id}')" style="cursor:pointer">
                 <div class="inv-left">
                     <div class="inv-icon"><i class="fa-solid fa-receipt"></i></div>
                     <div class="inv-details">
                         <h4>${inv.id} <span class="inv-badge ${badgeClass}">${badgeText}</span> ${methodText}</h4>
                         <p>
-                            <span><i class="fa-solid fa-table"></i> Bàn ${inv.table}</span>
+                            <span><i class="fa-solid fa-table"></i> Bàn ${tableName}</span>
                             <span><i class="fa-regular fa-clock"></i> ${inv.time}</span>
                             <span><i class="fa-solid fa-layer-group"></i> ${inv.items.length} món</span>
                         </p>
                     </div>
                 </div>
                 <div class="inv-right">
-                    <span class="inv-total">${inv.total.toLocaleString()}đ</span>
-                    <button class="btn-view" onclick="openInvoiceDetail('${inv.id}')">
-                        <i class="fa-regular fa-eye"></i> Xem
-                    </button>
+                    <span class="inv-total">${totalFormatted}</span>
+                    <button class="btn-view">Xem chi tiết</button>
                 </div>
             </div>
         `;
@@ -82,59 +91,55 @@ function filterInvoices(status) {
 
 /* --- 2. STATS --- */
 function updateStats() {
-    // Chỉ tính doanh thu của hóa đơn đã thanh toán (paid)
-    const paidInvoices = invoicesData.filter(i => i.status === 'paid');
+    const paidInvoices = invoicesData.filter(i => i.status === 'PAID');
     const totalRevenue = paidInvoices.reduce((sum, item) => sum + item.total, 0);
     const avg = paidInvoices.length ? totalRevenue / paidInvoices.length : 0;
 
-    document.getElementById('stat-count').innerText = invoicesData.length; // Tổng all hóa đơn trong ngày
-    document.getElementById('stat-revenue').innerText = totalRevenue.toLocaleString() + 'đ';
-    document.getElementById('stat-avg').innerText = avg.toLocaleString() + 'đ';
+    const countEl = document.getElementById('stat-count');
+    if(countEl) countEl.innerText = invoicesData.length;
+
+    const revEl = document.getElementById('stat-revenue');
+    if(revEl) revEl.innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalRevenue);
+
+    const avgEl = document.getElementById('stat-avg');
+    if(avgEl) avgEl.innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(avg);
 }
 
-/* --- 3. MODAL & LOGIC NÚT BẤM --- */
+/* --- 3. MODAL LOGIC --- */
 function openInvoiceDetail(id) {
     const inv = invoicesData.find(i => i.id === id);
     if(!inv) return;
 
-    // Fill thông tin cơ bản
     document.getElementById('m-inv-id').innerText = inv.id;
-    document.getElementById('m-table').innerText = `#${inv.table}`;
+    document.getElementById('m-table').innerText = `#${inv.table || 'Mang về'}`;
     document.getElementById('m-time').innerText = inv.time;
-    document.getElementById('m-total').innerText = inv.total.toLocaleString() + 'đ';
+    document.getElementById('m-total').innerText = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(inv.total);
 
-    // Render món ăn
     const listHtml = inv.items.map(item => `
         <li>
-            <span class="item-name"><span class="item-qty">${item.qty}x</span> ${item.name}</span>
-            <span class="item-price">${(item.price * item.qty).toLocaleString()}đ</span>
+            <span class="item-name"><span class="item-qty" style="font-weight:bold">${item.qty}x</span> ${item.name}</span>
+            <span class="item-price">${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price * item.qty)}</span>
         </li>
     `).join('');
     document.getElementById('m-items-list').innerHTML = listHtml;
 
-    // Xử lý logic hiển thị theo trạng thái (QUAN TRỌNG)
     const actionContainer = document.getElementById('m-actions');
     const paymentInfoBox = document.getElementById('m-payment-info');
 
-    if (inv.status === 'unpaid') {
-        // TRƯỜNG HỢP: CHƯA THANH TOÁN
-        paymentInfoBox.style.display = 'none'; // Ẩn thông tin phương thức
-
-        // Hiện 2 nút: In và Thanh Toán
+    if (inv.status === 'UNPAID') {
+        paymentInfoBox.style.display = 'none';
+        // Nút Thanh Toán gọi hàm goToPayment
         actionContainer.innerHTML = `
             <button class="btn-print" onclick="printInvoice('${inv.id}')">
-                <i class="fa-solid fa-print"></i> In Hóa Đơn
+                <i class="fa-solid fa-print"></i> In Bill
             </button>
             <button class="btn-pay" onclick="goToPayment('${inv.id}')">
                 <i class="fa-solid fa-credit-card"></i> Thanh Toán
             </button>
         `;
     } else {
-        // TRƯỜNG HỢP: ĐÃ THANH TOÁN
         paymentInfoBox.style.display = 'block';
-        document.getElementById('m-method').innerText = inv.method;
-
-        // Chỉ hiện nút In (hoặc Tải về)
+        document.getElementById('m-method').innerText = inv.method || 'N/A';
         actionContainer.innerHTML = `
              <button class="btn-print" style="width:100%" onclick="printInvoice('${inv.id}')">
                 <i class="fa-solid fa-print"></i> In Lại Hóa Đơn
@@ -149,27 +154,28 @@ function closeModal() {
     document.getElementById('invoice-modal').style.display = 'none';
 }
 
-// Click ngoài modal để đóng
 window.onclick = function(e) {
     if (e.target == document.getElementById('invoice-modal')) {
         closeModal();
     }
 }
 
-/* --- 4. CHỨC NĂNG THANH TOÁN & IN --- */
-
+/* --- 4. ACTION --- */
 function printInvoice(id) {
-    alert(`Đang in hóa đơn ${id}... (Mô phỏng)`);
+    alert(`Đang gửi lệnh in hóa đơn ${id}...`);
 }
 
+// [UPDATED] Hàm chuyển hướng thanh toán
 function goToPayment(id) {
-    // 1. Tìm hóa đơn
+    // id tham số là chuỗi hiển thị (ví dụ: INV-001)
     const inv = invoicesData.find(i => i.id === id);
 
-    // 2. Lưu thông tin hóa đơn này vào LocalStorage để trang payment.html đọc được
-    // Ta gửi toàn bộ object invoice qua
-    localStorage.setItem('pendingInvoice', JSON.stringify(inv));
-
-    // 3. Chuyển trang
-    window.location.href = 'payment.html';
+    // Kiểm tra xem có orderId (Long/Int từ DB) không
+    if (inv && inv.orderId) {
+        // Chuyển hướng sang trang Payment với Query Param
+        window.location.href = `/cashier/payment?orderId=${inv.orderId}`;
+    } else {
+        alert("Không tìm thấy dữ liệu đơn hàng để thanh toán!");
+        console.error("Missing orderId for invoice:", inv);
+    }
 }
