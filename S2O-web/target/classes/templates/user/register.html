@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký tài khoản - S2O</title>
+    <link rel="stylesheet" href="../../static/css/user/login.css">
+    <link rel="stylesheet" th:href="@{/css/user/login.css}">
+</head>
+<body>
+<main class="auth-container">
+    <section class="auth-card" style="margin-top: 20px;">
+        <header class="auth-header">
+            <h1 class="auth-title">Đăng Ký</h1>
+            <p class="auth-subtitle">Tạo tài khoản để tích điểm và nhận ưu đãi</p>
+        </header>
+
+        <div th:if="${error}" class="alert alert-danger" style="color: red; text-align: center; margin-bottom: 15px;">
+            <span th:text="${error}"></span>
+        </div>
+
+        <form th:action="@{/user/register}" method="POST" class="login-form">
+
+            <div class="form-group">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" name="fullName" class="form-input" placeholder="họ và tện" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Email hoặc Số điện thoại</label>
+                <input type="text" name="username" class="form-input" placeholder="username" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Mật khẩu</label>
+                <div class="password-wrapper">
+                    <input type="password" name="password" class="form-input" placeholder="password" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nhập lại mật khẩu</label>
+                <div class="password-wrapper">
+                    <input type="password" name="confirmPassword" class="form-input" placeholder="Xác nhận password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Đăng Ký Tài Khoản</button>
+        </form>
+
+        <footer class="auth-footer">
+            <p class="text-register">
+                Đã có tài khoản? <a href="/user/login">Đăng nhập ngay</a>
+            </p>
+        </footer>
+    </section>
+</main>
+</body>
+</html>
