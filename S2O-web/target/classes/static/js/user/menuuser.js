@@ -41,6 +41,26 @@ function switchTab(tab) {
     // 4. hiện tab được chọn
     document.getElementById(`tab-${tab}`)
         .classList.add("active")
+    // 2. KẾT NỐI VỚI FILE orders.js
+    if (tab === 'orders') {
+        // Kiểm tra xem hàm loadOrderHistory đã tồn tại chưa (do file orders.js load)
+        if (typeof loadOrderHistory === "function") {
+            loadOrderHistory(true);
+        if (typeof startOrderPolling === "function") {
+            startOrderPolling();
+        }
+        }
+    }
+    if (tab === 'invoice') {
+        if (typeof loadInvoice === "function") {
+            loadInvoice();
+        }
+    }
+    if (tab === 'payment') {
+        if (typeof renderPayment === "function") {
+            renderPayment();
+        }
+    }
 }
 /* ========= 3. STORAGE (LocalStorage) ========= */
 const Storage = {
@@ -95,7 +115,7 @@ let cart = []
 /* INIT */
 document.addEventListener("DOMContentLoaded",async () => {
     cart = Storage.getCart();
-    // 2. GỌI API LẤY MENU THẬT
+    mergeGuestCartToUserCart();
 // 2. GỌI API LẤY MENU TỪ DB
     if(restaurantId) {
         await fetchMenuData();
@@ -105,9 +125,49 @@ document.addEventListener("DOMContentLoaded",async () => {
 
     // 3. Update UI
     updateCartBadge();
-    const totalEl = document.getElementById("cart-total");
-    if(totalEl) totalEl.textContent = "0đ";
+    renderCart();
 });
+/* --- HÀM GỘP GIỎ HÀNG (THÊM MỚI) --- */
+function mergeGuestCartToUserCart() {
+    const guestTableId = localStorage.getItem("currentTableId") || tableId;
+    if (!guestTableId) return;
+
+    // Key giỏ hàng của Guest (format bên file guest-menu.js)
+    const guestCartKey = `guest_cart_${guestTableId}`;
+    const guestCartJson = localStorage.getItem(guestCartKey);
+
+    if (guestCartJson) {
+        const guestCart = JSON.parse(guestCartJson);
+
+        if (guestCart.length > 0) {
+                guestCart.forEach(gItem => {
+                    const existItem = cart.find(cItem => cItem.id == gItem.id);
+                    const qty = parseInt(gItem.quantity) || 1;
+                    if (existItem) {
+                        existItem.quantity += qty;
+                    } else {
+                        // Thêm mới
+                        cart.push({
+                            ...gItem,
+                            quantity: qty,
+                            price: parseFloat(gItem.price) // Đảm bảo giá là số
+                        });
+                    }
+                });
+
+                // Lưu lại vào Storage của User
+                Storage.saveCart(null, cart);
+
+                // Cập nhật UI ngay lập tức
+                updateCartBadge();
+                renderCart();
+            }
+
+            // Dù gộp hay không, ta nên xóa giỏ hàng Guest đi để tránh hỏi lại lần sau
+            // Hoặc nếu muốn giữ lại khi họ chọn "Cancel", bạn có thể bỏ dòng dưới
+            localStorage.removeItem(guestCartKey);
+        }
+}
 /* --- HÀM GỌI API (Tách ra cho gọn) --- */
 async function fetchMenuData() {
     try {
@@ -163,20 +223,52 @@ function loadMenuItems() {
     el.innerHTML = items.map(i =>{
         // Xử lý ảnh null
         const imgUrl = (i.image && i.image.trim() !== "") ? i.image : "/images/default-food.png";
+// LOGIC HIỂN THỊ GIÁ
+        let priceHtml = '';
+        let badgeHtml = '';
 
-        return`
-    <div class="menu-item-card">
-      <img class="menu-item-image" src="${imgUrl}" onerror="this.src='/images/default-food.png'">
-      <div class="menu-item-content">
-      <h3 class="menu-item-name">${i.name}</h3>
-      <p class="menu-item-desc">${i.description || ''}</p>
-      <div class="menu-item-footer">
-        <span> &nbsp; ${formatPrice(i.price)}</span>
-        <button class="btn-add" onclick="addToCart('${i.id}')">Thêm</button>
-      </div>
-      </div>
-    </div>
-  `}).join("")
+        if (i.discount && i.discount > 0) {
+            const originalPrice = i.price;
+            const discountedPrice = originalPrice * (1 - i.discount / 100);
+
+            // Giá đỏ + Giá cũ gạch ngang
+            priceHtml = `
+                <div style="display:flex; flex-direction:column; align-items:flex-start;">
+                    <span style="color:#ef4444; font-weight:700; font-size:18px;">
+                        ${formatPrice(discountedPrice)}
+                    </span>
+                    <span style="text-decoration:line-through; color:#9ca3af; font-size:13px;">
+                        ${formatPrice(originalPrice)}
+                    </span>
+                </div>
+            `;
+            // Tem giảm giá
+            badgeHtml = `
+                <span class="discount-badge" style="position:absolute; top:0; right:0; background:#ef4444; color:white; font-size:12px; font-weight:bold; padding:4px 8px; border-bottom-left-radius:8px; z-index:10;">
+                    -${i.discount}%
+                </span>
+            `;
+        } else {
+            // Giá thường
+            priceHtml = `<span style="font-size:18px; font-weight:700; color:#08264a;">${formatPrice(i.price)}</span>`;
+        }
+        return `
+            <div class="menu-item-card">
+                <div class="menu-item-image-wrapper" style="position: relative;">
+                    <img class="menu-item-image" src="${imgUrl}" onerror="this.src='/images/default-food.png'">
+                    ${badgeHtml}
+                </div>
+                <div class="menu-item-content">
+                    <h3 class="menu-item-name">${i.name}</h3>
+                    <p class="menu-item-desc" style="font-size:13px; color:#666; margin-bottom:8px;">${i.description || ''}</p>
+                    <div class="menu-item-footer" style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto;">
+                        ${priceHtml}
+                        <button class="btn-add" onclick="addToCart('${i.id}')">Thêm</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join("");
 }
 
 function renderCart() {
@@ -217,19 +309,26 @@ function updateCartTotal() {
 
 /* ========= CART ========= */
 function addToCart(id) {
-    const item = ServerData.getMenuItem(id)
+    const item = ServerData.getMenuItem(id);
     if (!item) return;
-    const exist = cart.find(i => i.id === id)
-    if (exist) { exist.quantity++ }
-    else {
-        cart.push({...item, quantity: 1})
+
+    // Tính giá thực tế để lưu vào giỏ
+    let finalPrice = item.price;
+    if (item.discount && item.discount > 0) {
+        finalPrice = item.price * (1 - item.discount / 100);
     }
-    Storage.saveCart(null, cart)
-    updateCartBadge()
-    renderCart()
-// Mở cart ngay (UX)
-const overlay = document.getElementById("cart-overlay");
-if(overlay && !overlay.classList.contains("active")) toggleCart();
+    const exist = cart.find(i => String(i.id) === String(id));
+
+    if (exist) {
+        exist.quantity++;
+    } else {
+        // Lưu finalPrice vào giỏ thay vì giá gốc
+        cart.push({...item, price: finalPrice, quantity: 1});
+    }
+
+    Storage.saveCart(null, cart); // Hoặc Storage.saveCart(cart) đối với Guest
+    updateCartBadge();
+    renderCart();
 }
 
 function updateCartBadge() {
@@ -255,7 +354,6 @@ async function placeOrder() {
     if (!tableId) {
         alert("Vui lòng quét lại mã QR tại bàn."); return;
     }
-    if (!confirm("Xác nhận gửi món xuống bếp?")) return;
     // Chuẩn bị dữ liệu gửi (UserOrderRequest)
     const payload = {
         restaurantId: parseInt(restaurantId),

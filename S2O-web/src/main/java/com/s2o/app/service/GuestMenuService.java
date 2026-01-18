@@ -66,6 +66,7 @@ public class GuestMenuService {
                 dto.setName(p.getName());
                 dto.setDescription(p.getDescription());
                 dto.setPrice(p.getPrice());
+                dto.setDiscount(p.getDiscount() != null ? p.getDiscount() : 0.0);
                 // Xử lý ảnh null
                 dto.setImage(p.getImageUrl() != null ? p.getImageUrl() : "/images/default-food.png");
                 dto.setCategory(String.valueOf(p.getCategory().getId())); // Quan trọng để lọc tab
@@ -105,10 +106,19 @@ public class GuestMenuService {
                 oi.setOrder(order);
                 oi.setProduct(p);
                 oi.setQuantity(itemReq.getQuantity());
-                oi.setUnitPrice(p.getPrice());
+                BigDecimal unitPrice = p.getPrice(); // Giá gốc
 
-                // Cộng dồn tổng tiền
-                total = total.add(p.getPrice().multiply(new BigDecimal(itemReq.getQuantity())));
+                // Nếu có giảm giá > 0
+                if (p.getDiscount() != null && p.getDiscount() > 0) {
+                    // Công thức: Giá gốc * (100 - Discount) / 100
+                    BigDecimal discountFactor = BigDecimal.valueOf(100 - p.getDiscount()).divide(BigDecimal.valueOf(100));
+                    unitPrice = unitPrice.multiply(discountFactor);
+                }
+
+                oi.setUnitPrice(unitPrice); // Lưu GIÁ THỰC TẾ (đã giảm) vào DB
+                // ============================
+
+                total = total.add(unitPrice.multiply(new BigDecimal(itemReq.getQuantity())));
                 orderItems.add(oi);
             }
         }

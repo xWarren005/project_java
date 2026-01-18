@@ -36,6 +36,9 @@ public class UserService {
         }
 
         User user = userOpt.get();
+        if (!"CUSTOMER".equals(user.getRole())) {
+            return null; // Hoặc bạn có thể throw exception để báo lỗi cụ thể
+        }
 
 
         // 2. So sánh password nhập vào với password_hash trong DB

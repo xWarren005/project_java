@@ -7,7 +7,8 @@ import com.s2o.app.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public class UserMenuService {
                 dto.setName(p.getName());
                 dto.setDescription(p.getDescription());
                 dto.setPrice(p.getPrice());
+                dto.setDiscount(p.getDiscount() != null ? p.getDiscount() : 0.0);
                 // Xử lý ảnh null
                 dto.setImage(p.getImageUrl() != null ? p.getImageUrl() : "/images/default-food.png");
                 dto.setCategory(String.valueOf(p.getCategory().getId())); // Quan trọng để lọc tab
@@ -85,7 +87,8 @@ public class UserMenuService {
         order.setTableId(request.getTableId());
         order.setNote(request.getNote());
         order.setStatus("PENDING"); // Trạng thái chờ bếp xác nhận
-        order.setCreatedAt(LocalDateTime.now());
+        order.setCreatedAt(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime()
+        );
 
         BigDecimal total = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
@@ -99,10 +102,19 @@ public class UserMenuService {
                 oi.setOrder(order); // Liên kết khóa ngoại
                 oi.setProduct(p);
                 oi.setQuantity(itemReq.getQuantity());
-                oi.setUnitPrice(p.getPrice()); // Lưu giá tại thời điểm đặt (đề phòng giá đổi sau này)
+                BigDecimal unitPrice = p.getPrice(); // Giá gốc
 
-                // Cộng dồn tổng tiền
-                total = total.add(p.getPrice().multiply(new BigDecimal(itemReq.getQuantity())));
+                // Nếu có giảm giá > 0
+                if (p.getDiscount() != null && p.getDiscount() > 0) {
+                    // Công thức: Giá gốc * (100 - Discount) / 100
+                    BigDecimal discountFactor = BigDecimal.valueOf(100 - p.getDiscount()).divide(BigDecimal.valueOf(100));
+                    unitPrice = unitPrice.multiply(discountFactor);
+                }
+
+                oi.setUnitPrice(unitPrice); // Lưu GIÁ THỰC TẾ (đã giảm) vào DB
+                // ============================
+
+                total = total.add(unitPrice.multiply(new BigDecimal(itemReq.getQuantity())));
                 orderItems.add(oi);
             }
         }

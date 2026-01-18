@@ -168,16 +168,49 @@ function loadMenuItems() {
     return;
   }
 
-  el.innerHTML = items.map(i => {
+  el.innerHTML = items.map(i =>{
+    // Xử lý ảnh null
     const imgUrl = (i.image && i.image.trim() !== "") ? i.image : "/images/default-food.png";
+// LOGIC HIỂN THỊ GIÁ
+    let priceHtml = '';
+    let badgeHtml = '';
+
+    if (i.discount && i.discount > 0) {
+      const originalPrice = i.price;
+      const discountedPrice = originalPrice * (1 - i.discount / 100);
+
+      // Giá đỏ + Giá cũ gạch ngang
+      priceHtml = `
+                <div style="display:flex; flex-direction:column; align-items:flex-start;">
+                    <span style="color:#ef4444; font-weight:700; font-size:18px;">
+                        ${formatPrice(discountedPrice)}
+                    </span>
+                    <span style="text-decoration:line-through; color:#9ca3af; font-size:13px;">
+                        ${formatPrice(originalPrice)}
+                    </span>
+                </div>
+            `;
+      // Tem giảm giá
+      badgeHtml = `
+                <span class="discount-badge" style="position:absolute; top:0; right:0; background:#ef4444; color:white; font-size:12px; font-weight:bold; padding:4px 8px; border-bottom-left-radius:8px; z-index:10;">
+                    -${i.discount}%
+                </span>
+            `;
+    } else {
+      // Giá thường
+      priceHtml = `<span style="font-size:18px; font-weight:700; color:#08264a;">${formatPrice(i.price)}</span>`;
+    }
     return `
             <div class="menu-item-card">
-                <img class="menu-item-image" src="${imgUrl}" onerror="this.src='/images/default-food.png'">
+                <div class="menu-item-image-wrapper" style="position: relative;">
+                    <img class="menu-item-image" src="${imgUrl}" onerror="this.src='/images/default-food.png'">
+                    ${badgeHtml}
+                </div>
                 <div class="menu-item-content">
                     <h3 class="menu-item-name">${i.name}</h3>
-                    <p class="menu-item-desc">${i.description || ''}</p>
-                    <div class="menu-item-footer">
-                        <span class="price">${formatPrice(i.price)}</span>
+                    <p class="menu-item-desc" style="font-size:13px; color:#666; margin-bottom:8px;">${i.description || ''}</p>
+                    <div class="menu-item-footer" style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: auto;">
+                        ${priceHtml}
                         <button class="btn-add" onclick="addToCart('${i.id}')">Thêm</button>
                     </div>
                 </div>
@@ -191,18 +224,24 @@ function addToCart(id) {
   const item = ServerData.getMenuItem(id);
   if (!item) return;
 
-  const exist = cart.find(i => i.id == id);
+  // Tính giá thực tế để lưu vào giỏ
+  let finalPrice = item.price;
+  if (item.discount && item.discount > 0) {
+    finalPrice = item.price * (1 - item.discount / 100);
+  }
+  const exist = cart.find(i => String(i.id) === String(id));
+
   if (exist) {
     exist.quantity++;
   } else {
-    cart.push({...item, quantity: 1});
+    // Lưu finalPrice vào giỏ thay vì giá gốc
+    cart.push({...item, price: finalPrice, quantity: 1});
   }
 
-  Storage.saveCart(cart);
+  Storage.saveCart(null, cart); // Hoặc Storage.saveCart(cart) đối với Guest
   updateCartBadge();
   renderCart();
 }
-
 function increaseQty(id) {
   const item = cart.find(i => i.id == id);
   if (!item) return;

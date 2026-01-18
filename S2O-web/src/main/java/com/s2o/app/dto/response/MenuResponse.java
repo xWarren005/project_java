@@ -26,6 +26,7 @@ public class MenuResponse {
         private String description;
         private BigDecimal price;
         private String image;
-        private String category; // ID danh mục để lọc
+        private String category;
+        private Double discount;
     }
 }
