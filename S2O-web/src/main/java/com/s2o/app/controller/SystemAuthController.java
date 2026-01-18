@@ -44,14 +44,15 @@ public class SystemAuthController {
         // Điều hướng dựa trên Role (Phân quyền chuyển trang)
         String role = user.getRole();
 
-        if ("ADMIN".equals(role) || "MANAGER".equals(role)) {
-            return "redirect:/admin/dashboard"; // Admin/Manager vào Dashboard thống kê
+        if ("ADMIN".equals(role)) {
+            return "redirect:/admin/dashboard"; // Admin Dashboard thống kê
         } else if ("CHEF".equals(role)) {
             return "redirect:/chef/dashboard";     // Đầu bếp vào trang Bếp
+        } else if ("MANAGER".equals(role)) {
+            return "redirect:/manager/overview";     // quaản lý vào trang quản lý
         } else if ("CASHIER".equals(role)) {
-            return "redirect:/cashier/tables";     // Thu ngân vào trang POS
+            return "redirect:/cashier/tables";// Thu ngân vào trang POS
         }
-
         // Mặc định
         return "redirect:/admin/dashboard";
     }
