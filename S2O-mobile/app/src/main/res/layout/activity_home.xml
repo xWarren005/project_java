@@ -1,38 +1,333 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp">
-
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/emptyFeatured"
+<androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="No featured restaurants"
-        android:visibility="gone" />
+        android:layout_height="match_parent"
+        android:background="#EEF2F5">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvFeatured"
-        android:layout_width="match_parent"
-        android:layout_height="120dp" />
+    <!-- HEADER -->
+    <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:background="#0A2A4A"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-    <TextView
-        android:id="@+id/emptyRecommended"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="No recommended restaurants"
-        android:visibility="gone" />
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="RESTAURANT APP"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+    </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvRecommended"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-</LinearLayout>
+    <!-- GRID MENU -->
+    <GridLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:columnCount="2"
+            android:useDefaultMargins="true"
+            app:layout_constraintTop_toBottomOf="@id/header"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- ===== ITEM 1 ===== -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_home_item"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đăng nhập"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Tài khoản người dùng"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:gravity="center"/>
+        </LinearLayout>
+
+        <!-- ===== ITEM 2 ===== -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_home_item"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Trang chủ"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Khám phá nhà hàng"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:gravity="center"/>
+        </LinearLayout>
+
+        <!-- ===== ITEM 3 ===== -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_home_item"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chi tiết"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Thông tin nhà hàng"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:gravity="center"/>
+        </LinearLayout>
+
+        <!-- ===== ITEM 4 ===== -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_home_item"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Menu"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Danh sách món ăn"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:gravity="center"/>
+        </LinearLayout>
+
+        <!-- ===== ITEM 5 ===== -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_home_item"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đặt bàn"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Đặt bàn và trạng thái"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:gravity="center"/>
+        </LinearLayout>
+
+        <!-- ===== ITEM 6 ===== -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_home_item"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Quét QR"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Quét mã QR tại bàn"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:gravity="center"/>
+        </LinearLayout>
+
+        <!-- ===== ITEM 7 ===== -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_home_item"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Đánh giá"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Xem và viết đánh giá"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:gravity="center"/>
+        </LinearLayout>
+
+        <!-- ===== ITEM 8 ===== -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_home_item"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lịch sử"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Đặt bàn và chi tiêu"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:gravity="center"/>
+        </LinearLayout>
+
+        <!-- ===== ITEM 9 ===== -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_home_item"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thành viên"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Hạng và quyền lợi"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:gravity="center"/>
+        </LinearLayout>
+
+        <!-- ===== ITEM 10 ===== -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="140dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_home_item"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AI Chatbot"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Hỗ trợ và gợi ý"
+                    android:textSize="12sp"
+                    android:textColor="#666666"
+                    android:gravity="center"/>
+        </LinearLayout>
+
+    </GridLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,43 +1,178 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <EditText
-        android:id="@+id/edtUsername"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Username"
-        android:textColorHint="#777777"
-        android:textColor="@android:color/black" />
+        android:layout_height="match_parent"
+        android:background="#FFFFFF">
 
-    <EditText
-        android:id="@+id/edtPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        android:textColorHint="#777777"
-        android:inputType="textPassword"
-        android:textColor="@android:color/black" />
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
 
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Login" />
+        <!-- LOGO TRÒN (KHÔNG ICON) -->
+        <View
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_circle_blue"/>
 
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
+        <!-- TITLE -->
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center"
+                android:text="Restaurant App"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#0A2A4A"/>
 
-    <TextView
-        android:id="@+id/txtError"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#ff0000" />
-</LinearLayout>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="6dp"
+                android:text="Đặt bàn thông minh, trải nghiệm hoàn hảo"
+                android:textSize="12sp"
+                android:textColor="#777777"/>
+
+        <!-- CARD -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+            <!-- TAB -->
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="#EEF2F5"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:background="@drawable/bg_tab_active"
+                        android:text="Đăng nhập"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"/>
+
+                <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="Đăng ký"
+                        android:textColor="#777777"/>
+            </LinearLayout>
+
+            <!-- EMAIL -->
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Email"
+                    android:textSize="12sp"
+                    android:textColor="#333333"/>
+
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input"
+                    android:hint="example@email.com"
+                    android:padding="12dp"
+                    android:inputType="textEmailAddress"/>
+
+            <!-- PASSWORD -->
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Mật khẩu"
+                    android:textSize="12sp"
+                    android:textColor="#333333"/>
+
+            <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input"
+                    android:hint="••••••••"
+                    android:padding="12dp"
+                    android:inputType="textPassword"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginTop="8dp"
+                    android:text="Quên mật khẩu?"
+                    android:textSize="12sp"
+                    android:textColor="#0A2A4A"/>
+
+            <!-- BUTTON -->
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_button"
+                    android:text="Đăng nhập"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"/>
+
+            <!-- OR -->
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="12dp"
+                    android:text="Hoặc tiếp tục với"
+                    android:textSize="12sp"
+                    android:textColor="#777777"/>
+
+            <!-- SOCIAL (KHÔNG ICON) -->
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_social"
+                        android:gravity="center"
+                        android:text="Google"/>
+
+                <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_social"
+                        android:gravity="center"
+                        android:text="Facebook"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- BACK -->
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:text="← Quay lại trang chủ"
+                android:textColor="#000000"/>
+    </LinearLayout>
+
+</ScrollView>
