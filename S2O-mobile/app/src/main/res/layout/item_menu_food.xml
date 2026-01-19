@@ -1,0 +1,45 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_card"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+    <!-- IMAGE PLACEHOLDER -->
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:background="@drawable/bg_image_food"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Phở Bò Đặc Biệt"
+            android:textStyle="bold"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phở bò với thịt bò tươi, nước dùng thơm ngon"
+            android:textSize="12sp"
+            android:textColor="#666666"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="65.000đ"
+            android:textStyle="bold"
+            android:textColor="#0A2A4A"/>
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_button_outline"
+            android:gravity="center"
+            android:text="Thêm vào giỏ"
+            android:textStyle="bold"/>
+</LinearLayout>

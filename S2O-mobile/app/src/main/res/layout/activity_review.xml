@@ -1,32 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp">
-
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/emptyView"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="No reviews"
-        android:visibility="gone" />
+        android:layout_height="match_parent"
+        android:background="#EEF2F5">
 
-    <Button
-        android:id="@+id/btnWriteReview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Write review" />
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvReviews"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-</LinearLayout>
+        <!-- HEADER -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+            <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Đánh giá"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Xem tất cả"
+                    android:textSize="12sp"
+                    android:textColor="#0A2A4A"/>
+        </LinearLayout>
+
+        <!-- REVIEW ITEM -->
+        <include layout="@layout/item_review"/>
+
+        <!-- CONTACT -->
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Liên hệ"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+        <!-- ADDRESS -->
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="123 Nguyễn Huệ, Quận 1, TP.HCM"
+                android:textSize="13sp"
+                android:textColor="#333333"/>
+
+        <!-- PHONE -->
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="028 1234 5678"
+                android:textSize="13sp"
+                android:textColor="#333333"/>
+
+    </LinearLayout>
+</ScrollView>

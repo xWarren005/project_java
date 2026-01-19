@@ -1,49 +1,180 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp">
-
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/imgCover"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
-        android:scaleType="centerCrop" />
+        android:layout_height="match_parent"
+        android:background="#EEF2F5">
 
-    <TextView
-        android:id="@+id/tvName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Name" />
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tvAddress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Address" />
+        <!-- IMAGE BANNER (XÁM) -->
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:background="@drawable/bg_image_large"/>
 
-    <TextView
-        android:id="@+id/tvRating"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Rating" />
+        <!-- CONTENT -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-24dp"
+                android:background="#EEF2F5"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tvDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Description" />
+            <!-- TITLE -->
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nhà Hàng Hương Việt"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
 
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="Back" />
-</LinearLayout>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="4.8  (234 đánh giá)  •  Món Việt"
+                    android:textSize="12sp"
+                    android:textColor="#666666"/>
+
+            <!-- INFO BOX -->
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_card"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Khoảng cách"
+                            android:textSize="12sp"
+                            android:textColor="#666666"/>
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1.2 km"
+                            android:textStyle="bold"/>
+                </LinearLayout>
+
+                <View
+                        android:layout_width="8dp"
+                        android:layout_height="match_parent"/>
+
+                <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_card"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Giờ mở cửa"
+                            android:textSize="12sp"
+                            android:textColor="#666666"/>
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="9:00 - 22:00"
+                            android:textStyle="bold"/>
+                </LinearLayout>
+
+                <View
+                        android:layout_width="8dp"
+                        android:layout_height="match_parent"/>
+
+                <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_card"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Giá"
+                            android:textSize="12sp"
+                            android:textColor="#666666"/>
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="50k - 200k"
+                            android:textStyle="bold"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- INTRO -->
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Giới thiệu"
+                    android:textStyle="bold"/>
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Nhà hàng Hương Việt mang đến không gian ẩm thực truyền thống với các món ăn đặc trưng của Việt Nam. Được chế biến từ nguyên liệu tươi ngon, đảm bảo an toàn thực phẩm."
+                    android:textSize="13sp"
+                    android:textColor="#444444"/>
+
+            <!-- FEATURED -->
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="horizontal">
+
+                <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Món nổi bật"
+                        android:textStyle="bold"/>
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Xem menu"
+                        android:textSize="12sp"
+                        android:textColor="#0A2A4A"/>
+            </LinearLayout>
+
+            <!-- FOOD LIST -->
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                <include layout="@layout/item_food"/>
+                <View android:layout_width="8dp" android:layout_height="match_parent"/>
+                <include layout="@layout/item_food"/>
+                <View android:layout_width="8dp" android:layout_height="match_parent"/>
+                <include layout="@layout/item_food"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

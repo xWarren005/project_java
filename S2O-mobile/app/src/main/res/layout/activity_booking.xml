@@ -1,50 +1,188 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp">
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/tvRestaurantName"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Restaurant" />
+        android:layout_height="match_parent"
+        android:background="#EEF2F5">
 
-    <EditText
-        android:id="@+id/edtDateTime"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Date time" />
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <EditText
-        android:id="@+id/edtGuestCount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Guest count"
-        android:inputType="number" />
+        <!-- TITLE -->
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Đặt bàn"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
 
-    <EditText
-        android:id="@+id/edtNote"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Note" />
+        <!-- TAB -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_tab"
+                android:orientation="horizontal"
+                android:padding="4dp">
 
-    <Button
-        android:id="@+id/btnPickDateTime"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Pick time" />
+            <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="@drawable/bg_tab_active"
+                    android:text="Đặt bàn mới"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"/>
 
-    <Button
-        android:id="@+id/btnBook"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Book" />
-</LinearLayout>
+            <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Lịch sử"
+                    android:textColor="#777777"/>
+        </LinearLayout>
+
+        <!-- RESTAURANT CARD -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_card"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+            <!-- IMAGE -->
+            <View
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:background="@drawable/bg_image_placeholder"/>
+
+            <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nhà Hàng Hương Việt"
+                        android:textStyle="bold"/>
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Món Việt • $$"
+                        android:textSize="12sp"
+                        android:textColor="#666666"/>
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="4.8 • 1.2 km"
+                        android:textSize="12sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- DATE -->
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Ngày đặt bàn"
+                android:textSize="12sp"
+                android:textColor="#333333"/>
+
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_input"
+                android:hint="mm/dd/yyyy"
+                android:padding="12dp"/>
+
+        <!-- TIME -->
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Giờ đặt bàn"
+                android:textSize="12sp"
+                android:textColor="#333333"/>
+
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_input"
+                android:hint="--:--"
+                android:padding="12dp"/>
+
+        <!-- GUEST -->
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Số lượng khách"
+                android:textSize="12sp"
+                android:textColor="#333333"/>
+
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_input"
+                android:hint="2"
+                android:padding="12dp"/>
+
+        <!-- NOTE -->
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Ghi chú (không bắt buộc)"
+                android:textSize="12sp"
+                android:textColor="#333333"/>
+
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_input"
+                android:hint="Yêu cầu đặc biệt, vị trí ngồi..."
+                android:padding="12dp"/>
+
+        <!-- NOTICE -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_notice"
+                android:padding="10dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lưu ý: Nhà hàng sẽ giữ bàn trong vòng 15 phút kể từ giờ đặt."
+                    android:textSize="12sp"
+                    android:textColor="#555555"/>
+        </LinearLayout>
+
+        <!-- BUTTON -->
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_button_primary"
+                android:gravity="center"
+                android:text="Xác nhận đặt bàn"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+
+    </LinearLayout>
+</ScrollView>

@@ -1,37 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp">
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerChat"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:background="#EEF2F5"
+        android:orientation="vertical">
 
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
+    <!-- HEADER -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_header"
+            android:gravity="center_vertical"
+            android:padding="16dp">
 
-    <TextView
-        android:id="@+id/txtError"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#ff0000" />
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AI Assistant"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+    </LinearLayout>
 
-    <EditText
-        android:id="@+id/edtMessage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Message" />
+    <!-- CONTENT -->
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="16dp">
 
-    <Button
-        android:id="@+id/btnSend"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Send" />
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+            <!-- BOT MESSAGE -->
+            <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_chat_bot"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="AI Assistant"
+                        android:textStyle="bold"
+                        android:textSize="13sp"/>
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Xin chào! Tôi là AI Assistant. Tôi có thể giúp bạn tìm nhà hàng, đặt bàn, hoặc trả lời câu hỏi về món ăn.\n\nBạn cần hỗ trợ gì?"
+                        android:textSize="13sp"/>
+            </LinearLayout>
+
+            <!-- QUICK SUGGEST -->
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Gợi ý nhanh"
+                    android:textSize="12sp"
+                    android:textColor="#666666"/>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chip"
+                        android:padding="10dp"
+                        android:text="Tìm nhà hàng gần đây"/>
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_chip"
+                        android:padding="10dp"
+                        android:text="Đặt bàn cho tối nay"/>
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_chip"
+                        android:padding="10dp"
+                        android:text="Món ăn Việt Nam"/>
+
+                <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_chip"
+                        android:padding="10dp"
+                        android:text="Nhà hàng có ưu đãi"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- INPUT -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+        <EditText
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_input_chat"
+                android:hint="Nhập tin nhắn"
+                android:padding="12dp"/>
+
+        <TextView
+                android:layout_width="60dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_button_send"
+                android:gravity="center"
+                android:text="Gửi"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+    </LinearLayout>
+
 </LinearLayout>

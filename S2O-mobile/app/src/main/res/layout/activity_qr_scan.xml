@@ -1,19 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp">
-
-    <Button
-        android:id="@+id/btnScan"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Scan" />
+        android:layout_height="match_parent"
+        android:background="#EEF2F5"
+        android:orientation="vertical">
 
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
+    <!-- HEADER -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:background="#0A2A4A"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quét mã QR"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+    </LinearLayout>
+
+    <!-- CONTENT -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="16dp">
+
+        <!-- QR PLACEHOLDER -->
+        <View
+                android:layout_width="220dp"
+                android:layout_height="220dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_qr_placeholder"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Quét mã QR tại bàn"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+        <!-- GUIDE -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1  Đặt mã QR vào giữa khung hình"
+                    android:textSize="13sp"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="2  Giữ máy ổn định để quét"
+                    android:textSize="13sp"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="3  Chờ hệ thống xác nhận"
+                    android:textSize="13sp"/>
+        </LinearLayout>
+
+        <!-- BUTTON -->
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_button_primary"
+                android:gravity="center"
+                android:text="Bắt đầu quét"
+                android:textColor="#FFFFFF"
+                android:textStyle="bold"/>
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_button_outline"
+                android:gravity="center"
+                android:text="Chọn ảnh từ thư viện"
+                android:textStyle="bold"/>
+
+    </LinearLayout>
+
 </LinearLayout>

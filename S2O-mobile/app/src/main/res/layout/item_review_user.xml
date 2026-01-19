@@ -1,0 +1,53 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_card"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+    <!-- AVATAR -->
+    <TextView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_avatar_circle"
+            android:gravity="center"
+            android:text="A"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"/>
+
+    <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Anh Tuấn"
+                android:textStyle="bold"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="★★★★★"
+                android:textColor="#FFC107"/>
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Món ăn ngon, không gian thoáng mát. Nhân viên phục vụ chu đáo."
+                android:textSize="13sp"
+                android:textColor="#444444"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="👍 12"
+                android:textSize="12sp"
+                android:textColor="#666666"/>
+    </LinearLayout>
+
+</LinearLayout>
