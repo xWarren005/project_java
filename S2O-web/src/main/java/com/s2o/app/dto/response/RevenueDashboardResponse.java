@@ -11,6 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 public class RevenueDashboardResponse {
     private List<SummaryStatDTO> summary;
-    private List<ChartDataDTO> chart;
-    private List<TopDishDTO> topDishes;
+    private List<ChartDataDTO> chartData;
+    private List<TopDishDTO> top5Dishes;
 }

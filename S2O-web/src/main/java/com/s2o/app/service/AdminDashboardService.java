@@ -28,8 +28,6 @@ public class AdminDashboardService {
 
     // 1. STATS CARDS (THẬT)
     public List<StatItem> getStats() {
-        // [SỬA LẠI]: Đếm theo PENDING vì DB của bạn đang dùng trạng thái này
-        // Khi nào bạn duyệt nhà hàng thành ACTIVE/APPROVED thì sửa lại dòng này sau.
         long activeRestaurants = restaurantRepository.countByApprovalStatus("APPROVED");
 
         // Đếm User

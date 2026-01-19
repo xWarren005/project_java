@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,18 +58,29 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
             "GROUP BY MONTH(created_at) " +
             "ORDER BY MONTH(created_at)", nativeQuery = true)
     List<Object[]> getMonthlyRevenue();
-    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status = 'PAID' AND DATE(o.createdAt) = CURRENT_DATE")
-    BigDecimal sumGmvToday();
+    // 1. Tổng doanh thu HÔM NAY (Tính cả PAID và COMPLETED)
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o " +
+            "WHERE (o.status = 'PAID' OR o.status = 'COMPLETED') " +
+            "AND o.createdAt BETWEEN :start AND :end")
+    BigDecimal sumGmvByRange(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
-    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status = 'PAID' AND MONTH(o.createdAt) = MONTH(CURRENT_DATE) AND YEAR(o.createdAt) = YEAR(CURRENT_DATE)")
+    // 2. Tổng doanh thu THÁNG NAY
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o " +
+            "WHERE (o.status = 'PAID' OR o.status = 'COMPLETED') " +
+            "AND MONTH(o.createdAt) = MONTH(CURRENT_DATE) " +
+            "AND YEAR(o.createdAt) = YEAR(CURRENT_DATE)")
     BigDecimal sumGmvCurrentMonth();
 
-    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.status = 'PAID' AND YEAR(o.createdAt) = YEAR(CURRENT_DATE)")
+    // 3. Tổng doanh thu NĂM NAY
+    @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o " +
+            "WHERE (o.status = 'PAID' OR o.status = 'COMPLETED') " +
+            "AND YEAR(o.createdAt) = YEAR(CURRENT_DATE)")
     BigDecimal sumGmvCurrentYear();
 
+    // 4. Doanh thu theo từng nhà hàng (Tháng này)
     @Query("SELECT o.restaurant.name, SUM(o.totalAmount) " +
             "FROM Order o " +
-            "WHERE o.status = 'PAID' " +
+            "WHERE (o.status = 'PAID' OR o.status = 'COMPLETED') " +
             "AND MONTH(o.createdAt) = MONTH(CURRENT_DATE) " +
             "AND YEAR(o.createdAt) = YEAR(CURRENT_DATE) " +
             "GROUP BY o.restaurant.id, o.restaurant.name " +

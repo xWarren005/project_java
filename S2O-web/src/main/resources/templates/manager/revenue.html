@@ -27,7 +27,8 @@
         <div class="revenue-layout">
             <div class="chart-panel">
                 <h3 class="panel-title">Doanh Thu 7 Ngày Qua</h3>
-                <div class="bar-chart-container" id="chart-container">
+                <div class="chart-container" style="position: relative; height: 350px; width: 100%;">
+                    <canvas id="revenueChart"></canvas>
                 </div>
             </div>
 
@@ -42,6 +43,6 @@
 
 <script th:src="@{/js/manager/header.js}"></script>
 <script th:src="@{/js/manager/revenue.js}"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,9 +41,8 @@ public class ManagerDashboardService {
         long totalDishes = productRepo.countByRestaurantId(restaurantId);
         long activeOrders = orderRepo.countActiveOrders(restaurantId);
 
-        LocalDateTime startToday = LocalDate.now().atStartOfDay();
-        LocalDateTime endToday = LocalDate.now().atTime(23, 59, 59);
-
+        LocalDateTime startToday = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh")).atStartOfDay();
+        LocalDateTime endToday = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh")).atTime(23, 59, 59);
         // ✅ SỬA: chỉ tính COMPLETED cho đúng DB
         BigDecimal revenueToday = orderRepo.sumCompletedRevenue(restaurantId, startToday, endToday);
         if (revenueToday == null) revenueToday = BigDecimal.ZERO;
@@ -74,10 +74,12 @@ public class ManagerDashboardService {
     // PHẦN 2: Revenue Report
     // =========================================================
     public RevenueDashboardResponse getRevenueStats(Integer restaurantId) {
-        LocalDateTime startOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
-        LocalDateTime endOfDay = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.atTime(23, 59, 59);
 
         BigDecimal revenueToday = orderRepo.sumCompletedRevenue(restaurantId, startOfDay, endOfDay);
+        if (revenueToday == null) revenueToday = BigDecimal.ZERO;
 
         Integer ordersToday = orderRepo.countCompletedOrdersToday(restaurantId, startOfDay, endOfDay);
         if (ordersToday == null) ordersToday = 0;
@@ -101,14 +103,30 @@ public class ManagerDashboardService {
                 "Khách mua hàng",
                 "fa-users"
         ));
+        // 2. Lấy dữ liệu thô từ DB (Chỉ trả về những ngày CÓ bán hàng)
+        LocalDateTime sevenDaysAgo = today.minusDays(6).atStartOfDay();
+        List<Object[]> rawData = orderRepo.getRevenueLast7Days(restaurantId, sevenDaysAgo);
 
-        List<ChartDataDTO> chartData = orderRepo.getRevenueLast7Days(restaurantId)
-                .stream()
-                .map(obj -> new ChartDataDTO(
-                        (String) obj[0],
-                        ((Number) obj[1]).doubleValue()
-                ))
-                .collect(Collectors.toList());
+        // 3. Tạo danh sách đủ 7 ngày (Lấp đầy ngày trống bằng 0)
+        List<ChartDataDTO> chartData = new ArrayList<>();
+
+        for (int i = 6; i >= 0; i--) {
+            LocalDate date = today.minusDays(i);
+            String dayKey = String.format("%02d/%02d", date.getDayOfMonth(), date.getMonthValue()); // VD: 20/01
+
+            // Tìm doanh thu của ngày này trong rawData
+            double dailyRevenue = 0.0;
+            for (Object[] row : rawData) {
+                String dbDay = (String) row[0];
+                if (dayKey.equals(dbDay)) {
+                    dailyRevenue = row[1] == null ? 0.0 : ((Number) row[1]).doubleValue();
+                    break;
+                }
+            }
+
+            // Thêm vào danh sách (Lưu ý tên biến là 'revenue' để khớp DTO)
+            chartData.add(new ChartDataDTO(dayKey, dailyRevenue));
+        }
 
         List<TopDishDTO> top5Dishes = topDishes.stream().limit(5).collect(Collectors.toList());
 

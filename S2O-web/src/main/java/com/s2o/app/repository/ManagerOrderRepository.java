@@ -24,7 +24,7 @@ public interface ManagerOrderRepository extends JpaRepository<Order, Integer> {
         SELECT COALESCE(SUM(o.totalAmount),0)
         FROM Order o
         WHERE o.restaurantId = :rid
-        AND o.status = 'COMPLETED'
+        AND o.status IN ('PAID', 'COMPLETED')
         AND o.createdAt BETWEEN :start AND :end
     """)
     BigDecimal sumCompletedRevenue(
@@ -37,7 +37,7 @@ public interface ManagerOrderRepository extends JpaRepository<Order, Integer> {
         SELECT COUNT(o)
         FROM Order o
         WHERE o.restaurantId = :rid
-        AND o.status = 'COMPLETED'
+        AND o.status IN ('PAID', 'COMPLETED')
         AND o.createdAt BETWEEN :start AND :end
     """)
     Integer countCompletedOrdersToday(
@@ -50,7 +50,7 @@ public interface ManagerOrderRepository extends JpaRepository<Order, Integer> {
         SELECT COUNT(DISTINCT o.userId)
         FROM Order o
         WHERE o.restaurantId = :rid
-        AND o.status = 'COMPLETED'
+        AND o.status IN ('PAID', 'COMPLETED')
         AND o.createdAt BETWEEN :start AND :end
     """)
     Long countCustomers(
@@ -60,17 +60,19 @@ public interface ManagerOrderRepository extends JpaRepository<Order, Integer> {
     );
 
     @Query(value = """
-        SELECT DATE_FORMAT(created_at,'%d/%m') AS day,
+        SELECT DATE_FORMAT(created_at, '%d/%m') AS day,
                SUM(total_amount) AS revenue
         FROM orders
         WHERE restaurant_id = :rid
-        AND status = 'COMPLETED'
-        AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-        GROUP BY restaurant_id, DATE(created_at)
-        ORDER BY DATE(created_at)
+        AND status IN ('PAID', 'COMPLETED') 
+        AND created_at >= :sevenDaysAgo
+        GROUP BY restaurant_id, DATE(created_at), DATE_FORMAT(created_at, '%d/%m')
+        ORDER BY DATE(created_at) ASC
     """, nativeQuery = true)
-    List<Object[]> getRevenueLast7Days(@Param("rid") Integer restaurantId);
-
+    List<Object[]> getRevenueLast7Days(
+            @Param("rid") Integer restaurantId,
+            @Param("sevenDaysAgo") LocalDateTime sevenDaysAgo
+    );
     @Query("""
         SELECT new com.s2o.app.dto.response.TopDishDTO(
             p.id,
@@ -83,7 +85,7 @@ public interface ManagerOrderRepository extends JpaRepository<Order, Integer> {
         JOIN oi.order o
         JOIN oi.product p
         WHERE o.restaurantId = :rid
-        AND o.status = 'COMPLETED'
+        AND o.status IN ('PAID', 'COMPLETED')
         GROUP BY p.id, p.name, p.imageUrl
         ORDER BY SUM(oi.quantity * oi.unitPrice) DESC
     """)
