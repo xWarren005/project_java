@@ -1,3 +1,5 @@
+const DEFAULT_IMG_BASE64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiB2aWV3Qm94PSIwIDAgMTUwIDE1MCI+PHJlY3Qgd2lkdGg9IjE1MCIgaGVpZ2h0PSIxNTAiIGZpbGw9IiNlZWVlZWUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjIwIiBmaWxsPSIjOTk5OTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Tk8gSU1BR0U8L3RleHQ+PC9zdmc+';
+
 const staticUI = {
     menu: [
         { id: "menu_cal", icon: "far fa-calendar-alt", label: "Lịch sử", action: "history" },
@@ -58,7 +60,7 @@ const App = {
         const avatarUrl = u.avatar || '/images/default-avatar.png';
         frame.innerHTML = `
             <div class="avatar-frame" onclick="App.playSound()">
-                <img src="${avatarUrl}" alt="Avatar" onerror="this.src='/images/default-avatar.png'">
+                <img src="${avatarUrl}" alt="Avatar" onerror="this.src='${DEFAULT_IMG_BASE64}'">
             </div>
             <div class="user-details">
                 <h2 class="user-name"><span id="u-name">${u.fullname}</span></h2>

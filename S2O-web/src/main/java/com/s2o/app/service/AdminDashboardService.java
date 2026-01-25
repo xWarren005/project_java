@@ -97,30 +97,58 @@ public class AdminDashboardService {
         )).collect(Collectors.toList());
     }
 
+    // ... (Các đoạn code khác giữ nguyên)
+
     // 4. HOẠT ĐỘNG GẦN ĐÂY
     public List<ActivityLogDTO> getRecentActivities() {
+        // Lấy 5 đơn mới nhất
         List<Order> orders = orderRepository.findTop5ByOrderByCreatedAtDesc();
 
         return orders.stream().map(o -> {
-            String time = o.getCreatedAt() != null ?
-                    o.getCreatedAt().format(DateTimeFormatter.ofPattern("HH:mm")) : "-";
+            // 1. Xử lý Thời gian
+            String time = "-";
+            if (o.getCreatedAt() != null) {
+                time = o.getCreatedAt().format(DateTimeFormatter.ofPattern("HH:mm"));
+            }
 
-            String statusColor = "success";
-            if("PENDING".equals(o.getStatus())) statusColor = "warning";
-            if("CANCELLED".equals(o.getStatus())) statusColor = "error";
+            // 2. 🔥 LOGIC LẤY TÊN USER (Đã hoạt động vì Order.java đã có biến user)
+            String userName = "Khách vãng lai";
 
-            // Format tiền
+            if (o.getUser() != null) {
+                // Ưu tiên lấy FullName
+                if (o.getUser().getFullName() != null) {
+                    userName = o.getUser().getFullName();
+                }
+                // Nếu FullName null thì lấy Username
+                else if (o.getUser().getUsername() != null) {
+                    userName = o.getUser().getUsername();
+                }
+            }
+            // Nếu User object null (đã bị xóa) thì lấy ID
+            else if (o.getUserId() != null) {
+                userName = "User #" + o.getUserId();
+            }
+
+            // 3. Format tiền tệ
             String totalStr = "0 đ";
             if(o.getTotalAmount() != null) {
                 NumberFormat nf = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
                 totalStr = nf.format(o.getTotalAmount());
             }
 
+            // 4. Xử lý màu sắc
+            String statusColor = "text-secondary";
+            if ("PAID".equals(o.getStatus())) statusColor = "success";
+            if ("COMPLETED".equals(o.getStatus())) statusColor = "success";
+            if ("PENDING".equals(o.getStatus())) statusColor = "warning";
+            if ("CANCELLED".equals(o.getStatus())) statusColor = "danger";
+
+            // 5. Trả về DTO
             return new ActivityLogDTO(
                     time,
-                    "Đơn #" + o.getId(),
+                    userName,            // Tên thật
                     "Đặt món",
-                    "Tổng: " + totalStr,
+                    "Tổng: " + totalStr, // Số tiền
                     o.getStatus(),
                     statusColor
             );
