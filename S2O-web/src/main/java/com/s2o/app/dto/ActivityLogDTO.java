@@ -1,5 +1,10 @@
 package com.s2o.app.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class ActivityLogDTO {
     private String time;
     private String user;
@@ -17,51 +22,4 @@ public class ActivityLogDTO {
         this.statusClass = statusClass;
     }
 
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public String getDetails() {
-        return details;
-    }
-
-    public void setDetails(String details) {
-        this.details = details;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getStatusClass() {
-        return statusClass;
-    }
-
-    public void setStatusClass(String statusClass) {
-        this.statusClass = statusClass;
-    }
 }
