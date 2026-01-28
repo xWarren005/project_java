@@ -18,7 +18,7 @@ public class GuestPageController {
         Integer tableId = (Integer) session.getAttribute("TABLE_ID");
 
         if (restaurantId == null) {
-            return "redirect:welcome?tableId=1";
+            return "redirect:welcome?tableId=17";
         }
         model.addAttribute("restaurantId", restaurantId);
         model.addAttribute("tableId", tableId);

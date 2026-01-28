@@ -127,22 +127,25 @@ document.addEventListener("DOMContentLoaded",async () => {
     updateCartBadge();
     renderCart();
 });
-/* --- HÀM GỘP GIỎ HÀNG (THÊM MỚI) --- */
+/* --- HÀM GỘP GIỎ HÀNG  --- */
 function mergeGuestCartToUserCart() {
     const guestTableId = localStorage.getItem("currentTableId") || tableId;
     if (!guestTableId) return;
 
-    // Key giỏ hàng của Guest (format bên file guest-menu.js)
     const guestCartKey = `guest_cart_${guestTableId}`;
     const guestCartJson = localStorage.getItem(guestCartKey);
 
     if (guestCartJson) {
-        const guestCart = JSON.parse(guestCartJson);
+        try {
+            const guestCart = JSON.parse(guestCartJson);
 
-        if (guestCart.length > 0) {
+            // 🔥 SỬA LỖI: Kiểm tra kỹ 'guestCart' phải là mảng và không null
+            if (guestCart && Array.isArray(guestCart) && guestCart.length > 0) {
+
                 guestCart.forEach(gItem => {
-                    const existItem = cart.find(cItem => cItem.id == gItem.id);
+                    const existItem = cart.find(cItem => cItem.id === gItem.id);
                     const qty = parseInt(gItem.quantity) || 1;
+
                     if (existItem) {
                         existItem.quantity += qty;
                     } else {
@@ -150,7 +153,7 @@ function mergeGuestCartToUserCart() {
                         cart.push({
                             ...gItem,
                             quantity: qty,
-                            price: parseFloat(gItem.price) // Đảm bảo giá là số
+                            price: parseFloat(gItem.price)
                         });
                     }
                 });
@@ -158,15 +161,17 @@ function mergeGuestCartToUserCart() {
                 // Lưu lại vào Storage của User
                 Storage.saveCart(null, cart);
 
-                // Cập nhật UI ngay lập tức
+                // Cập nhật UI
                 updateCartBadge();
                 renderCart();
             }
-
-            // Dù gộp hay không, ta nên xóa giỏ hàng Guest đi để tránh hỏi lại lần sau
-            // Hoặc nếu muốn giữ lại khi họ chọn "Cancel", bạn có thể bỏ dòng dưới
-            localStorage.removeItem(guestCartKey);
+        } catch (e) {
+            console.error("Lỗi khi gộp giỏ hàng:", e);
         }
+
+        // Xóa giỏ hàng khách cũ để tránh lỗi lặp lại
+        localStorage.removeItem(guestCartKey);
+    }
 }
 /* --- HÀM GỌI API (Tách ra cho gọn) --- */
 async function fetchMenuData() {
@@ -281,7 +286,7 @@ function renderCart() {
         return
     }
 
-    el.innerHTML = cart.map(i => `
+    const itemsHtml= cart.map(i => `
         <div class="cart-item">
             <img class="cart-item-image" src="${i.image || '/images/default-food.png'}" onerror="this.src='/images/default-food.png'">
             <div class="cart-item-info">
@@ -298,7 +303,16 @@ function renderCart() {
             </div>
         </div>
     `).join("")
+    //Ô nhập ghi chú
+    const noteHtml = `
+        <div class="cart-note-section">
+            <label for="order-note">📝 Ghi chú món ăn:</label>
+            <textarea id="order-note" placeholder="Ví dụ: Không hành, ít cay, nước sốt để riêng..."></textarea>
+        </div>
+    `;
 
+    // 3. Gộp lại và hiển thị
+    el.innerHTML = itemsHtml + noteHtml;
     updateCartTotal()
 }
 function updateCartTotal() {
@@ -354,11 +368,13 @@ async function placeOrder() {
     if (!tableId) {
         alert("Vui lòng quét lại mã QR tại bàn."); return;
     }
+    const noteInput = document.getElementById("order-note");
+    const noteValue = noteInput ? noteInput.value.trim() : "";
     // Chuẩn bị dữ liệu gửi (UserOrderRequest)
     const payload = {
         restaurantId: parseInt(restaurantId),
         tableId: parseInt(tableId),
-        note: "",
+        note: noteValue,
         items: cart.map(i => ({ productId: parseInt(i.id), quantity: i.quantity }))
     };
     const btn = document.querySelector(".cart-footer button");

@@ -34,6 +34,7 @@ public class Order {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "note")
     private String note;
 
     @Column(name = "created_at", updatable = false)

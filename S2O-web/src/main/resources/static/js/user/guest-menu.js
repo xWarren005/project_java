@@ -281,7 +281,7 @@ function renderCart() {
     return;
   }
 
-  el.innerHTML = cart.map(i => `
+  const itemsHtml= cart.map(i => `
         <div class="cart-item">
             <img class="cart-item-image" src="${i.image || '/images/default-food.png'}" onerror="this.src='/images/default-food.png'">
             <div class="cart-item-info">
@@ -296,7 +296,15 @@ function renderCart() {
             </div>
         </div>
     `).join("");
-
+  //Ô nhập ghi chú
+  const noteHtml = `
+        <div class="cart-note-section">
+            <label for="order-note">📝 Ghi chú món ăn:</label>
+            <textarea id="order-note" placeholder="Ví dụ: Không hành, ít cay, nước sốt để riêng..."></textarea>
+        </div>
+    `;
+  // 3. Gộp lại và hiển thị
+  el.innerHTML = itemsHtml + noteHtml;
   const total = cart.reduce((sum, i) => sum + i.price * i.quantity, 0);
   document.getElementById("cart-total").textContent = formatPrice(total);
   document.getElementById("cart-count").textContent = `${cart.length} món`;
@@ -350,15 +358,17 @@ async function placeOrder() {
     alert("Lỗi: Mất thông tin bàn. Vui lòng quét lại QR.");
     return;
   }
-
+// 1. 🔥 LẤY GHI CHÚ
+  const noteInput = document.getElementById("order-note");
+  const noteValue = noteInput ? noteInput.value.trim() : "";
   // Chuẩn bị Payload khớp với GuestOrderRequest DTO
   const payload = {
     restaurantId: parseInt(RESTAURANT_ID),
     tableId: parseInt(TABLE_ID),
+    note:noteValue, // Có thể thêm input note sau này
     items: cart.map(i => ({
       productId: parseInt(i.id),
       quantity: i.quantity,
-      note: "" // Có thể thêm input note sau này
     }))
   };
 

@@ -5,7 +5,8 @@ import java.util.List;
 @Data
 public class GuestOrderRequest {
     private Integer tableId;       // Khách vãng lai định danh bằng ID bàn
-    private Integer restaurantId;  // ID nhà hàng (lấy từ localStorage gửi lên)
+    private Integer restaurantId;
+    private String note;// ID nhà hàng (lấy từ localStorage gửi lên)
     private List<GuestOrderItem> items;
 
     @Data

@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -89,9 +91,10 @@ public class GuestMenuService {
 
         order.setRestaurantId(request.getRestaurantId());
         order.setTableId(request.getTableId());
-        // order.setNote(request.getNote()); // Nếu GuestOrderRequest có field note thì mở ra
+        order.setNote(request.getNote()); // Nếu GuestOrderRequest có field note thì mở ra
         order.setStatus("PENDING");
-        order.setCreatedAt(LocalDateTime.now());
+        order.setCreatedAt(ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).toLocalDateTime()
+        );
 
         BigDecimal total = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
