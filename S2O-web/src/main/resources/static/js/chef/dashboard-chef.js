@@ -28,10 +28,10 @@ function initApp() {
     // 1. Setup Avatar
     const avatarUrl = "https://ui-avatars.com/api/?name=Chef+Master&background=2E25D1&color=fff";
     const avatarEl = document.querySelector(".avatar");
-    if(avatarEl) avatarEl.src = avatarUrl;
+    if (avatarEl) avatarEl.src = avatarUrl;
 
     const userDisplay = document.getElementById("user-name-display");
-    if(userDisplay) userDisplay.textContent = appData.user;
+    if (userDisplay) userDisplay.textContent = appData.user;
 
     // 2. Gọi API lấy dữ liệu thật
     fetchDashboardData();
@@ -50,16 +50,15 @@ async function fetchDashboardData() {
         // Cập nhật State
         appData.stats = data.stats;
 
-        // Map dữ liệu từ DTO Java sang cấu trúc JS cũ của bạn
-        // Backend trả về: tableName, orderTime, status (PENDING, COOKING...)
-        // Frontend cần: table, time, statusCode, statusLabel
+        // Map dữ liệu từ DTO Java sang cấu trúc JS
         appData.activeOrders = data.activeOrders.map(order => {
             return {
                 id: order.id,
                 table: order.tableName,
                 time: order.orderTime,
-                statusCode: order.status, // Giá trị: "PENDING", "COOKING", "READY"
+                statusCode: order.status,
                 statusLabel: getStatusLabel(order.status),
+                note: order.note, // ⭐ NOTE ĐƠN HÀNG
                 items: order.items.map(item => ({
                     name: item.productName,
                     qty: item.quantity,
@@ -71,7 +70,6 @@ async function fetchDashboardData() {
         // Render lại giao diện
         renderStats();
         renderActiveOrders();
-        // renderCompletedOrders(); // Tạm thời chưa có API lấy đơn hoàn thành, để trống
     } catch (error) {
         console.error("Lỗi:", error);
     }
@@ -89,23 +87,22 @@ function getStatusLabel(status) {
 function setupEventListeners() {
     const tabs = document.querySelectorAll(".tab-item");
     tabs.forEach(tab => {
-        tab.addEventListener("click", function() {
+        tab.addEventListener("click", function () {
             document.querySelectorAll(".tab-item").forEach(t => t.classList.remove("active"));
             document.querySelectorAll(".view-section").forEach(v => v.style.display = "none");
             this.classList.add("active");
             const targetId = this.getAttribute("data-target");
             const targetSection = document.getElementById(targetId);
-            if(targetSection) targetSection.style.display = "block";
+            if (targetSection) targetSection.style.display = "block";
         });
     });
 
     const activeContainer = document.getElementById("active-orders-container");
-    if(activeContainer) {
-        activeContainer.addEventListener("click", function(event) {
+    if (activeContainer) {
+        activeContainer.addEventListener("click", function (event) {
             const btn = event.target.closest(".btn-action");
             if (btn) {
                 const orderId = parseInt(btn.getAttribute("data-id"));
-                // Lấy status hiện tại từ attribute data-status (được thêm vào lúc render)
                 const currentStatus = btn.getAttribute("data-status");
                 handleOrderAction(orderId, currentStatus);
             }
@@ -119,37 +116,25 @@ function setupEventListeners() {
 async function handleOrderAction(orderId, currentStatus) {
     let nextStatus = '';
 
-    // Logic chuyển đổi trạng thái
     if (currentStatus === 'PENDING') {
         nextStatus = 'COOKING';
     } else if (currentStatus === 'COOKING') {
         nextStatus = 'READY';
     } else if (currentStatus === 'READY') {
-        nextStatus = 'COMPLETED'; // Hoặc 'SERVED' tùy Enum Java
+        nextStatus = 'COMPLETED';
     }
 
     if (!nextStatus) return;
 
-    // Hiển thị loading hoặc disable nút tạm thời (Optional)
-
     try {
         const response = await fetch(`/api/chef/order/${orderId}/status`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: nextStatus })
         });
 
         if (response.ok) {
-            // Sau khi update thành công, tải lại dữ liệu mới nhất
             fetchDashboardData();
-
-            // Nếu muốn giả lập chuyển sang tab hoàn thành:
-            if (nextStatus === 'COMPLETED') {
-                // Logic thêm vào mảng completedOrders cục bộ nếu cần
-                // Nhưng tốt nhất là fetch lại API
-            }
         } else {
             alert("Có lỗi xảy ra khi cập nhật trạng thái!");
         }
@@ -159,23 +144,22 @@ async function handleOrderAction(orderId, currentStatus) {
 }
 
 /* =========================================
-   3. RENDER FUNCTIONS (Giữ nguyên Layout HTML)
+   3. RENDER FUNCTIONS
    ========================================= */
 
 function renderStats() {
-    // Kiểm tra null để tránh lỗi nếu HTML chưa load
     const statPending = document.getElementById("stat-pending");
     const statCooking = document.getElementById("stat-cooking");
     const statReady = document.getElementById("stat-ready");
 
-    if(statPending) statPending.textContent = appData.stats.pending;
-    if(statCooking) statCooking.textContent = appData.stats.cooking;
-    if(statReady) statReady.textContent = appData.stats.ready;
+    if (statPending) statPending.textContent = appData.stats.pending;
+    if (statCooking) statCooking.textContent = appData.stats.cooking;
+    if (statReady) statReady.textContent = appData.stats.ready;
 }
 
 function renderActiveOrders() {
     const container = document.getElementById("active-orders-container");
-    if(!container) return;
+    if (!container) return;
 
     container.innerHTML = "";
 
@@ -185,23 +169,33 @@ function renderActiveOrders() {
     }
 
     appData.activeOrders.forEach(order => {
+
+        // ⭐⭐ THÊM ĐÚNG PHẦN NOTE (FIX LỖI)
+        const orderNoteHtml = order.note
+            ? `<div class="order-note">
+                    <i class="fa-solid fa-pen"></i>
+                    <strong>Ghi chú:</strong> ${order.note}
+               </div>`
+            : '';
+
         const itemsHtml = order.items.map(item => `
             <div class="item-row">
-                <span>${item.name} ${item.note ? `<small class="text-muted">(${item.note})</small>` : ''}</span>
+                <span>
+                    ${item.name}
+                    ${item.note ? `<small class="text-muted">(${item.note})</small>` : ''}
+                </span>
                 <span class="qty">x${item.qty}</span>
             </div>
         `).join('');
 
         let btnText = "";
         let btnIcon = "";
-        // Mapping class màu sắc dựa trên status code từ Backend
         let badgeClass = order.statusCode.toLowerCase();
 
-        // Xác định nút bấm dựa trên trạng thái
-        if(order.statusCode === 'PENDING') {
+        if (order.statusCode === 'PENDING') {
             btnText = "Bắt Đầu Nấu";
             btnIcon = "fa-fire";
-        } else if(order.statusCode === 'COOKING') {
+        } else if (order.statusCode === 'COOKING') {
             btnText = "Báo Sẵn Sàng";
             btnIcon = "fa-bell";
         } else if (order.statusCode === 'READY') {
@@ -213,29 +207,48 @@ function renderActiveOrders() {
             <div class="order-card">
                 <div class="card-header">
                     <div>
-                        <div class="table-name">${order.table} <span style="color:#999">#${order.id}</span></div>
-                        <span class="order-time"><i class="far fa-clock"></i> ${order.time}</span>
+                        <div class="table-name">
+                            ${order.table}
+                            <span style="color:#999">#${order.id}</span>
+                        </div>
+                        <span class="order-time">
+                            <i class="far fa-clock"></i> ${order.time}
+                        </span>
                     </div>
-                    <span class="status-badge ${badgeClass}">${order.statusLabel}</span>
+                    <span class="status-badge ${badgeClass}">
+                        ${order.statusLabel}
+                    </span>
                 </div>
                 <div class="card-body">
+                    ${orderNoteHtml}
                     ${itemsHtml}
                 </div>
-                <button class="btn-action" data-id="${order.id}" data-status="${order.statusCode}">
+                <button class="btn-action"
+                        data-id="${order.id}"
+                        data-status="${order.statusCode}">
                     <i class="fa-solid ${btnIcon}"></i> ${btnText}
                 </button>
             </div>
         `;
+
         container.insertAdjacentHTML('beforeend', cardHtml);
     });
 }
 
 function renderCompletedOrders() {
     const container = document.getElementById("completed-orders-container");
-    if(!container) return;
+    if (!container) return;
     container.innerHTML = "";
 
     appData.completedOrders.forEach(order => {
+
+        const orderNoteHtml = order.note
+            ? `<div class="order-note">
+                    <i class="fa-solid fa-pen"></i>
+                    <strong>Ghi chú:</strong> ${order.note}
+               </div>`
+            : '';
+
         const itemsHtml = order.items.map(item => `
             <div class="item-row" style="background:#f5f6fa; color:#636e72">
                 <span>${item.name}</span>
@@ -250,6 +263,7 @@ function renderCompletedOrders() {
                     <span class="status-badge served">Đã xong</span>
                 </div>
                 <div class="card-body">
+                    ${orderNoteHtml}
                     ${itemsHtml}
                 </div>
             </div>

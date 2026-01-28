@@ -96,7 +96,7 @@ public class ManagerDashboardService {
         List<SummaryStatDTO> summary = new ArrayList<>();
         summary.add(new SummaryStatDTO("Doanh Thu Hôm Nay", formatShortCurrency(revenueToday), "Hôm nay", "fa-dollar-sign"));
         summary.add(new SummaryStatDTO("Đơn Hàng", ordersToday.toString(), "Đã hoàn thành", "fa-cart-shopping"));
-        summary.add(new SummaryStatDTO("Món Bán Chạy", bestSeller.getName(), bestSeller.getCount() + " phần", "fa-fire"));
+        summary.add(new SummaryStatDTO("Món có doanh thu cao nhất", bestSeller.getName(), bestSeller.getCount() + " phần", "fa-fire"));
         summary.add(new SummaryStatDTO(
                 "Khách Hàng",
                 String.valueOf(customersToday == null ? 0 : customersToday),

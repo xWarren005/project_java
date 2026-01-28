@@ -21,6 +21,7 @@ public class ChefDashboardResponse {
         private String tableName;
         private String orderTime;   // Format: HH:mm
         private String status;      // Trả về String cho frontend hiển thị logic
+        private String note;
         private List<ChefOrderItemDTO> items;
     }
 
