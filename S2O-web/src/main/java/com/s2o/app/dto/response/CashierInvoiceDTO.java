@@ -9,6 +9,7 @@ public class CashierInvoiceDTO {
     private String id;           // Ví dụ: "INV-001" (Là Order ID hoặc Invoice ID)
     private Long orderId;        // ID gốc trong DB để xử lý logic
     private String table;        // Tên bàn (VD: "2")
+    private Integer tableId;
     private String status;       // "paid" hoặc "unpaid"
     private String time;         // Format: "12:30 20/12/2025"
     private String method;       // "Tiền mặt", "Chuyển khoản" (null nếu unpaid)

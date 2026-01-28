@@ -1,6 +1,6 @@
 package com.s2o.app.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper; // [MỚI] Cần để parse JSON
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s2o.app.dto.PaymentRequest;
 import com.s2o.app.dto.response.CashierInvoiceDTO;
 import com.s2o.app.dto.response.CashierOrderDetailDTO;
@@ -18,9 +18,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,253 +36,318 @@ public class CashierService {
     @Autowired
     private UserRepository userRepository;
 
-    // [MỚI] Inject ObjectMapper để xử lý JSON string từ DB
     @Autowired
     private ObjectMapper objectMapper;
 
     /* ===================================================
-       PHẦN 1: QUẢN LÝ DANH SÁCH BÀN
+       PHẦN 1: DANH SÁCH BÀN
        =================================================== */
     @Transactional(readOnly = true)
     public List<CashierTableDTO> getTablesForCashier(Integer restaurantId) {
-        List<RestaurantTable> tables = tableRepository.findByRestaurantId(restaurantId);
+
+        List<RestaurantTable> tables =
+                tableRepository.findByRestaurantId(restaurantId);
+
         List<CashierTableDTO> result = new ArrayList<>();
 
         for (RestaurantTable table : tables) {
+
             CashierTableDTO dto = new CashierTableDTO();
             dto.setId(table.getId());
             dto.setName(table.getTableName());
             dto.setCapacity(table.getCapacity());
 
-            try {
-                Optional<Order> activeOrderOpt =
-                        orderRepository.findFirstByTableIdAndStatusInOrderByCreatedAtDesc(
-                                table.getId(),
-                                List.of(
-                                        OrderStatus.PENDING,
-                                        OrderStatus.COOKING,
-                                        OrderStatus.READY,
-                                        OrderStatus.PAID
-                                )
-                        );
+            Optional<Order> activeOrderOpt =
+                    orderRepository.findFirstByTableIdAndStatusInOrderByCreatedAtDesc(
+                            table.getId(),
+                            List.of(
+                                    OrderStatus.PENDING,
+                                    OrderStatus.COOKING,
+                                    OrderStatus.READY,
+                                    OrderStatus.PAYMENT_PENDING,
+                                    OrderStatus.PAID
+                            )
+                    );
 
-                if (activeOrderOpt.isPresent()) {
-                    Order order = activeOrderOpt.get();
-                    dto.setStatus("busy");
+            if (activeOrderOpt.isPresent()) {
+                Order order = activeOrderOpt.get();
+                dto.setStatus("busy");
 
-                    if (order.getCreatedAt() != null) {
-                        long minutes = Duration.between(order.getCreatedAt(), LocalDateTime.now()).toMinutes();
-                        dto.setTime(minutes + " phút trước");
-                    } else {
-                        dto.setTime("Vừa xong");
-                    }
-
-                    double totalMoney = 0.0;
-                    if (order.getTotalAmount() != null) {
-                        totalMoney = order.getTotalAmount().doubleValue();
-                    }
-                    dto.setTotal(totalMoney);
-                    dto.setOrders(new ArrayList<>());
-
+                if (order.getCreatedAt() != null) {
+                    long minutes =
+                            Duration.between(order.getCreatedAt(), LocalDateTime.now()).toMinutes();
+                    dto.setTime(minutes + " phút trước");
                 } else {
-                    String dbStatus = (table.getStatus() != null) ? table.getStatus().toString() : "AVAILABLE";
-                    if ("RESERVED".equalsIgnoreCase(dbStatus)) {
-                        dto.setStatus("reserved");
-                        dto.setTime("Đã đặt trước");
-                    } else {
-                        dto.setStatus("empty");
-                        dto.setTime("");
-                    }
-                    dto.setTotal(0.0);
-                    dto.setOrders(new ArrayList<>());
+                    dto.setTime("Vừa xong");
                 }
-            } catch (Exception e) {
+
+                dto.setTotal(
+                        order.getTotalAmount() != null
+                                ? order.getTotalAmount().doubleValue()
+                                : 0.0
+                );
+            } else {
                 dto.setStatus("empty");
-                System.err.println("Error processing table " + table.getId());
+                dto.setTime("");
+                dto.setTotal(0.0);
             }
+
+            dto.setOrders(new ArrayList<>());
             result.add(dto);
         }
+
         return result;
     }
 
     /* ===================================================
-       PHẦN 2: QUẢN LÝ DANH SÁCH HÓA ĐƠN
+       PHẦN 2: DANH SÁCH HÓA ĐƠN
        =================================================== */
     @Transactional(readOnly = true)
     public List<CashierInvoiceDTO> getInvoicesForCashier() {
-        Integer restaurantId = 1; // ID mặc định
 
-        System.out.println("--- LOG: Bắt đầu lấy danh sách hóa đơn cho NH: " + restaurantId + " ---");
+        Integer restaurantId = 1; // giữ nguyên như source gốc
+        List<Order> orders =
+                orderRepository.findOrdersByRestaurantId(restaurantId);
 
-        List<Order> orders = orderRepository.findOrdersByRestaurantId(restaurantId);
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
-        List<CashierInvoiceDTO> dtoList = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+        List<CashierInvoiceDTO> result = new ArrayList<>();
 
         for (Order order : orders) {
-            try {
-                if (order == null) continue;
 
-                CashierInvoiceDTO dto = new CashierInvoiceDTO();
-                dto.setId("INV-" + String.format("%03d", order.getId()));
-                dto.setOrderId(Long.valueOf(order.getId()));
+            CashierInvoiceDTO dto = new CashierInvoiceDTO();
+            dto.setId("INV-" + String.format("%03d", order.getId()));
+            dto.setOrderId(Long.valueOf(order.getId()));
 
-                if (order.getRestaurantTable() != null) {
-                    dto.setTable(order.getRestaurantTable().getTableName());
-                } else {
-                    dto.setTable("Mang về");
-                }
-
-                if (order.getCreatedAt() != null) {
-                    dto.setTime(order.getCreatedAt().format(formatter));
-                } else {
-                    dto.setTime("N/A");
-                }
-
-                dto.setTotal(order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO);
-
-                // Kiểm tra Invoice
-                Optional<Invoice> invoiceOpt = invoiceRepository.findByOrder_Id(order.getId());
-
-                if (invoiceOpt.isPresent()) {
-                    dto.setStatus("PAID");
-                    Invoice inv = invoiceOpt.get();
-
-                    if (inv.getPaymentMethod() != null) {
-                        String method = inv.getPaymentMethod().toString();
-                        if (method.contains("CASH")) dto.setMethod("Tiền mặt");
-                        else if (method.contains("BANK")) dto.setMethod("Chuyển khoản");
-                        else dto.setMethod("Ví điện tử");
-                    } else {
-                        dto.setMethod("Khác");
-                    }
-                } else {
-                    dto.setStatus("UNPAID");
-                    dto.setMethod(null);
-                }
-
-                // Map danh sách món ăn
-                List<CashierInvoiceDTO.ItemDTO> items = new ArrayList<>();
-                if (order.getItems() != null && !order.getItems().isEmpty()) {
-                    items = order.getItems().stream().map(item -> {
-                        CashierInvoiceDTO.ItemDTO itemDto = new CashierInvoiceDTO.ItemDTO();
-                        if (item.getProduct() != null) {
-                            itemDto.setName(item.getProduct().getName());
-                        } else {
-                            itemDto.setName("Món đã xóa");
-                        }
-                        itemDto.setPrice(item.getUnitPrice());
-                        itemDto.setQty(item.getQuantity());
-                        return itemDto;
-                    }).collect(Collectors.toList());
-                }
-                dto.setItems(items);
-
-                dtoList.add(dto);
-
-            } catch (Exception e) {
-                System.err.println("--- LOG ERROR: Lỗi xử lý đơn hàng ID " + order.getId() + ": " + e.getMessage());
-                e.printStackTrace();
+            if (order.getRestaurantTable() != null) {
+                dto.setTable(order.getRestaurantTable().getTableName());
+                dto.setTableId(order.getRestaurantTable().getId());
+            } else {
+                dto.setTable("Mang về");
+                dto.setTableId(null);
             }
+
+            dto.setTime(
+                    order.getCreatedAt() != null
+                            ? order.getCreatedAt().format(formatter)
+                            : "N/A"
+            );
+
+            dto.setTotal(
+                    order.getTotalAmount() != null
+                            ? order.getTotalAmount()
+                            : BigDecimal.ZERO
+            );
+
+            Optional<Invoice> invoiceOpt =
+                    invoiceRepository.findByOrder_Id(order.getId());
+
+            if (invoiceOpt.isPresent()) {
+                dto.setStatus("PAID");
+
+                Invoice inv = invoiceOpt.get();
+                if (inv.getPaymentMethod() != null) {
+                    String m = inv.getPaymentMethod().name();
+                    if (m.contains("CASH")) dto.setMethod("Tiền mặt");
+                    else if (m.contains("BANK")) dto.setMethod("Chuyển khoản");
+                    else dto.setMethod("Ví điện tử");
+                }
+            } else {
+                dto.setStatus("UNPAID");
+                dto.setMethod(null);
+            }
+
+            List<CashierInvoiceDTO.ItemDTO> items =
+                    order.getItems() != null
+                            ? order.getItems().stream().map(item -> {
+                        CashierInvoiceDTO.ItemDTO i =
+                                new CashierInvoiceDTO.ItemDTO();
+                        i.setName(
+                                item.getProduct() != null
+                                        ? item.getProduct().getName()
+                                        : "Món đã xóa"
+                        );
+                        i.setQty(item.getQuantity());
+                        i.setPrice(item.getUnitPrice());
+                        return i;
+                    }).collect(Collectors.toList())
+                            : new ArrayList<>();
+
+            dto.setItems(items);
+            result.add(dto);
         }
-        return dtoList;
+
+        return result;
     }
 
     /* ===================================================
-       PHẦN 3: XỬ LÝ THANH TOÁN
+       PHẦN 3: THANH TOÁN (ORDER / TABLE)
        =================================================== */
     @Transactional
-    public Invoice processPayment(PaymentRequest request) {
-        // 1. Tìm đơn hàng
-        Order order = orderRepository.findById(request.getOrderId())
-                .orElseThrow(() -> new RuntimeException("Order not found with ID: " + request.getOrderId()));
+    public void processPayment(PaymentRequest request) {
 
-        // 2. Kiểm tra nếu đã có hóa đơn
-        Optional<Invoice> existingInvoice = invoiceRepository.findByOrder_Id(order.getId());
-        if (existingInvoice.isPresent()) {
-            throw new RuntimeException("Order is already paid.");
+        if (request.getOrderId() != null) {
+            processSingleOrderPayment(request);
+            return;
         }
 
-        // 3. Tạo hóa đơn (Invoice)
+        if (request.getTableId() != null) {
+            processTablePayment(request);
+            return;
+        }
+
+        throw new RuntimeException("PaymentRequest không hợp lệ");
+    }
+
+    /* ---------- THANH TOÁN 1 ORDER ---------- */
+    private void processSingleOrderPayment(PaymentRequest request) {
+
+        Order order = orderRepository.findById(request.getOrderId())
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Không tìm thấy Order ID " + request.getOrderId()));
+
+        if (invoiceRepository.findByOrder_Id(order.getId()).isPresent()) {
+            throw new RuntimeException("Order đã được thanh toán");
+        }
+
         Invoice invoice = new Invoice();
         invoice.setOrder(order);
-
-        try {
-            invoice.setPaymentMethod(PaymentMethod.valueOf(request.getPaymentMethod()));
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Invalid payment method: " + request.getPaymentMethod());
-        }
-
+        invoice.setPaymentMethod(
+                PaymentMethod.valueOf(request.getPaymentMethod())
+        );
         invoice.setAmountPaid(request.getAmountPaid());
         invoice.setTransactionRef(request.getTransactionRef());
         invoice.setPaymentTime(LocalDateTime.now());
 
-        Invoice savedInvoice = invoiceRepository.save(invoice);
+        invoiceRepository.save(invoice);
 
-        // 4. Cập nhật trạng thái Order
         order.setStatus(OrderStatus.PAID.name());
         orderRepository.save(order);
 
-        // 5. Giải phóng bàn
+        releaseTableIfNeeded(order);
+    }
+
+    /* ---------- THANH TOÁN THEO BÀN ---------- */
+    private void processTablePayment(PaymentRequest request) {
+
+        Integer tableId = request.getTableId();
+        Integer restaurantId = 1; // giữ nguyên logic hiện tại
+
+        // Lấy toàn bộ order của nhà hàng
+        List<Order> allOrders =
+                orderRepository.findOrdersByRestaurantId(restaurantId);
+
+        // Lọc theo bàn + chưa PAID
+        List<Order> unpaidOrders = allOrders.stream()
+                .filter(o ->
+                        o.getRestaurantTable() != null &&
+                                o.getRestaurantTable().getId().equals(tableId) &&
+                                !OrderStatus.PAID.name().equals(o.getStatus())
+                )
+                .collect(Collectors.toList());
+
+        if (unpaidOrders.isEmpty()) {
+            throw new RuntimeException("Không có order chưa thanh toán trong bàn");
+        }
+
+        for (Order order : unpaidOrders) {
+
+            if (invoiceRepository.findByOrder_Id(order.getId()).isPresent()) {
+                continue;
+            }
+
+            Invoice invoice = new Invoice();
+            invoice.setOrder(order);
+            invoice.setPaymentMethod(
+                    PaymentMethod.valueOf(request.getPaymentMethod())
+            );
+            invoice.setAmountPaid(order.getTotalAmount());
+            invoice.setTransactionRef(request.getTransactionRef());
+            invoice.setPaymentTime(LocalDateTime.now());
+
+            invoiceRepository.save(invoice);
+
+            order.setStatus(OrderStatus.PAID.name());
+            orderRepository.save(order);
+        }
+
+        releaseTableById(tableId);
+    }
+
+    private void releaseTableIfNeeded(Order order) {
         if (order.getRestaurantTable() != null) {
             RestaurantTable table = order.getRestaurantTable();
             table.setStatus(RestaurantTable.TableStatus.AVAILABLE);
             tableRepository.save(table);
         }
+    }
 
-        return savedInvoice;
+    private void releaseTableById(Integer tableId) {
+        tableRepository.findById(tableId).ifPresent(table -> {
+            table.setStatus(RestaurantTable.TableStatus.AVAILABLE);
+            tableRepository.save(table);
+        });
     }
 
     /* ===================================================
-       PHẦN 4: LẤY CHI TIẾT ĐƠN HÀNG KÈM QR CONFIG
+       PHẦN 4: CHI TIẾT ORDER + QR
        =================================================== */
     @Transactional(readOnly = true)
     public CashierOrderDetailDTO getOrderDetails(Integer orderId) {
+
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng ID: " + orderId));
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Không tìm thấy Order ID " + orderId));
 
         CashierOrderDetailDTO dto = new CashierOrderDetailDTO();
         dto.setOrderId(order.getId());
 
-        // Tên bàn
-        if (order.getRestaurantTable() != null) {
-            dto.setTableName(order.getRestaurantTable().getTableName());
-        } else {
-            dto.setTableName("Mang về");
-        }
+        dto.setTableName(
+                order.getRestaurantTable() != null
+                        ? order.getRestaurantTable().getTableName()
+                        : "Mang về"
+        );
 
-        // Tổng tiền
-        dto.setTotalAmount(order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO);
+        dto.setTotalAmount(
+                order.getTotalAmount() != null
+                        ? order.getTotalAmount()
+                        : BigDecimal.ZERO
+        );
 
-        // Danh sách món
         List<CashierOrderDetailDTO.DetailItem> items = new ArrayList<>();
         if (order.getItems() != null) {
             for (OrderItem item : order.getItems()) {
-                CashierOrderDetailDTO.DetailItem itemDto = new CashierOrderDetailDTO.DetailItem();
-                if (item.getProduct() != null) {
-                    itemDto.setProductName(item.getProduct().getName());
-                } else {
-                    itemDto.setProductName("Món đã xóa");
-                }
-                itemDto.setQuantity(item.getQuantity());
-                itemDto.setUnitPrice(item.getUnitPrice());
-                items.add(itemDto);
+                CashierOrderDetailDTO.DetailItem i =
+                        new CashierOrderDetailDTO.DetailItem();
+                i.setProductName(
+                        item.getProduct() != null
+                                ? item.getProduct().getName()
+                                : "Món đã xóa"
+                );
+                i.setQuantity(item.getQuantity());
+                i.setUnitPrice(item.getUnitPrice());
+                items.add(i);
             }
         }
         dto.setItems(items);
 
-        // [MỚI] Xử lý Bank QR Config từ bảng Restaurant (JSON -> Object)
         try {
-            if (order.getRestaurant() != null && order.getRestaurant().getBankQrConfig() != null) {
-                String jsonConfig = order.getRestaurant().getBankQrConfig();
-                // Parse JSON String từ DB thành Object DTO
-                CashierOrderDetailDTO.BankQrConfigDTO bankConfig =
-                        objectMapper.readValue(jsonConfig, CashierOrderDetailDTO.BankQrConfigDTO.class);
-                dto.setBankConfig(bankConfig);
+            if (order.getRestaurant() != null &&
+                    order.getRestaurant().getBankQrConfig() != null) {
+
+                dto.setBankConfig(
+                        objectMapper.readValue(
+                                order.getRestaurant().getBankQrConfig(),
+                                CashierOrderDetailDTO.BankQrConfigDTO.class
+                        )
+                );
             }
         } catch (Exception e) {
-            // Chỉ log lỗi, không throw exception để tránh chết API nếu JSON sai
-            System.err.println("--- LOG WARNING: Lỗi parse bank_qr_config cho Order " + orderId + ": " + e.getMessage());
+            System.err.println(
+                    "Lỗi parse bank_qr_config order " + orderId + ": " + e.getMessage());
         }
 
         return dto;

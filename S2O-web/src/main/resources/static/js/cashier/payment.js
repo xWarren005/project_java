@@ -1,283 +1,259 @@
-/* ==========================================================================
-   CONSTANTS & CONFIG
-   ========================================================================== */
+/* ================= CONFIG ================= */
 const API_ENDPOINTS = {
-    // API lấy chi tiết đơn hàng
-    GET_ORDER_DETAIL: (id) => `/api/cashier/orders/${id}`,
-    // API xử lý thanh toán
+    GET_ORDER_DETAIL: id => `/api/cashier/orders/${id}`,
     PROCESS_PAYMENT: '/api/cashier/payment/process'
 };
 
-/* ==========================================================================
-   STATE MANAGEMENT
-   ========================================================================== */
+/* ================= STATE ================= */
 const state = {
     orderId: null,
+    tableId: null,
     totalAmount: 0,
-    currentPaymentMethod: 'CASH', // Enum: CASH, BANK_TRANSFER, E_WALLET
+    currentPaymentMethod: 'CASH',
     cashGiven: 0,
-
-    // [THÊM] Biến lưu cấu hình ngân hàng lấy từ API
     bankConfig: null
 };
 
-/* ==========================================================================
-   INIT
-   ========================================================================== */
-document.addEventListener('DOMContentLoaded', () => {
+/* ================= INIT ================= */
+document.addEventListener('DOMContentLoaded', async () => {
 
-    if(typeof renderTopHeader === 'function') renderTopHeader();
-    if(typeof renderCashierMenu === 'function') renderCashierMenu('payment');
+    if (typeof renderTopHeader === 'function') renderTopHeader();
+    if (typeof renderCashierMenu === 'function') renderCashierMenu('payment');
 
-    // 1. Lấy orderId từ URL (Ví dụ: /cashier/payment?orderId=1001)
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderIdParam = urlParams.get('orderId');
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('orderId');
+    const tableId = params.get('tableId');
 
-    if (orderIdParam) {
-        state.orderId = parseInt(orderIdParam);
-        loadOrderDetails(state.orderId);
-    } else {
-        alert("Không tìm thấy mã đơn hàng!");
+    try {
+        if (tableId) {
+            state.tableId = parseInt(tableId);
+            await loadOrdersByTable(state.tableId);
+        } else if (orderId) {
+            state.orderId = parseInt(orderId);
+            await loadOrderDetails(state.orderId);
+        } else {
+            alert("Không tìm thấy thông tin thanh toán");
+            return;
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Lỗi tải dữ liệu thanh toán");
     }
 
-    // 2. Format tiền tệ ban đầu
-    updateMoneyDisplay();
+    updateCashDisplayOnly();
 });
 
-/* ==========================================================================
-   LOGIC: LOAD DATA & RENDER
-   ========================================================================== */
+/* ================= LOAD DATA ================= */
 async function loadOrderDetails(id) {
-    try {
-        const response = await fetch(API_ENDPOINTS.GET_ORDER_DETAIL(id));
+    const res = await fetch(API_ENDPOINTS.GET_ORDER_DETAIL(id));
+    if (!res.ok) throw new Error("Load order failed");
 
-        if (!response.ok) {
-            throw new Error(`Lỗi kết nối Server: ${response.status}`);
-        }
+    const data = await res.json();
 
-        const data = await response.json();
+    state.totalAmount = data.totalAmount;
+    state.bankConfig = data.bankConfig || null;
 
-        // [MỚI] Lưu cấu hình ngân hàng từ Backend vào State
-        if (data.bankConfig) {
-            state.bankConfig = data.bankConfig;
-        } else {
-            console.warn("Không tìm thấy cấu hình QR Ngân hàng trong đơn hàng này.");
-        }
+    renderHeader(data.tableName || 'Mang về');
+    renderItems(data.items);
+    updateSummary();
 
-        // Render tên bàn
-        document.getElementById('display-table-id').innerText = data.tableName || 'Mang về';
-
-        // Render danh sách món
-        const itemsList = document.getElementById('bill-items-list');
-        itemsList.innerHTML = '';
-
-        if (data.items && data.items.length > 0) {
-            data.items.forEach(item => {
-                const li = document.createElement('li');
-                li.className = 'bill-item';
-                li.innerHTML = `
-                    <div class="item-info">
-                        <span class="item-name">${item.productName}</span>
-                        <span class="item-qty">x${item.quantity}</span>
-                    </div>
-                    <span class="item-price">${formatCurrency(item.unitPrice * item.quantity)}</span>
-                `;
-                itemsList.appendChild(li);
-            });
-        }
-
-        // Cập nhật State Amount
-        state.totalAmount = data.totalAmount;
-
-        // Cập nhật UI tổng tiền
-        document.getElementById('bill-subtotal').innerText = formatCurrency(state.totalAmount);
-        document.getElementById('bill-final-total').innerText = formatCurrency(state.totalAmount);
-        document.getElementById('btn-pay-amount').innerText = formatCurrency(state.totalAmount);
-
-        // Cập nhật QR Code (Hàm này sẽ tự check xem có bankConfig chưa)
-        updateQrCode(state.totalAmount, `TT Don hang ${state.orderId}`);
-
-    } catch (error) {
-        console.error("Lỗi tải đơn hàng:", error);
-        alert("Không thể tải thông tin đơn hàng. Vui lòng kiểm tra lại ID hoặc Server.");
-    }
+    updateQrCode(state.totalAmount, `TT Don ${id}`);
 }
 
-/* ==========================================================================
-   LOGIC: UI INTERACTION
-   ========================================================================== */
+async function loadOrdersByTable(tableId) {
+    const res = await fetch('/api/cashier/invoices');
+    if (!res.ok) throw new Error("Load invoices failed");
 
-function switchMethod(method) {
-    // 1. Reset active buttons
-    document.querySelectorAll('.m-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`btn-${method}`).classList.add('active');
+    const invoices = await res.json();
+    const orders = invoices.filter(
+        o => o.status === 'UNPAID' && o.tableId === tableId
+    );
 
-    // 2. Ẩn hiện nội dung
-    document.querySelectorAll('.payment-content').forEach(content => {
-        content.style.display = 'none';
-        content.classList.remove('active');
-    });
-
-    const contentId = `content-${method}`;
-    const activeContent = document.getElementById(contentId);
-    if(activeContent) {
-        activeContent.style.display = 'block';
-        setTimeout(() => activeContent.classList.add('active'), 10);
+    if (!orders.length) {
+        alert("Bàn này không có hóa đơn chưa thanh toán");
+        return;
     }
 
-    // 3. Cập nhật State
-    switch (method) {
-        case 'cash':
-            state.currentPaymentMethod = 'CASH';
-            break;
-        case 'card':
-            state.currentPaymentMethod = 'E_WALLET';
-            break;
-        case 'qr':
-            state.currentPaymentMethod = 'BANK_TRANSFER';
-            // Khi chuyển sang Tab QR, kiểm tra xem có config chưa để cảnh báo
-            if (!state.bankConfig) {
-                console.warn("Chưa có thông tin tài khoản ngân hàng để tạo QR.");
-                document.querySelector('.qr-note').innerHTML = '<span style="color:red"><i class="fa-solid fa-triangle-exclamation"></i> Nhà hàng chưa cấu hình tài khoản ngân hàng.</span>';
+    /* ===== FIX QUAN TRỌNG: LẤY BANK CONFIG ===== */
+    const firstOrderId = orders[0].orderId;
+    if (firstOrderId) {
+        try {
+            const orderRes = await fetch(API_ENDPOINTS.GET_ORDER_DETAIL(firstOrderId));
+            if (orderRes.ok) {
+                const orderData = await orderRes.json();
+                state.bankConfig = orderData.bankConfig || null;
             }
-            break;
+        } catch (e) {
+            console.warn("Không lấy được bankConfig", e);
+        }
+    }
+    /* ========================================== */
+
+    state.totalAmount = orders.reduce((sum, o) => sum + o.total, 0);
+
+    renderHeader(`Bàn ${orders[0].table}`);
+    renderItems(
+        orders.flatMap(o =>
+            o.items.map(i => ({
+                productName: i.name,
+                quantity: i.qty,
+                unitPrice: i.price
+            }))
+        )
+    );
+
+    updateSummary();
+    updateQrCode(state.totalAmount, `TT Ban ${tableId}`);
+}
+
+/* ================= UI ================= */
+function renderHeader(name) {
+    const el = document.getElementById('display-table-id');
+    if (el) el.innerText = name;
+}
+
+function renderItems(items) {
+    const list = document.getElementById('bill-items-list');
+    if (!list) return;
+
+    list.innerHTML = '';
+    items.forEach(i => {
+        list.innerHTML += `
+        <li class="bill-item">
+            <div class="item-info">
+                <span class="item-name">${i.productName}</span>
+                <span class="item-qty">x${i.quantity}</span>
+            </div>
+            <span class="item-price">${formatCurrency(i.unitPrice * i.quantity)}</span>
+        </li>`;
+    });
+}
+
+function updateSummary() {
+    document.getElementById('bill-subtotal').innerText = formatCurrency(state.totalAmount);
+    document.getElementById('bill-final-total').innerText = formatCurrency(state.totalAmount);
+    document.getElementById('btn-pay-amount').innerText = formatCurrency(state.totalAmount);
+}
+
+/* ================= PAYMENT UI ================= */
+function switchMethod(method) {
+    document.querySelectorAll('.m-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`btn-${method}`)?.classList.add('active');
+
+    document.querySelectorAll('.payment-content').forEach(c => c.style.display = 'none');
+    const content = document.getElementById(`content-${method}`);
+    if (content) content.style.display = 'block';
+
+    state.currentPaymentMethod =
+        method === 'cash' ? 'CASH' :
+            method === 'qr' ? 'BANK_TRANSFER' : 'E_WALLET';
+
+    if (method === 'qr') {
+        updateQrCode(state.totalAmount, `TT ${state.tableId || state.orderId}`);
     }
 }
 
-function formatCurrency(amount) {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-}
-
-/* ==========================================================================
-   LOGIC: PAYMENT METHODS
-   ========================================================================== */
-
-/* --- 1. TIỀN MẶT (CASH) --- */
+/* ================= CASH ================= */
 function addCash(amount) {
     state.cashGiven += amount;
-    updateCashUI();
+    updateCashDisplayOnly();
 }
 
 function resetCash() {
     state.cashGiven = 0;
-    updateCashUI();
-}
-
-function calculateChange() {
-    const inputVal = document.getElementById('cash-given').value;
-    state.cashGiven = inputVal ? parseFloat(inputVal) : 0;
     updateCashDisplayOnly();
 }
 
-function updateCashUI() {
-    document.getElementById('cash-given').value = state.cashGiven > 0 ? state.cashGiven : '';
+function calculateChange() {
+    const v = document.getElementById('cash-given')?.value;
+    state.cashGiven = v ? parseFloat(v) : 0;
     updateCashDisplayOnly();
 }
 
 function updateCashDisplayOnly() {
-    const mustPay = state.totalAmount;
-    const change = state.cashGiven - mustPay;
+    const change = state.cashGiven - state.totalAmount;
+    const el = document.getElementById('cash-return');
+    if (!el) return;
 
-    document.getElementById('cash-must-pay').innerText = formatCurrency(mustPay);
-
-    const changeEl = document.getElementById('cash-return');
     if (change >= 0) {
-        changeEl.innerText = formatCurrency(change);
-        changeEl.style.color = 'var(--success-color)';
+        el.innerText = formatCurrency(change);
+        el.style.color = 'green';
     } else {
-        changeEl.innerText = "Thiếu " + formatCurrency(Math.abs(change));
-        changeEl.style.color = 'var(--danger-color)';
+        el.innerText = `Thiếu ${formatCurrency(-change)}`;
+        el.style.color = 'red';
     }
 }
 
-/* --- 2. QR CODE (BANK TRANSFER) --- */
-function updateQrCode(amount, description) {
-    const qrImg = document.querySelector('.qr-container img');
-    const qrDisplay = document.getElementById('qr-display-amount');
+/* ================= QR ================= */
+function updateQrCode(amount, desc) {
 
-    // Hiển thị số tiền
-    if(qrDisplay) {
-        qrDisplay.innerText = formatCurrency(amount);
+    const amountText = document.getElementById('qr-display-amount');
+    if (amountText) {
+        amountText.innerText = formatCurrency(amount);
     }
 
-    // [QUAN TRỌNG] Kiểm tra xem đã có thông tin ngân hàng từ API chưa
-    if (!state.bankConfig || !state.bankConfig.bankId || !state.bankConfig.accountNo) {
-        // Nếu chưa có config, hiển thị ảnh lỗi hoặc giữ nguyên placeholder
-        if(qrImg) qrImg.alt = "Chưa có thông tin ngân hàng";
+    if (!state.bankConfig) {
+        console.warn("Chưa có cấu hình ngân hàng");
         return;
     }
 
-    // Lấy thông tin từ state
     const { bankId, accountNo, template, accountName } = state.bankConfig;
+    const img = document.querySelector('.qr-container img');
+    if (!img) return;
 
-    // Sử dụng template mặc định nếu thiếu
-    const templateUsed = template || "compact2";
-
-    // Tạo URL VietQR động
-    const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${templateUsed}.png?amount=${amount}&addInfo=${encodeURIComponent(description)}&accountName=${encodeURIComponent(accountName)}`;
-
-    if (qrImg) {
-        qrImg.src = qrUrl;
-    }
+    img.src =
+        `https://img.vietqr.io/image/${bankId}-${accountNo}-${template || 'compact2'}.png` +
+        `?amount=${amount}` +
+        `&addInfo=${encodeURIComponent(desc)}` +
+        `&accountName=${encodeURIComponent(accountName)}`;
 }
 
-/* ==========================================================================
-   LOGIC: SUBMIT PAYMENT
-   ========================================================================== */
+/* ================= SUBMIT ================= */
 async function processPayment() {
-    if (state.currentPaymentMethod === 'CASH') {
-        if (state.cashGiven < state.totalAmount) {
-            alert("Tiền khách đưa chưa đủ!");
-            return;
-        }
+
+    if (state.currentPaymentMethod === 'CASH' &&
+        state.cashGiven < state.totalAmount) {
+        alert("Tiền khách đưa chưa đủ");
+        return;
     }
 
-    const confirmMsg = `Xác nhận thanh toán ${formatCurrency(state.totalAmount)} bằng ${getMethodName(state.currentPaymentMethod)}?`;
-    if (!confirm(confirmMsg)) return;
+    if (!confirm(`Xác nhận thanh toán ${formatCurrency(state.totalAmount)}?`)) return;
 
     const payload = {
-        orderId: state.orderId,
         paymentMethod: state.currentPaymentMethod,
-        amountPaid: state.totalAmount,
         transactionRef: generateTransactionRef(state.currentPaymentMethod)
     };
 
-    try {
-        const response = await fetch(API_ENDPOINTS.PROCESS_PAYMENT, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+    if (state.tableId) {
+        payload.tableId = state.tableId;
+    } else {
+        payload.orderId = state.orderId;
+        payload.amountPaid = state.totalAmount;
+    }
 
-        const result = await response.json();
+    const res = await fetch(API_ENDPOINTS.PROCESS_PAYMENT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
 
-        if (response.ok) {
-            alert("Thanh toán thành công!");
-            window.location.href = '/cashier/tables';
-        } else {
-            alert("Lỗi: " + (result.message || "Thanh toán thất bại"));
-        }
-    } catch (error) {
-        console.error("Payment Error:", error);
-        alert("Lỗi kết nối đến máy chủ.");
+    if (res.ok) {
+        alert("Thanh toán thành công");
+        window.location.href = '/cashier/tables';
+    } else {
+        const e = await res.json();
+        alert(e.message || "Thanh toán thất bại");
     }
 }
 
-function getMethodName(code) {
-    if (code === 'CASH') return "Tiền mặt";
-    if (code === 'BANK_TRANSFER') return "Chuyển khoản QR";
-    return "Thẻ/Ví điện tử";
+/* ================= HELPERS ================= */
+function formatCurrency(v) {
+    return new Intl.NumberFormat('vi-VN',
+        { style: 'currency', currency: 'VND' }).format(v);
 }
 
-function generateTransactionRef(method) {
-    const timestamp = Date.now().toString().slice(-6);
-    if (method === 'CASH') return `CASH-${timestamp}`;
-    if (method === 'BANK_TRANSFER') return `QR-${timestamp}`;
-    return `CARD-${timestamp}`;
-}
-
-function updateMoneyDisplay() {
-    updateCashDisplayOnly();
+function generateTransactionRef(m) {
+    const t = Date.now().toString().slice(-6);
+    return m === 'CASH' ? `CASH-${t}` :
+        m === 'BANK_TRANSFER' ? `QR-${t}` : `CARD-${t}`;
 }
