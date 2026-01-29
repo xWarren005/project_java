@@ -4,6 +4,7 @@ public class RecommendResponse {
     private Long productId;
     private String productName;
     private Double price;
+    private Double discount;
 
     public RecommendResponse() {}
 
@@ -29,5 +30,13 @@ public class RecommendResponse {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Double getDiscount(){
+        return discount;
+    }
+
+    public void setDiscount(Double discount){
+        this.discount = discount;
     }
 }
